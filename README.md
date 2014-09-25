@@ -1,4 +1,5 @@
 # spliceclust
 ---
 
-Current analysis results for chromosome 9 from 177 lung squamous (LUSC) samples are available at: [](demo/chr9analysis.md).
+* [Analysis of chr9 data from 177 LUSC samples](demo/chr9analysis.md)
+* ... additional analyses
