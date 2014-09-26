@@ -458,14 +458,15 @@ matplot(log10(1+p16_ej[p16_ej$kind == "e", -c(1:6, 184)]), type="l", lty=1)
 
 ![plot of chunk unnamed-chunk-33](figure/unnamed-chunk-33.png) 
 
-PCA decomposition
+PCA decomposition (exon and splicing separately)
 
 
 ```r
 pc <- prcomp(log10(1+t(p16_ej[p16_ej$kind == "e", -c(1:6, 184)])))
+pc_j <- prcomp(log10(1+t(p16_ej[p16_ej$kind == "j", -c(1:6, 184)])))
 ```
 
-scores
+exon PCA decomposition (scores)
 
 
 ```r
@@ -474,7 +475,7 @@ plot(pc$x[, 1:2], pch=16, col=brew_set1[2])
 
 ![plot of chunk unnamed-chunk-35](figure/unnamed-chunk-35.png) 
 
-loadings
+exon PCA decomposition (loadings)
 
 
 ```r
@@ -502,6 +503,16 @@ plot(pc$x[, 1:2], pch=16, col=brew_set1[groups])
 
 ![plot of chunk unnamed-chunk-38](figure/unnamed-chunk-38.png) 
 
+splice junction PCA decomposition (scores)
+
+
+```r
+plot(pc_j$x[, 1:2], pch=16, col=brew_set1[2],
+     main="PCA scores for splicing junctions")
+```
+
+![plot of chunk unnamed-chunk-39](figure/unnamed-chunk-39.png) 
+
 looking at clusters along genomic coordinates
 
 
@@ -520,7 +531,7 @@ ggplot(p16_exp,
     theme_bw()
 ```
 
-![plot of chunk unnamed-chunk-39](figure/unnamed-chunk-39.png) 
+![plot of chunk unnamed-chunk-40](figure/unnamed-chunk-40.png) 
 
 looking at clusters with all exons having equal width,
 onlying looking at first 11 exons
@@ -542,7 +553,7 @@ ggplot(subset(p16_te, eid <= 11),
     ylab("log10 expr")
 ```
 
-![plot of chunk unnamed-chunk-40](figure/unnamed-chunk-40.png) 
+![plot of chunk unnamed-chunk-41](figure/unnamed-chunk-41.png) 
 
 ------------------------------------------------------------------------
 ### Process p16 locus for graph-based analysis
@@ -626,7 +637,7 @@ plot(g2, layout=cbind(1:22, 0),
      vertex.size=4.5, vertex.size2=2)
 ```
 
-![plot of chunk unnamed-chunk-44](figure/unnamed-chunk-44.png) 
+![plot of chunk unnamed-chunk-45](figure/unnamed-chunk-45.png) 
 
 ------------------------------------------------------------------------
 ### Analyze 3-dimensional tensor of adjacency matrices
@@ -656,7 +667,7 @@ p16_labs_sf <- read.table("p16_labs_sf.txt", header=TRUE)$clusters
 
 ```r
 tucker_pca <- PCAn(log10(1+adj_array), dim=c(3, 3, 3))
-## -----Execution Time----- 0.06
+## -----Execution Time----- 0.05
 tucker_scores <- as.data.frame(t(tucker_pca[[1]]$v[1:2, ]))
 tucker_scores$labs <- 0 + (tucker_scores$V1 > 0.05)*(1+(tucker_scores$V2 > 0))
 ```
@@ -671,7 +682,7 @@ qplot(data=tucker_scores,
         guides(color=FALSE)
 ```
 
-![plot of chunk unnamed-chunk-48](figure/unnamed-chunk-48.png) 
+![plot of chunk unnamed-chunk-49](figure/unnamed-chunk-49.png) 
 
 ```r
 
@@ -689,7 +700,7 @@ table(tucker_scores$labs, p16_labs_sf)
 
 ```r
 parafac_pca <- CANDPARA(log10(1+adj_array), dim=3)
-## -----Execution Time----- 0.205
+## -----Execution Time----- 0.22
 parafac_scores <- as.data.frame(t(parafac_pca[[1]]$v[1:2, ] * parafac_pca[[3]]$d[1:2]))
 parafac_scores$labs <- 0 + (parafac_scores$V1 > 3)*(1+(parafac_scores$V2 > 0))
 ```
@@ -704,7 +715,7 @@ qplot(data=parafac_scores,
     guides(color=FALSE)
 ```
 
-![plot of chunk unnamed-chunk-50](figure/unnamed-chunk-50.png) 
+![plot of chunk unnamed-chunk-51](figure/unnamed-chunk-51.png) 
 
 ```r
 
@@ -726,7 +737,7 @@ for (i in 1:177) {
     diag(adj_array_diag[i, , ]) <- diag(adj_array[i, , ])
 }
 parafac_pca_diag <- CANDPARA(log10(1+adj_array_diag), dim=3)
-## -----Execution Time----- 0.201
+## -----Execution Time----- 0.209
 parafac_scores_diag <- as.data.frame(t(parafac_pca_diag[[1]]$v[1:2, ] *
                                            parafac_pca_diag[[3]]$d[1:2]))
 parafac_scores_diag$labs <- 0 + (parafac_scores_diag$V1 > 1.5)*(1+(parafac_scores_diag$V2 > 0))
@@ -742,7 +753,7 @@ qplot(data=parafac_scores_diag,
     guides(color=FALSE)
 ```
 
-![plot of chunk unnamed-chunk-52](figure/unnamed-chunk-52.png) 
+![plot of chunk unnamed-chunk-53](figure/unnamed-chunk-53.png) 
 
 ```r
 
@@ -764,7 +775,7 @@ for (i in 1:177) {
     diag(adj_array_offdiag[i, , ]) <- 0
 }
 parafac_pca_offdiag <- CANDPARA(log10(1+adj_array_offdiag), dim=3)
-## -----Execution Time----- 0.217
+## -----Execution Time----- 0.199
 parafac_scores_offdiag <- as.data.frame(t(parafac_pca_offdiag[[1]]$v[1:2, ] *
                                            parafac_pca_offdiag[[3]]$d[1:2]))
 parafac_scores_offdiag$labs <- 0 + (parafac_scores_offdiag$V1 > 1.5)*(1+(parafac_scores_offdiag$V2 > 0))
@@ -780,7 +791,7 @@ qplot(data=parafac_scores_offdiag,
     guides(color=FALSE)
 ```
 
-![plot of chunk unnamed-chunk-54](figure/unnamed-chunk-54.png) 
+![plot of chunk unnamed-chunk-55](figure/unnamed-chunk-55.png) 
 
 ```r
 
@@ -794,13 +805,24 @@ table(parafac_scores_offdiag$labs, p16_labs_sf)
 ```
 
 ------------------------------------------------------------------------
+### Running Time
+
+
+
+```r
+system.time() - start_time
+## Error: argument "expr" is missing, with no default
+## Timing stopped at: 0 0 0
+```
+
+------------------------------------------------------------------------
 ### Last Updated
 
 
 
 ```r
 Sys.time()
-## [1] "2014-09-26 11:40:02 EDT"
+## [1] "2014-09-26 11:59:24 EDT"
 ```
 
 ------------------------------------------------------------------------

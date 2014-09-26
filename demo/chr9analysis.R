@@ -10,7 +10,7 @@
 
 #+ echo=FALSE
 knitr::opts_chunk$set(collapse=TRUE, comment="##")
-
+start_time <- proc.time()
     
 #' ------------------------------------------------------------------------
 #' ## Preliminary
@@ -454,13 +454,14 @@ tracks(gg_logexp,
 matplot(log10(1+p16_ej[p16_ej$kind == "e", -c(1:6, 184)]), type="l", lty=1)
 
 
-#' PCA decomposition
+#' PCA decomposition (exon and splicing separately)
 pc <- prcomp(log10(1+t(p16_ej[p16_ej$kind == "e", -c(1:6, 184)])))
+pc_j <- prcomp(log10(1+t(p16_ej[p16_ej$kind == "j", -c(1:6, 184)])))
 
-#' scores
+#' exon PCA decomposition (scores)
 plot(pc$x[, 1:2], pch=16, col=brew_set1[2])
 
-#' loadings
+#' exon PCA decomposition (loadings)
 #+ fig.height=3, fig.weight=10
 qplot(data=reshape2::melt(pc$rotation[, 1:2]), x=rep(1:22, 2), y=value, color=Var2,
       geom="line") +
@@ -472,6 +473,11 @@ groups <- as.numeric(pc$x[, 1]>-1)*(1+as.numeric(pc$x[, 2]>0)) + 1
 
 #' scores by clusters
 plot(pc$x[, 1:2], pch=16, col=brew_set1[groups])
+
+
+#' splice junction PCA decomposition (scores)
+plot(pc_j$x[, 1:2], pch=16, col=brew_set1[2],
+     main="PCA scores for splicing junctions")
 
 
 #' looking at clusters along genomic coordinates
@@ -583,7 +589,7 @@ tucker_scores <- as.data.frame(t(tucker_pca[[1]]$v[1:2, ]))
 tucker_scores$labs <- 0 + (tucker_scores$V1 > 0.05)*(1+(tucker_scores$V2 > 0))
 
 #' Tucker decomposition (scores)
-#+ fig.height=8, fig.weight=8
+#+ fig.height=8, fig.width=8
 qplot(data=tucker_scores,
       x=V1, y=V2, color=factor(labs)) +
     theme_bw() +
@@ -599,7 +605,7 @@ parafac_scores <- as.data.frame(t(parafac_pca[[1]]$v[1:2, ] * parafac_pca[[3]]$d
 parafac_scores$labs <- 0 + (parafac_scores$V1 > 3)*(1+(parafac_scores$V2 > 0))
 
 #' PARAFAC decomposition (scores)
-#+ fig.height=8, fig.weight=8
+#+ fig.height=8, fig.width=8
 qplot(data=parafac_scores,
       x=V1, y=V2, color=factor(labs)) +
     theme_bw() +
@@ -620,7 +626,7 @@ parafac_scores_diag <- as.data.frame(t(parafac_pca_diag[[1]]$v[1:2, ] *
 parafac_scores_diag$labs <- 0 + (parafac_scores_diag$V1 > 1.5)*(1+(parafac_scores_diag$V2 > 0))
 
 #' PARAFAC decomposition with only exons (scores)
-#+ fig.height=8, fig.weight=8
+#+ fig.height=8, fig.width=8
 qplot(data=parafac_scores_diag,
       x=V1, y=V2, color=factor(labs)) +
     theme_bw() +
@@ -641,7 +647,7 @@ parafac_scores_offdiag <- as.data.frame(t(parafac_pca_offdiag[[1]]$v[1:2, ] *
 parafac_scores_offdiag$labs <- 0 + (parafac_scores_offdiag$V1 > 1.5)*(1+(parafac_scores_offdiag$V2 > 0))
 
 #' PARAFAC decomposition with only splices (scores)
-#+ fig.height=8, fig.weight=8
+#+ fig.height=8, fig.width=8
 qplot(data=parafac_scores_offdiag,
       x=V1, y=V2, color=factor(labs)) +
     theme_bw() +
@@ -652,6 +658,12 @@ table(parafac_scores_offdiag$labs, p16_labs_sf)
 
 
 
+
+#' ------------------------------------------------------------------------
+#' ### Running Time
+#'
+
+system.time() - start_time
 
 
 
