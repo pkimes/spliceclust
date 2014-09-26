@@ -27,6 +27,10 @@ library("annotate")
 library("BSgenome.Hsapiens.UCSC.hg19")
 library("TxDb.Hsapiens.UCSC.hg19.knownGene")
 library("org.Hs.eg.db")
+library("PTAk")
+library("igraph")
+library("mvnmle")
+
 
 #' set nicer colors
 brew_set1 <- brewer.pal(9, "Set1")
@@ -308,7 +312,7 @@ ggplot(e_median) +
 #'
 
 #' ucsc browser for chr9:21,965,000-21,995,000
-#' ![ucsc](/Users/pkimes/Dropbox/Git/spliceclust/demo/images/ucsc_p16.png)  
+#' ![ucsc](images/ucsc_p16.png)  
 #'
 
 #' look in region around cdkn2a (p16/p14)  (on rev strand)
@@ -503,48 +507,153 @@ ggplot(subset(p16_te, eid <= 11),
     ylab("log10 expr")
 
 
-#' recompute PCA only looking at first 11 coordinates
 
+#' ------------------------------------------------------------------------
+#' ### Process p16 locus for graph-based analysis
+#'
+
+p16_v <- p16_ej[p16_ej$kind == "e", c("start", "stop")]
+p16_e <- p16_ej[p16_ej$kind == "j", c("start", "stop")]
+
+## determine explicit edgeset
+p16_e$a <- sapply(p16_e$start, function(x) which(p16_v$stop == x))
+p16_e$b <- sapply(p16_e$stop, function(x) which(p16_v$start == x))
+p16_el1 <- as.matrix(p16_e[c("a", "b")])
+
+## determine 'edges' that exist between consecutive exons
+conseq <- which((p16_v$start[-1] - p16_v$stop[-22]) == 1)
+p16_el2 <- cbind("a"=conseq, "b"=conseq+1)
 
 
 
 #' ------------------------------------------------------------------------
-#' ### Analysis of components
+#' ### Plot splicing graph for Sample 2
 #'
-#' perform 3-way tensor factorization of stacked adjacency matrices
-#'  -- does this work?
-library("PTAk")
-library("igraph")
 
-p16_vw1 <- p16_ej[p16_ej$kind == "e", "s1"]
-p16_ew1 <- p16_ej[p16_ej$kind == "j", "s1"]
+p16_vw2 <- p16_ej[p16_ej$kind == "e", "s2"]
+p16_ew2 <- p16_ej[p16_ej$kind == "j", "s2"]
 
-p16_v <- p16_ej[p16_ej$kind == "e", c("start", "stop")]
-p16_v$vi <- 1:sum(p16_ej$kind == "e")
+p16_adj2 <- matrix(0, nrow(p16_v), nrow(p16_v))
+diag(p16_adj2) <- p16_vw2
+p16_adj2[p16_el1] <- p16_ew2
+p16_adj2[p16_el2] <- apply(matrix(diag(p16_adj2)[p16_el2], ncol=2), 1, min)
 
-p16_e <- p16_ej[p16_ej$kind == "j", c("start", "stop")]
-p16_e$a <- sapply(p16_e$start, function(x) which(p16_v$stop == x))
-p16_e$b <- sapply(p16_e$stop, function(x) which(p16_v$start == x))
+g2 <- graph.adjacency(p16_adj2, weighted=TRUE, diag=FALSE)
 
-
-##add edges between exons right next to each other
-conseq <- which((p16_v$start[-1] - p16_v$stop[-22]) == 1)
-el <- p16_e[c("a", "b")]
-el <- rbind(el, cbind("a"=conseq, "b"=conseq+1))
-
-g <- igraph::graph.edgelist(as.matrix(el))
-
-plot(g, vertex.size=3, edge.arrow.size=.3,
-     edge.curved=1,
-     layout=layout.grid(g, width=22))
+edge_h <- 1/apply(get.edgelist(g2), 1, diff)
+edge_h[edge_h == 1] <- 1e-10
 
 
-##turn the nodes into rectangles with difference size based on length, and concatenate
-## the nodes that are right next to each other? maybe a spring weight or something?
-3
+#' example of an adjacency matrix
+get.adjacency(graph.adjacency(p16_adj2))
 
 
-##
+#' nicer first draft of a splicing graph
+#+ fig.width=12, fig.height=8
+plot(g2, layout=cbind(1:22, 0),
+     edge.curved=7*edge_h,
+     edge.arrow.size=.3,
+     edge.width=log2(E(g2)$weight+1),
+     vertex.shape="rectangle", vertex.label=NA,
+     vertex.size=4.5, vertex.size2=2)
+
+
+
+#' ------------------------------------------------------------------------
+#' ### Analyze 3-dimensional tensor of adjacency matrices
+#'
+
+#' #### construct adjacency tensor
+adj_array <- array(0, dim=c(177, nrow(p16_v), nrow(p16_v)))
+for (i in 1:177) {
+    diag(adj_array[i, , ]) <- p16_ej[p16_ej$kind == "e", paste0("s", i)]
+    adj_array[cbind(i, p16_el1)] <- p16_ej[p16_ej$kind == "j", paste0("s", i)]
+    adj_array[cbind(i, p16_el2)] <-
+        apply(matrix(diag(adj_array[i, , ])[p16_el2], ncol=2), 1, min)
+}
+
+
+#' Load SigFuge labels from previous data as a sanity check
+p16_labs_sf <- read.table("p16_labs_sf.txt", header=TRUE)$clusters
+
+
+#' #### Tucker PCA decomposition
+tucker_pca <- PCAn(log10(1+adj_array), dim=c(3, 3, 3))
+tucker_scores <- as.data.frame(t(tucker_pca[[1]]$v[1:2, ]))
+tucker_scores$labs <- 0 + (tucker_scores$V1 > 0.05)*(1+(tucker_scores$V2 > 0))
+
+#' Tucker decomposition (scores)
+#+ fig.height=8, fig.weight=8
+qplot(data=tucker_scores,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+        guides(color=FALSE)
+
+##compare with SigFuge labels
+table(tucker_scores$labs, p16_labs_sf)
+
+
+#' #### PARAFAC decomposition
+parafac_pca <- CANDPARA(log10(1+adj_array), dim=3)
+parafac_scores <- as.data.frame(t(parafac_pca[[1]]$v[1:2, ] * parafac_pca[[3]]$d[1:2]))
+parafac_scores$labs <- 0 + (parafac_scores$V1 > 3)*(1+(parafac_scores$V2 > 0))
+
+#' PARAFAC decomposition (scores)
+#+ fig.height=8, fig.weight=8
+qplot(data=parafac_scores,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+    guides(color=FALSE)
+
+##compare with SigFuge labels
+table(parafac_scores$labs, p16_labs_sf)
+
+
+#' #### PARAFAC decomposition without splices
+adj_array_diag <- array(0, dim=c(177, nrow(p16_v), nrow(p16_v)))
+for (i in 1:177) {
+    diag(adj_array_diag[i, , ]) <- diag(adj_array[i, , ])
+}
+parafac_pca_diag <- CANDPARA(log10(1+adj_array_diag), dim=3)
+parafac_scores_diag <- as.data.frame(t(parafac_pca_diag[[1]]$v[1:2, ] *
+                                           parafac_pca_diag[[3]]$d[1:2]))
+parafac_scores_diag$labs <- 0 + (parafac_scores_diag$V1 > 1.5)*(1+(parafac_scores_diag$V2 > 0))
+
+#' PARAFAC decomposition with only exons (scores)
+#+ fig.height=8, fig.weight=8
+qplot(data=parafac_scores_diag,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+    guides(color=FALSE)
+
+##compare with SigFuge labels
+table(parafac_scores_diag$labs, p16_labs_sf)
+
+
+#' #### PARAFAC decomposition without exon expr
+adj_array_offdiag <- adj_array
+for (i in 1:177) {
+    diag(adj_array_offdiag[i, , ]) <- 0
+}
+parafac_pca_offdiag <- CANDPARA(log10(1+adj_array_offdiag), dim=3)
+parafac_scores_offdiag <- as.data.frame(t(parafac_pca_offdiag[[1]]$v[1:2, ] *
+                                           parafac_pca_offdiag[[3]]$d[1:2]))
+parafac_scores_offdiag$labs <- 0 + (parafac_scores_offdiag$V1 > 1.5)*(1+(parafac_scores_offdiag$V2 > 0))
+
+#' PARAFAC decomposition with only splices (scores)
+#+ fig.height=8, fig.weight=8
+qplot(data=parafac_scores_offdiag,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+    guides(color=FALSE)
+
+##compare with SigFuge labels
+table(parafac_scores_offdiag$labs, p16_labs_sf)
+
+
+
+
+
 
 #' ------------------------------------------------------------------------
 #' ### Last Updated

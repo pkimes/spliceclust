@@ -26,6 +26,9 @@ library("annotate")
 library("BSgenome.Hsapiens.UCSC.hg19")
 library("TxDb.Hsapiens.UCSC.hg19.knownGene")
 library("org.Hs.eg.db")
+library("PTAk")
+library("igraph")
+library("mvnmle")
 ```
 
 set nicer colors
@@ -52,6 +55,10 @@ load chromesome 9 data for 177 lusc samples
 ```r
 ## complete datasest
 chr9 <- readchr(paste0(root, "data/lusc/chr9_gene.txt"), 177)
+## Warning: cannot open file
+## '/Users/pkimes/Dropbox/Git/spliceclust/data/lusc/chr9_gene.txt': No such
+## file or directory
+## Error: cannot open the connection
 ## exon only dataset
 chr9_e <- subset(chr9, kind == "e")
 ```
@@ -275,7 +282,7 @@ grouped by the number of exons each gene
 ## p16/p14 region
 
 ucsc browser for chr9:21,965,000-21,995,000
-![ucsc](/Users/pkimes/Dropbox/Git/spliceclust/demo/images/ucsc_p16.png)  
+![ucsc](images/ucsc_p16.png)  
 
 look in region around cdkn2a (p16/p14)  (on rev strand)
 
@@ -537,50 +544,253 @@ ggplot(subset(p16_te, eid <= 11),
 
 ![plot of chunk unnamed-chunk-40](figure/unnamed-chunk-40.png) 
 
-recompute PCA only looking at first 11 coordinates
 ------------------------------------------------------------------------
-### Analysis of components
+### Process p16 locus for graph-based analysis
 
-perform 3-way tensor factorization of stacked adjacency matrices
- -- does this work?
 
 
 ```r
-library("PTAk")
-library("igraph")
-
-p16_vw1 <- p16_ej[p16_ej$kind == "e", "s1"]
-p16_ew1 <- p16_ej[p16_ej$kind == "j", "s1"]
-
 p16_v <- p16_ej[p16_ej$kind == "e", c("start", "stop")]
-p16_v$vi <- 1:sum(p16_ej$kind == "e")
-
 p16_e <- p16_ej[p16_ej$kind == "j", c("start", "stop")]
+
+## determine explicit edgeset
 p16_e$a <- sapply(p16_e$start, function(x) which(p16_v$stop == x))
 p16_e$b <- sapply(p16_e$stop, function(x) which(p16_v$start == x))
+p16_el1 <- as.matrix(p16_e[c("a", "b")])
 
-
-##add edges between exons right next to each other
+## determine 'edges' that exist between consecutive exons
 conseq <- which((p16_v$start[-1] - p16_v$stop[-22]) == 1)
-el <- p16_e[c("a", "b")]
-el <- rbind(el, cbind("a"=conseq, "b"=conseq+1))
-
-g <- igraph::graph.edgelist(as.matrix(el))
-
-plot(g, vertex.size=3, edge.arrow.size=.3,
-     edge.curved=1,
-     layout=layout.grid(g, width=22))
+p16_el2 <- cbind("a"=conseq, "b"=conseq+1)
 ```
 
-![plot of chunk unnamed-chunk-41](figure/unnamed-chunk-41.png) 
+------------------------------------------------------------------------
+### Plot splicing graph for Sample 2
+
+
+
+```r
+p16_vw2 <- p16_ej[p16_ej$kind == "e", "s2"]
+p16_ew2 <- p16_ej[p16_ej$kind == "j", "s2"]
+
+p16_adj2 <- matrix(0, nrow(p16_v), nrow(p16_v))
+diag(p16_adj2) <- p16_vw2
+p16_adj2[p16_el1] <- p16_ew2
+p16_adj2[p16_el2] <- apply(matrix(diag(p16_adj2)[p16_el2], ncol=2), 1, min)
+
+g2 <- graph.adjacency(p16_adj2, weighted=TRUE, diag=FALSE)
+
+edge_h <- 1/apply(get.edgelist(g2), 1, diff)
+edge_h[edge_h == 1] <- 1e-10
+```
+
+example of an adjacency matrix
+
+
+```r
+get.adjacency(graph.adjacency(p16_adj2))
+## 22 x 22 sparse Matrix of class "dgCMatrix"
+##                                                                
+##  [1,] 75  . 170  . . .  .  . . .  .  .   . . . . .  .  .  . . .
+##  [2,]  . 30   .  . . .  .  . . .  .  .   . . . . .  .  .  . . .
+##  [3,]  .  . 118 24 . .  .  . . .  .  .   . . . . .  .  .  . . .
+##  [4,]  .  .   . 24 6 .  . 12 . .  3  .   . . . . .  .  .  . . .
+##  [5,]  .  .   .  . 7 .  .  . . .  .  .   . . . . .  .  .  . . .
+##  [6,]  .  .   .  . . 5  5  . . .  .  .   . . . . .  .  .  . . .
+##  [7,]  .  .   .  . . . 12  2 . .  4  .   . . . . .  .  .  . . .
+##  [8,]  .  .   .  . . .  . 16 . .  .  .   . . . . .  .  .  . . .
+##  [9,]  .  .   .  . . .  .  . . .  .  .   . . . . .  .  .  . . .
+## [10,]  .  .   .  . . .  .  . . 1  1  .   . . . . .  .  .  . . .
+## [11,]  .  .   .  . . .  .  . . . 17  .   . 7 . . .  .  .  . . .
+## [12,]  .  .   .  . . .  .  . . .  . 61  37 . . . .  .  .  . . .
+## [13,]  .  .   .  . . .  .  . . .  .  . 109 . . . .  .  .  . . .
+## [14,]  .  .   .  . . .  .  . . .  .  .   . 6 . . .  .  .  . . .
+## [15,]  .  .   .  . . .  .  . . .  .  .   . . 4 . .  .  .  . . .
+## [16,]  .  .   .  . . .  .  . . .  .  .   . . . 1 .  .  .  . . .
+## [17,]  .  .   .  . . .  .  . . .  .  .   . . . . 4  .  .  . . .
+## [18,]  .  .   .  . . .  .  . . .  .  .   . . . . . 12 16  . . .
+## [19,]  .  .   .  . . .  .  . . .  .  .   . . . . .  . 19  9 . .
+## [20,]  .  .   .  . . .  .  . . .  .  .   . . . . .  .  . 17 8 5
+## [21,]  .  .   .  . . .  .  . . .  .  .   . . . . .  .  .  . 8 .
+## [22,]  .  .   .  . . .  .  . . .  .  .   . . . . .  .  .  . . 3
+```
+
+nicer first draft of a splicing graph
+
+
+```r
+plot(g2, layout=cbind(1:22, 0),
+     edge.curved=7*edge_h,
+     edge.arrow.size=.3,
+     edge.width=log2(E(g2)$weight+1),
+     vertex.shape="rectangle", vertex.label=NA,
+     vertex.size=4.5, vertex.size2=2)
+```
+
+![plot of chunk unnamed-chunk-44](figure/unnamed-chunk-44.png) 
+
+------------------------------------------------------------------------
+### Analyze 3-dimensional tensor of adjacency matrices
+
+#### construct adjacency tensor
+
+
+```r
+adj_array <- array(0, dim=c(177, nrow(p16_v), nrow(p16_v)))
+for (i in 1:177) {
+    diag(adj_array[i, , ]) <- p16_ej[p16_ej$kind == "e", paste0("s", i)]
+    adj_array[cbind(i, p16_el1)] <- p16_ej[p16_ej$kind == "j", paste0("s", i)]
+    adj_array[cbind(i, p16_el2)] <-
+        apply(matrix(diag(adj_array[i, , ])[p16_el2], ncol=2), 1, min)
+}
+```
+
+Load SigFuge labels from previous data as a sanity check
+
+
+```r
+p16_labs_sf <- read.table("p16_labs_sf.txt", header=TRUE)$clusters
+```
+
+#### Tucker PCA decomposition
+
+
+```r
+tucker_pca <- PCAn(log10(1+adj_array), dim=c(3, 3, 3))
+## -----Execution Time----- 0.06
+tucker_scores <- as.data.frame(t(tucker_pca[[1]]$v[1:2, ]))
+tucker_scores$labs <- 0 + (tucker_scores$V1 > 0.05)*(1+(tucker_scores$V2 > 0))
+```
+
+Tucker decomposition (scores)
+
+
+```r
+qplot(data=tucker_scores,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+        guides(color=FALSE)
+```
+
+![plot of chunk unnamed-chunk-48](figure/unnamed-chunk-48.png) 
 
 ```r
 
-3
-## [1] 3
+##compare with SigFuge labels
+table(tucker_scores$labs, p16_labs_sf)
+##    p16_labs_sf
+##      1  2  3
+##   0 48  4 11
+##   1  0 56  3
+##   2  0  5 50
+```
+
+#### PARAFAC decomposition
 
 
-##
+```r
+parafac_pca <- CANDPARA(log10(1+adj_array), dim=3)
+## -----Execution Time----- 0.205
+parafac_scores <- as.data.frame(t(parafac_pca[[1]]$v[1:2, ] * parafac_pca[[3]]$d[1:2]))
+parafac_scores$labs <- 0 + (parafac_scores$V1 > 3)*(1+(parafac_scores$V2 > 0))
+```
+
+PARAFAC decomposition (scores)
+
+
+```r
+qplot(data=parafac_scores,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+    guides(color=FALSE)
+```
+
+![plot of chunk unnamed-chunk-50](figure/unnamed-chunk-50.png) 
+
+```r
+
+##compare with SigFuge labels
+table(parafac_scores$labs, p16_labs_sf)
+##    p16_labs_sf
+##      1  2  3
+##   0 48  5 13
+##   1  0 56  2
+##   2  0  4 49
+```
+
+#### PARAFAC decomposition without splices
+
+
+```r
+adj_array_diag <- array(0, dim=c(177, nrow(p16_v), nrow(p16_v)))
+for (i in 1:177) {
+    diag(adj_array_diag[i, , ]) <- diag(adj_array[i, , ])
+}
+parafac_pca_diag <- CANDPARA(log10(1+adj_array_diag), dim=3)
+## -----Execution Time----- 0.201
+parafac_scores_diag <- as.data.frame(t(parafac_pca_diag[[1]]$v[1:2, ] *
+                                           parafac_pca_diag[[3]]$d[1:2]))
+parafac_scores_diag$labs <- 0 + (parafac_scores_diag$V1 > 1.5)*(1+(parafac_scores_diag$V2 > 0))
+```
+
+PARAFAC decomposition with only exons (scores)
+
+
+```r
+qplot(data=parafac_scores_diag,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+    guides(color=FALSE)
+```
+
+![plot of chunk unnamed-chunk-52](figure/unnamed-chunk-52.png) 
+
+```r
+
+##compare with SigFuge labels
+table(parafac_scores_diag$labs, p16_labs_sf)
+##    p16_labs_sf
+##      1  2  3
+##   0 48  3  9
+##   1  0  7 52
+##   2  0 55  3
+```
+
+#### PARAFAC decomposition without exon expr
+
+
+```r
+adj_array_offdiag <- adj_array
+for (i in 1:177) {
+    diag(adj_array_offdiag[i, , ]) <- 0
+}
+parafac_pca_offdiag <- CANDPARA(log10(1+adj_array_offdiag), dim=3)
+## -----Execution Time----- 0.217
+parafac_scores_offdiag <- as.data.frame(t(parafac_pca_offdiag[[1]]$v[1:2, ] *
+                                           parafac_pca_offdiag[[3]]$d[1:2]))
+parafac_scores_offdiag$labs <- 0 + (parafac_scores_offdiag$V1 > 1.5)*(1+(parafac_scores_offdiag$V2 > 0))
+```
+
+PARAFAC decomposition with only splices (scores)
+
+
+```r
+qplot(data=parafac_scores_offdiag,
+      x=V1, y=V2, color=factor(labs)) +
+    theme_bw() +
+    guides(color=FALSE)
+```
+
+![plot of chunk unnamed-chunk-54](figure/unnamed-chunk-54.png) 
+
+```r
+
+##compare with SigFuge labels
+table(parafac_scores_offdiag$labs, p16_labs_sf)
+##    p16_labs_sf
+##      1  2  3
+##   0 48  5 13
+##   1  0  4 48
+##   2  0 56  3
 ```
 
 ------------------------------------------------------------------------
@@ -590,7 +800,7 @@ plot(g, vertex.size=3, edge.arrow.size=.3,
 
 ```r
 Sys.time()
-## [1] "2014-09-24 23:55:56 EDT"
+## [1] "2014-09-26 11:40:02 EDT"
 ```
 
 ------------------------------------------------------------------------
@@ -611,33 +821,34 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] igraph_0.7.1                            
-##  [2] PTAk_1.2-9                              
-##  [3] tensor_1.5                              
-##  [4] org.Hs.eg.db_2.14.0                     
-##  [5] RSQLite_0.11.4                          
-##  [6] DBI_0.3.0                               
-##  [7] TxDb.Hsapiens.UCSC.hg19.knownGene_2.14.0
-##  [8] BSgenome.Hsapiens.UCSC.hg19_1.3.1000    
-##  [9] annotate_1.42.1                         
-## [10] SplicingGraphs_1.4.1                    
-## [11] Rgraphviz_2.8.1                         
-## [12] graph_1.42.0                            
-## [13] GenomicAlignments_1.0.6                 
-## [14] BSgenome_1.32.0                         
-## [15] Rsamtools_1.16.1                        
-## [16] Biostrings_2.32.1                       
-## [17] XVector_0.4.0                           
-## [18] GenomicFeatures_1.16.2                  
-## [19] AnnotationDbi_1.26.0                    
-## [20] Biobase_2.24.0                          
-## [21] GenomicRanges_1.16.4                    
-## [22] GenomeInfoDb_1.0.2                      
-## [23] IRanges_1.22.10                         
-## [24] RColorBrewer_1.0-5                      
-## [25] ggbio_1.12.10                           
-## [26] BiocGenerics_0.10.0                     
-## [27] ggplot2_1.0.0                           
+##  [1] mvnmle_0.1-11                           
+##  [2] igraph_0.7.1                            
+##  [3] PTAk_1.2-9                              
+##  [4] tensor_1.5                              
+##  [5] org.Hs.eg.db_2.14.0                     
+##  [6] RSQLite_0.11.4                          
+##  [7] DBI_0.3.0                               
+##  [8] TxDb.Hsapiens.UCSC.hg19.knownGene_2.14.0
+##  [9] BSgenome.Hsapiens.UCSC.hg19_1.3.1000    
+## [10] annotate_1.42.1                         
+## [11] SplicingGraphs_1.4.1                    
+## [12] Rgraphviz_2.8.1                         
+## [13] graph_1.42.0                            
+## [14] GenomicAlignments_1.0.6                 
+## [15] BSgenome_1.32.0                         
+## [16] Rsamtools_1.16.1                        
+## [17] Biostrings_2.32.1                       
+## [18] XVector_0.4.0                           
+## [19] GenomicFeatures_1.16.2                  
+## [20] AnnotationDbi_1.26.0                    
+## [21] Biobase_2.24.0                          
+## [22] GenomicRanges_1.16.4                    
+## [23] GenomeInfoDb_1.0.2                      
+## [24] IRanges_1.22.10                         
+## [25] RColorBrewer_1.0-5                      
+## [26] ggbio_1.12.10                           
+## [27] BiocGenerics_0.10.0                     
+## [28] ggplot2_1.0.0                           
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3          BatchJobs_1.3           
@@ -656,17 +867,18 @@ sessionInfo()
 ## [27] iterators_1.0.7          knitr_1.6               
 ## [29] labeling_0.3             lattice_0.20-29         
 ## [31] latticeExtra_0.6-26      markdown_0.7.4          
-## [33] MASS_7.3-34              matrixStats_0.10.0      
-## [35] mime_0.1.2               munsell_0.4.2           
-## [37] nnet_7.3-8               plyr_1.8.1              
-## [39] proto_0.3-10             R.methodsS3_1.6.1       
-## [41] Rcpp_0.11.2              RCurl_1.95-4.3          
-## [43] reshape2_1.4             rpart_4.1-8             
-## [45] rtracklayer_1.24.2       scales_0.2.4            
-## [47] sendmailR_1.2-1          splines_3.1.1           
-## [49] stats4_3.1.1             stringr_0.6.2           
-## [51] survival_2.37-7          tools_3.1.1             
-## [53] VariantAnnotation_1.10.5 XML_3.98-1.1            
-## [55] xtable_1.7-4             zlibbioc_1.10.0
+## [33] MASS_7.3-34              Matrix_1.1-4            
+## [35] matrixStats_0.10.0       mime_0.1.2              
+## [37] munsell_0.4.2            nnet_7.3-8              
+## [39] plyr_1.8.1               proto_0.3-10            
+## [41] R.methodsS3_1.6.1        Rcpp_0.11.2             
+## [43] RCurl_1.95-4.3           reshape2_1.4            
+## [45] rpart_4.1-8              rtracklayer_1.24.2      
+## [47] scales_0.2.4             sendmailR_1.2-1         
+## [49] splines_3.1.1            stats4_3.1.1            
+## [51] stringr_0.6.2            survival_2.37-7         
+## [53] tools_3.1.1              VariantAnnotation_1.10.5
+## [55] XML_3.98-1.1             xtable_1.7-4            
+## [57] zlibbioc_1.10.0
 ```
 
