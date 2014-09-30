@@ -1,5 +1,5 @@
 #' ---
-#' title: "Chr9 Analysis"
+#' title: "Chr6 Analysis"
 #' output:
 #'    html_document:
 #'        toc: true
@@ -11,10 +11,11 @@
 #+ echo=FALSE
 knitr::opts_chunk$set(collapse=TRUE, comment="##")
 start_time <- proc.time()
-    
+
 #' ------------------------------------------------------------------------
 #' ## Preliminary
 #' 
+
 
 #' load necessary packages
 #+ hide=TRUE
@@ -31,7 +32,6 @@ library("PTAk")
 library("igraph")
 library("mvnmle")
 
-
 ## set nicer colors
 brew_set1 <- brewer.pal(9, "Set1")
 brew_pastel2 <- brewer.pal(8, "Pastel2")
@@ -39,25 +39,25 @@ brew_accent <- brewer.pal(8, "Accent")
 brew_greys <- brewer.pal(9, "Greys")
 
 
-#' specify project directory and source functions
+## specify project directory and source functions
 root <-"/Users/pkimes/Dropbox/Git/spliceclust/"
 source(paste0(root, "R/readchr.R"))
 
 
-#' load chromesome 9 data for 177 lusc samples
+#' load chromesome 7 data for 177 lusc samples
 ## complete datasest
-chr9 <- readchr(paste0(root, "data/lusc/chr9_gene.txt"), 177)
+chr6 <- readchr(paste0(root, "data/lusc/chr6_gene.txt"), 177)
 ## exon only dataset
-chr9_e <- subset(chr9, kind == "e")
+chr6_e <- subset(chr6, kind == "e")
 
 
 
 #' ------------------------------------------------------------------------
-#' ## general chr9
+#' ## general chr6
 #'
 
 #' count up number of exons
-exon_cnts <- table(chr9_e$gIdx)
+exon_cnts <- table(chr6_e$gIdx)
 summary(as.numeric(exon_cnts))
 
 
@@ -80,15 +80,15 @@ qplot(x=Freq, data=data.frame(exon_cnts), binwidth=I(1),
 
 #' subset on only single gene models
 e1_gIdx <- names(which(exon_cnts == 1))
-e1set <- subset(chr9_e, gIdx %in% e1_gIdx)
-e1set$chr <- "chr9"
+e1set <- subset(chr6_e, gIdx %in% e1_gIdx)
+e1set$chr <- "chr6"
 
 
 #' convert to `GRanges` object to use with `ggbio`
 e1set_gr <- makeGRangesFromDataFrame(e1set,
                                      seqnames.field="chr",
                                      keep.extra.columns=TRUE)
-seqlengths(e1set_gr) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr9"]
+seqlengths(e1set_gr) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr6"]
 
 
 #' plot location of single exon genes on chromosome
@@ -98,18 +98,18 @@ data(ideoCyto, package = "biovizBase")
 biovizBase::isIdeogram(ideoCyto$hg19)
 
 ##construct ideogram plot for comparison
-gg_chr9 <- autoplot(subset(ideoCyto$hg19, seqnames(ideoCyto$hg19) == "chr9"),
+gg_chr6 <- autoplot(subset(ideoCyto$hg19, seqnames(ideoCyto$hg19) == "chr6"),
                     layout="karyogram", cytoband=TRUE) +
                         guides(fill=FALSE)
-fixed(gg_chr9) <- TRUE
+fixed(gg_chr6) <- TRUE
 
 ##construct karyogram with chr19 with 
 gg_e1 <- autoplot(e1set_gr, layout="karyogram", alpha=1/100)
 fixed(gg_e1) <- TRUE
 
 ##combine plots
-tracks("chr" = gg_chr9, "e1 genes" = gg_e1,
-       heights=c(.5, .5), xlab="chr9 positions") +
+tracks("chr" = gg_chr6, "e1 genes" = gg_e1,
+       heights=c(.5, .5), xlab="chr6 positions") +
     theme_tracks_sunset()
 
 
@@ -146,10 +146,10 @@ qplot(x=width, data=e1_widths,
     ggtitle("distribution of exon lengths for components with single exon")
 
 
-#' load transcript annotations and only look at chr9
+#' load transcript annotations and only look at chr6
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
-isActiveSeq(txdb)["chr9"] <- TRUE
+isActiveSeq(txdb)["chr6"] <- TRUE
 
 ##want to work at exon level aggregated by genes or transcripts
 exbygene <- exonsBy(txdb, "gene")
@@ -211,10 +211,10 @@ ggplot(data=ovlp_table_tx) +
 gg_ucsc <- autoplot(exbygene)
 fixed(gg_ucsc) <- TRUE
 
-tracks("chr" = gg_chr9,
+tracks("chr" = gg_chr6,
        "e1 genes" = gg_e1,
        "UCSC KG" = gg_ucsc,
-       heights=c(1/3, 1/3, 1/3), xlab="chr9 positions") +
+       heights=c(1/3, 1/3, 1/3), xlab="chr6 positions") +
     theme_tracks_sunset()
 
 
@@ -228,15 +228,15 @@ table(top1_tx$TXNAME)
 top1_txname <- names(which.max(table(top1_tx$TXNAME)))
 top1_hits <- subset(hits_tx, ucsc_ovlp_tx$TXNAME == top1_txname)
 
-gg_chr9zoom <- autoplot(exbytx[queryHits(top1_hits)])
-fixed(gg_chr9zoom) <- FALSE
+gg_chr6zoom <- autoplot(exbytx[queryHits(top1_hits)])
+fixed(gg_chr6zoom) <- FALSE
 
 gg_e1zoom <- autoplot(e1set_gr[subjectHits(top1_hits)], alpha=1/5)
 fixed(gg_e1zoom) <- FALSE
 
-tracks("UCSC KG" = gg_chr9zoom,
+tracks("UCSC KG" = gg_chr6zoom,
        "e1 genes" = gg_e1zoom,
-       heights=c(1/3, 1/3), xlab="chr9 positions") +
+       heights=c(1/3, 1/3), xlab="chr6 positions") +
     theme_tracks_sunset()
 
 
@@ -251,12 +251,12 @@ head(table(exon_cnts))
 
 #' We can also look at the number of exons and junctions in each connected
 #' component. Note, ideally, no 2 e/j objects should exist.
-ej_cnts <- table(chr9$gIdx)
+ej_cnts <- table(chr6$gIdx)
 head(table(ej_cnts))
 
 #' looking at some genes which have 2 "exons" but no splicing
 names(ej_cnts[ej_cnts == 2])[1:10]
-chr9[chr9$gIdx == names(ej_cnts[ej_cnts == 2])[1], 1:6]
+chr6[chr6$gIdx == names(ej_cnts[ej_cnts == 2])[1], 1:6]
 
 
 
@@ -265,25 +265,25 @@ chr9[chr9$gIdx == names(ej_cnts[ej_cnts == 2])[1], 1:6]
 #'
         
 #' also construct subset with more than a single exon
-e2pset <- subset(chr9_e, !(gIdx %in% e1_gIdx))
-e2pset$chr <- "chr9"
+e2pset <- subset(chr6_e, !(gIdx %in% e1_gIdx))
+e2pset$chr <- "chr6"
 
 #' as with single exon genes, we construct a `GRangesList` object to use with `ggbio`
 e2pset_gr <- makeGRangesFromDataFrame(e2pset,
                                       seqnames.field="chr",
                                       keep.extra.columns=TRUE)
-seqlengths(e2pset_gr) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr9"]
+seqlengths(e2pset_gr) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr6"]
 
 
 #' compute distribution of average expression over each exon and plot distributions
 #' grouped by the number of exons each gene
 #+ hide=TRUE, echo=FALSE, fig.height=5, fig.width=12
-e_mean <- rowMeans(chr9_e[paste0("s", 1:177)])
+e_mean <- rowMeans(chr6_e[paste0("s", 1:177)])
 e_mean <- data.frame(exp=e_mean,
-                     n_exon=exon_cnts[chr9_e$gIdx]) 
-e_median <- apply(chr9_e[paste0("s", 1:177)], 1, median)
+                     n_exon=exon_cnts[chr6_e$gIdx]) 
+e_median <- apply(chr6_e[paste0("s", 1:177)], 1, median)
 e_median <- data.frame(exp=e_median,
-                       n_exon=exon_cnts[chr9_e$gIdx]) 
+                       n_exon=exon_cnts[chr6_e$gIdx]) 
 
 ggplot(e_mean) + 
     geom_boxplot(aes(x=n_exon, y=exp, group=n_exon),
@@ -293,7 +293,7 @@ ggplot(e_mean) +
                        breaks=c(0, 10^(0:5))) +
     xlab("# exons") +
     ylab("log10 mean expr across 177 samples") +
-    ggtitle("dist of exon level expr for chr9 components, grouped by number of exons")
+    ggtitle("dist of exon level expr for chr6 components, grouped by number of exons")
 
 ggplot(e_median) + 
     geom_boxplot(aes(x=n_exon, y=exp, group=n_exon),
@@ -303,83 +303,104 @@ ggplot(e_median) +
                        breaks=c(0, 10^(0:5))) +
     xlab("# exons") +
     ylab("log10 median expr across 177 samples") +
-    ggtitle("dist of expr for chr9 components, grouped by number of exons")
+    ggtitle("dist of expr for chr6 components, grouped by number of exons")
 
 
 
 #' ------------------------------------------------------------------------
-#' ## p16/p14 region
+#' ## HLA-DRB1 region
 #'
 
-#' ucsc browser for chr9:21,965,000-21,995,000
-#' ![ucsc](images/ucsc_p16.png)  
+#' ucsc browser for chr6:32,103,867-33,000,293
+#' ![ucsc](images/ucsc_hla-drb1.png)  
 #'
 
-#' look in region around cdkn2a (p16/p14)  (on rev strand)
+#' look in region around HLA-DRB1 (on rev strand)
 #'
-p16_eid <- select(org.Hs.eg.db, keys="CDKN2A",
+hladrb1_eid <- select(org.Hs.eg.db, keys="HLA-DRB1",
                   columns="ENTREZID", keytype="SYMBOL")
-p16_txid <- select(txdb, keys=p16_eid$ENTREZID,
+hladrb1_txid <- select(txdb, keys=hladrb1_eid$ENTREZID,
                    columns=c("TXID", "TXNAME"), keytype="GENEID")
-p16_tx <- exbytx[as.character(p16_txid$TXID)]
-p16_uniontx <- reduce(unlist(p16_tx))
-bounds <- c(start(range(p16_uniontx)), end(range(p16_uniontx)))
 
-cands1 <- (chr9_e$start > min(bounds)-10000) |
-          (chr9_e$stop < max(bounds)+10000)
-cand_g <- chr9_e$gIdx[cands1]
+hladrb1_tx <- exbytx[as.character(hladrb1_txid$TXID)]
+hladrb1_uniontx <- reduce(unlist(hladrb1_tx))
+bounds <- c(start(range(hladrb1_uniontx)), end(range(hladrb1_uniontx)))
 
-p16_set <- subset(chr9_e, gIdx %in% unique(cand_g))
-p16_set$chr <- "chr9"
+cands1 <- (chr6_e$start > 32400000) &
+          (chr6_e$stop < 32700000)
+cand_g <- chr6_e$gIdx[cands1]
+
+hladrb1_set <- subset(chr6_e, gIdx %in% unique(cand_g))
+hladrb1_set$chr <- "chr6"
 
 #' convert to `GRanges` object to use with `ggbio`
-p16_gr <- makeGRangesFromDataFrame(p16_set,
+hladrb1_gr <- makeGRangesFromDataFrame(hladrb1_set,
                                    seqnames.field="chr",
                                    keep.extra.columns=TRUE)
-seqlengths(p16_gr) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr9"]
+seqlengths(hladrb1_gr) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr6"]
 
 #' convert to `GRangesList` object to separate out groups of genes
-p16_gl <- split(p16_gr, mcols(p16_gr)$gIdx)
+hladrb1_gl <- split(hladrb1_gr, mcols(hladrb1_gr)$gIdx)
 
 
 #' plot
 #+ fig.height=2, fig.width=10
-gg_p16models <- autoplot(p16_tx)
-fixed(gg_p16models) <- FALSE
+gg_hladrb1models <- autoplot(hladrb1_tx)
+fixed(gg_hladrb1models) <- FALSE
 
-gg_p16_cc <- autoplot(p16_gl)
-fixed(gg_p16_cc) <- FALSE
+gg_hladrb1_cc <- autoplot(hladrb1_gl)
+fixed(gg_hladrb1_cc) <- FALSE
 
-tracks("UCSC" = gg_p16models,
-       "concomp" = gg_p16_cc,
-       heights=c(1/3, 1/3), xlab="chr9 positions") +
+tracks("UCSC" = gg_hladrb1models,
+       "concomp" = gg_hladrb1_cc,
+       heights=c(1/3, 1/3), xlab="chr6 positions") +
+    theme_tracks_sunset()
+
+
+#' go back and look at the longest one
+#+ fig.height=4, fig.width=10
+gg_hladrb1top <- autoplot(hladrb1_gl["gene4233"])
+
+hladrbX_eid <- select(org.Hs.eg.db,
+                      keys=c("HLA-DRB1", "HLA-DRB5", "HLA-DRB6"),
+                  columns="ENTREZID", keytype="SYMBOL")
+hladrbX_txid <- select(txdb, keys=hladrbX_eid$ENTREZID,
+                   columns=c("TXID", "TXNAME"), keytype="GENEID")
+hladrbX_tx <- exbytx[as.character(hladrbX_txid$TXID)]
+
+gg_hladrbXmodels <- autoplot(hladrbX_tx)
+fixed(gg_hladrbXmodels) <- FALSE
+tracks("hla-drb1" = gg_hladrb1models,
+       "hla-drb1/5/6" = gg_hladrbXmodels,
+       "concomp" = gg_hladrb1top,
+       heights=c(3/8, 3/8, 1/4), xlab="chr6 positions") +
     theme_tracks_sunset()
 
 
 
 #' ------------------------------------------------------------------------
-#' ### Plotting expression and splicing at CDKN2A locus
+#' ### Plotting expression and splicing at HLA-DRB1 locus
 #' 
 
-#' From above, most likely connected component was `gene1791`
-p16_ej <- subset(chr9, gIdx == "gene1791")
-p16_ej$chr <- "chr9"
+#' From above, most likely connected component was `gene4233`
+hladrb1_ej <- subset(chr6, gIdx == "gene4233")
+hladrb1_ej$chr <- "chr6"
 
-p16_gr1 <- makeGRangesFromDataFrame(p16_ej,
+hladrb1_gr1 <- makeGRangesFromDataFrame(hladrb1_ej,
                                     seqnames.field="chr",
                                     keep.extra.columns=TRUE)
-seqlengths(p16_gr1) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr9"]
-strand(p16_gr1) <- "-"
+seqlengths(hladrb1_gr1) <- seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chr6"]
+strand(hladrb1_gr1) <- "-"
 
-p16_gl1 <- split(p16_gr1, mcols(p16_gr1)$kind)
+hladrb1_gl1 <- split(hladrb1_gr1, mcols(hladrb1_gr1)$kind)
 
 
 #' one approach to plotting expression with equal widths given to each
 #' 'exon'.
 #+ fig.height=6, fig.width=10
 
-p16_gl1j <- p16_gl1$j
-aa <- as.data.frame(findOverlaps(p16_gl1j, p16_gl1j, type="within"))
+hladrb1_gl1j <- hladrb1_gl1$j
+aa <- as.data.frame(findOverlaps(hladrb1_gl1j, hladrb1_gl1j, type="within"))
 
 aa2 <- aggregate(aa$queryHits, list(aa$subjectHits), c)
 aa2$len <- sapply(aa2$x, length)
@@ -391,26 +412,26 @@ for (i in sort(unique(aa2$len)))
 
 aa2$h2 <- aa2$h * (-1)^(1+aa2$h/.3)
 
-mcols(p16_gl1j)$offset <- aa2$h
-mcols(p16_gl1j)$offset2 <- 0.3*aa2$len
-mcols(p16_gl1j)$offset3 <- aa2$h2
+mcols(hladrb1_gl1j)$offset <- aa2$h
+mcols(hladrb1_gl1j)$offset2 <- 0.3*aa2$len
+mcols(hladrb1_gl1j)$offset3 <- aa2$h2
 
 bb <-
-    ggplot(p16_gl1$e) +
+    ggplot(hladrb1_gl1$e) +
     geom_rect(fill="grey", color="grey30", size=.3) +
-    geom_chevron(p16_gl1j, color="grey30", offset="offset3",
+    geom_chevron(hladrb1_gl1j, color="grey30", offset="offset3",
                  stat="identity", size=.5, alpha=1/2, aes(y=I(1.4))) +
     theme_alignment() +
     scale_x_continuous(breaks=1e4*
-                           seq(floor(start(range(p16_gl1$e))/1e4),
-                               ceiling(end(range(p16_gl1$e))/1e4)))
+                           seq(floor(start(range(hladrb1_gl1$e))/1e4),
+                               ceiling(end(range(hladrb1_gl1$e))/1e4)))
 
-p16_te <- as.data.frame(mcols(p16_gl1$e)[paste0("s", 1:177)])
-p16_te$eid <- 1:nrow(p16_te)
-p16_te <- reshape2::melt(p16_te, id.var="eid")
-p16_te$value <- log10(1+p16_te$value)
+hladrb1_te <- as.data.frame(mcols(hladrb1_gl1$e)[paste0("s", 1:177)])
+hladrb1_te$eid <- 1:nrow(hladrb1_te)
+hladrb1_te <- reshape2::melt(hladrb1_te, id.var="eid")
+hladrb1_te$value <- log10(1+hladrb1_te$value)
 
-ggplot(p16_te, aes(xmin=eid-.4, xmax=eid+.4,
+ggplot(hladrb1_te, aes(xmin=eid-.4, xmax=eid+.4,
                    ymin=value, ymax=value+.05, group=variable)) +
     geom_rect(color="grey60", fill="grey30", alpha=1/5) + guides(color=FALSE) +
     geom_line(aes(x=eid, y=value), alpha=1/5) +
@@ -419,44 +440,45 @@ ggplot(p16_te, aes(xmin=eid-.4, xmax=eid+.4,
 
 #' adding annotations
 #+ fig.height=6, fig.width=10
-plotRangesLinkedToData(p16_gl1$e, stat.y=paste0("s", 1:177),
+plotRangesLinkedToData(hladrb1_gl1$e, stat.y=paste0("s", 1:177),
                        linetype=0, annotation=bb)
 
 
 #' Alternative approach to plotting with no re-scaling.
 #' Using genomic coordinates.
 #+ fig.height=5, fig.width=10
-p16_exp <- reshape2::melt(subset(p16_ej, kind=="e"),
+hladrb1_exp <- reshape2::melt(subset(hladrb1_ej, kind=="e"),
                           id.vars=c("gIdx", "gStart", "gStop", "kind",
                               "start", "stop", "chr"))
-p16_exp$log1p <- log10(p16_exp$value+1)
+hladrb1_exp$log1p <- log10(hladrb1_exp$value+1)
 
 gg_logexp <-
-    ggplot(p16_exp,
+    ggplot(hladrb1_exp,
            aes(xmin=start, xmax=stop,
                ymin=log1p, ymax=log1p+.05)) +
     geom_rect(fill="white", color="grey30", alpha=1/5) +
     geom_line(aes(x=(start+stop)/2, y=log1p, group=variable), alpha=1/10) +
     theme_bw()
 
+
 tracks(gg_logexp,
-       autoplot(GRangesList(p16_gl1$e), gap.geom="arrow",
+       autoplot(GRangesList(hladrb1_gl1$e), gap.geom="arrow",
                 fill="grey80", color="grey30") + theme_bw(),
-       "UCSC" = gg_p16models,
-       "concomp" = gg_p16_cc,
+       "UCSC" = gg_hladrbXmodels,
+       "ccmodel" = gg_hladrb1top,
        heights=c(3, 1, 1, 1))
 
 
 
 
-#' looking at clustering along the exons at p16
+#' looking at clustering along the exons at hladrb1
 #'
-matplot(log10(1+p16_ej[p16_ej$kind == "e", -c(1:6, 184)]), type="l", lty=1)
+matplot(log10(1+hladrb1_ej[hladrb1_ej$kind == "e", -c(1:6, 184)]), type="l", lty=1)
 
 
 #' PCA decomposition (exon and splicing separately)
-pc <- prcomp(log10(1+t(p16_ej[p16_ej$kind == "e", -c(1:6, 184)])))
-pc_j <- prcomp(log10(1+t(p16_ej[p16_ej$kind == "j", -c(1:6, 184)])))
+pc <- prcomp(log10(1+t(hladrb1_ej[hladrb1_ej$kind == "e", -c(1:6, 184)])))
+pc_j <- prcomp(log10(1+t(hladrb1_ej[hladrb1_ej$kind == "j", -c(1:6, 184)])))
 
 #' exon PCA decomposition (scores)
 plot(pc$x[, 1:2], pch=16, col=brew_set1[2])
@@ -468,67 +490,27 @@ qplot(data=reshape2::melt(pc$rotation[, 1:2]), x=rep(1:22, 2), y=value, color=Va
     theme_bw() +
     scale_x_continuous(breaks=1:22)
 
-#' look at clusters
-groups <- as.numeric(pc$x[, 1]>-1)*(1+as.numeric(pc$x[, 2]>0)) + 1
-
-#' scores by clusters
-plot(pc$x[, 1:2], pch=16, col=brew_set1[groups])
-
-
 #' splice junction PCA decomposition (scores)
 plot(pc_j$x[, 1:2], pch=16, col=brew_set1[2],
      main="PCA scores for splicing junctions")
 
 
-#' looking at clusters along genomic coordinates
-#'
-p16_exp$groups <- groups[as.numeric(substr(p16_exp$variable, 2, 5))]
-
-ggplot(p16_exp,
-       aes(xmin=start, xmax=stop,
-           ymin=log1p, ymax=log1p+.05,
-           fill=factor(groups))) +
-    geom_rect(alpha=1/5) +
-    geom_line(aes(x=(start+stop)/2, y=log1p,
-                  group=variable, color=factor(groups)),
-              alpha=1/5) +
-    theme_bw()
-
-
-#' looking at clusters with all exons having equal width,
-#' onlying looking at first 11 exons
-#+ fig.height=3, fig.width=10
-p16_te$groups <- groups[as.numeric(substr(p16_te$variable, 2, 5))]
-
-ggplot(subset(p16_te, eid <= 11),
-       aes(xmin=eid-.4, xmax=eid+.4,
-           ymin=value, ymax=value+.05,
-           group=variable,
-           fill=factor(groups),
-           color=factor(groups))) +
-    geom_rect(color="grey90", alpha=1/10) + guides(color=FALSE) +
-    geom_line(aes(x=eid, y=value), alpha=1/2) +
-    scale_x_continuous("exon", breaks=1:11) +
-    theme_bw() +
-    ylab("log10 expr")
-
-
 
 #' ------------------------------------------------------------------------
-#' ### Process p16 locus for graph-based analysis
+#' ### Process hladrb1 locus for graph-based analysis
 #'
 
-p16_v <- p16_ej[p16_ej$kind == "e", c("start", "stop")]
-p16_e <- p16_ej[p16_ej$kind == "j", c("start", "stop")]
+hladrb1_v <- hladrb1_ej[hladrb1_ej$kind == "e", c("start", "stop")]
+hladrb1_e <- hladrb1_ej[hladrb1_ej$kind == "j", c("start", "stop")]
 
 ## determine explicit edgeset
-p16_e$a <- sapply(p16_e$start, function(x) which(p16_v$stop == x))
-p16_e$b <- sapply(p16_e$stop, function(x) which(p16_v$start == x))
-p16_el1 <- as.matrix(p16_e[c("a", "b")])
+hladrb1_e$a <- sapply(hladrb1_e$start, function(x) which(hladrb1_v$stop == x))
+hladrb1_e$b <- sapply(hladrb1_e$stop, function(x) which(hladrb1_v$start == x))
+hladrb1_el1 <- as.matrix(hladrb1_e[c("a", "b")])
 
 ## determine 'edges' that exist between consecutive exons
-conseq <- which((p16_v$start[-1] - p16_v$stop[-22]) == 1)
-p16_el2 <- cbind("a"=conseq, "b"=conseq+1)
+conseq <- which((hladrb1_v$start[-1] - hladrb1_v$stop[-22]) == 1)
+hladrb1_el2 <- cbind("a"=conseq, "b"=conseq+1)
 
 
 
@@ -536,22 +518,22 @@ p16_el2 <- cbind("a"=conseq, "b"=conseq+1)
 #' ### Plot splicing graph for Sample 2
 #'
 
-p16_vw2 <- p16_ej[p16_ej$kind == "e", "s2"]
-p16_ew2 <- p16_ej[p16_ej$kind == "j", "s2"]
+hladrb1_vw2 <- hladrb1_ej[hladrb1_ej$kind == "e", "s2"]
+hladrb1_ew2 <- hladrb1_ej[hladrb1_ej$kind == "j", "s2"]
 
-p16_adj2 <- matrix(0, nrow(p16_v), nrow(p16_v))
-diag(p16_adj2) <- p16_vw2
-p16_adj2[p16_el1] <- p16_ew2
-p16_adj2[p16_el2] <- apply(matrix(diag(p16_adj2)[p16_el2], ncol=2), 1, min)
+hladrb1_adj2 <- matrix(0, nrow(hladrb1_v), nrow(hladrb1_v))
+diag(hladrb1_adj2) <- hladrb1_vw2
+hladrb1_adj2[hladrb1_el1] <- hladrb1_ew2
+hladrb1_adj2[hladrb1_el2] <- apply(matrix(diag(hladrb1_adj2)[hladrb1_el2], ncol=2), 1, min)
 
-g2 <- graph.adjacency(p16_adj2, weighted=TRUE, diag=FALSE)
+g2 <- graph.adjacency(hladrb1_adj2, weighted=TRUE, diag=FALSE)
 
 edge_h <- 1/apply(get.edgelist(g2), 1, diff)
 edge_h[edge_h == 1] <- 1e-10
 
 
 #' example of an adjacency matrix
-get.adjacency(graph.adjacency(p16_adj2))
+get.adjacency(graph.adjacency(hladrb1_adj2))[1:10, 1:10]
 
 
 #' nicer first draft of a splicing graph
@@ -570,70 +552,52 @@ plot(g2, layout=cbind(1:22, 0),
 #'
 
 #' #### construct adjacency tensor
-adj_array <- array(0, dim=c(177, nrow(p16_v), nrow(p16_v)))
+adj_array <- array(0, dim=c(177, nrow(hladrb1_v), nrow(hladrb1_v)))
 for (i in 1:177) {
-    diag(adj_array[i, , ]) <- p16_ej[p16_ej$kind == "e", paste0("s", i)]
-    adj_array[cbind(i, p16_el1)] <- p16_ej[p16_ej$kind == "j", paste0("s", i)]
-    adj_array[cbind(i, p16_el2)] <-
-        apply(matrix(diag(adj_array[i, , ])[p16_el2], ncol=2), 1, min)
+    diag(adj_array[i, , ]) <- hladrb1_ej[hladrb1_ej$kind == "e", paste0("s", i)]
+    adj_array[cbind(i, hladrb1_el1)] <- hladrb1_ej[hladrb1_ej$kind == "j", paste0("s", i)]
+    adj_array[cbind(i, hladrb1_el2)] <-
+        apply(matrix(diag(adj_array[i, , ])[hladrb1_el2], ncol=2), 1, min)
 }
-
-
-#' Load SigFuge labels from previous data as a sanity check
-p16_labs_sf <- read.table("p16_labs_sf.txt", header=TRUE)$clusters
 
 
 #' #### Tucker PCA decomposition
 tucker_pca <- PCAn(log10(1+adj_array), dim=c(3, 3, 3))
 tucker_scores <- as.data.frame(t(tucker_pca[[1]]$v[1:2, ]))
-tucker_scores$labs <- 0 + (tucker_scores$V1 > 0.05)*(1+(tucker_scores$V2 > 0))
 
 #' Tucker decomposition (scores)
 #+ fig.height=8, fig.width=8
 qplot(data=tucker_scores,
-      x=V1, y=V2, color=factor(labs)) +
-    theme_bw() +
-        guides(color=FALSE)
-
-##compare with SigFuge labels
-table(tucker_scores$labs, p16_labs_sf)
+      x=V1, y=V2) +
+    theme_bw()
 
 
 #' #### PARAFAC decomposition
 parafac_pca <- CANDPARA(log10(1+adj_array), dim=3)
 parafac_scores <- as.data.frame(t(parafac_pca[[1]]$v[1:2, ] * parafac_pca[[3]]$d[1:2]))
-parafac_scores$labs <- 0 + (parafac_scores$V1 > 3)*(1+(parafac_scores$V2 > 0))
 
 #' PARAFAC decomposition (scores)
 #+ fig.height=8, fig.width=8
 qplot(data=parafac_scores,
-      x=V1, y=V2, color=factor(labs)) +
-    theme_bw() +
-    guides(color=FALSE)
-
-##compare with SigFuge labels
-table(parafac_scores$labs, p16_labs_sf)
+      x=V1, y=V2) +
+    theme_bw()
 
 
 #' #### PARAFAC decomposition without splices
-adj_array_diag <- array(0, dim=c(177, nrow(p16_v), nrow(p16_v)))
+adj_array_diag <- array(0, dim=c(177, nrow(hladrb1_v), nrow(hladrb1_v)))
 for (i in 1:177) {
     diag(adj_array_diag[i, , ]) <- diag(adj_array[i, , ])
 }
 parafac_pca_diag <- CANDPARA(log10(1+adj_array_diag), dim=3)
 parafac_scores_diag <- as.data.frame(t(parafac_pca_diag[[1]]$v[1:2, ] *
                                            parafac_pca_diag[[3]]$d[1:2]))
-parafac_scores_diag$labs <- 0 + (parafac_scores_diag$V1 > 1.5)*(1+(parafac_scores_diag$V2 > 0))
 
 #' PARAFAC decomposition with only exons (scores)
 #+ fig.height=8, fig.width=8
 qplot(data=parafac_scores_diag,
-      x=V1, y=V2, color=factor(labs)) +
-    theme_bw() +
-    guides(color=FALSE)
+      x=V1, y=V2) +
+    theme_bw()
 
-##compare with SigFuge labels
-table(parafac_scores_diag$labs, p16_labs_sf)
 
 
 #' #### PARAFAC decomposition without exon expr
@@ -644,17 +608,12 @@ for (i in 1:177) {
 parafac_pca_offdiag <- CANDPARA(log10(1+adj_array_offdiag), dim=3)
 parafac_scores_offdiag <- as.data.frame(t(parafac_pca_offdiag[[1]]$v[1:2, ] *
                                            parafac_pca_offdiag[[3]]$d[1:2]))
-parafac_scores_offdiag$labs <- 0 + (parafac_scores_offdiag$V1 > 1.5)*(1+(parafac_scores_offdiag$V2 > 0))
 
 #' PARAFAC decomposition with only splices (scores)
 #+ fig.height=8, fig.width=8
 qplot(data=parafac_scores_offdiag,
-      x=V1, y=V2, color=factor(labs)) +
-    theme_bw() +
-    guides(color=FALSE)
-
-##compare with SigFuge labels
-table(parafac_scores_offdiag$labs, p16_labs_sf)
+      x=V1, y=V2) +
+    theme_bw()
 
 
 
@@ -663,7 +622,7 @@ table(parafac_scores_offdiag$labs, p16_labs_sf)
 #' ### Running Time
 #'
 
-proctime() - start_time
+proc.time() - start_time
 
 
 
@@ -680,3 +639,4 @@ Sys.time()
 #'
 
 sessionInfo()
+
