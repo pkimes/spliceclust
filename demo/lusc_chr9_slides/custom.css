@@ -1,0 +1,28 @@
+h2 {
+    font-size: 30pt;
+}
+
+h3 {
+    font-size: 20pt;
+}
+
+p {
+    font-size: 14pt;
+}
+
+code {
+    font-size: 14pt;
+}
+
+pre { 
+    font-size: 12pt;
+    line-height: 15pt;
+}
+
+#nextsteps {
+   color: blue;
+}
+
+.emphasized {
+   font-size: 1.2em;
+}
