@@ -11,13 +11,17 @@
 #'        each exon, see details for more information on all possible
 #'        input (default = 1)
 #' @param log_base a numeric specifying the scale of the binning for the
-#'        plotting of expression values at each exon, accepted input include:
-#'        0 (non-log), 2, 10, ... (default = 10)
+#'        plotting of expression values at each exon, which 0 resulting in no long
+#'        scaling being applied (default = 10)
+#' @param log_shift a numeric specifying the shift to be used in the log transformation
+#'        for handling 0 values (default = 1)
 #' @param bin a logical whether to bin the values for easier viewing (default = TRUE)
 #' @param genomic a logical whether genomic coordinates should be used to
 #'        plot the heatmap (default = TRUE)
 #' @param ex_use a numeric specifying the proportion of the plot exons should occupy if
 #'        non-genomic coordinate plotting is desired (default = 2/3)
+#' @param flip_neg a logical whether to flip plotting of genes on negative strand
+#'        to run left to right (default = TRUE)
 #' @param j_incl a logical whether to include heatmaps for junctions
 #'        (default = FALSE)
 #' @param highlight a vector of labels to highlight samples in groups or clusters
@@ -50,23 +54,10 @@ library("grid")
 
 
 heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
-                      log_base = 10, bin = TRUE,
-                      genomic = TRUE, ex_use = 2/3,
+                      log_base = 10, log_shift = 1, bin = TRUE,
+                      genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
                       j_incl = FALSE, highlight = NULL,
                       use_blk = FALSE, ...) {
-    
-    ##parse input connected component
-    s_col <- grepl("^s", names(values(cc)))
-    depth <- as.data.frame(values(cc)[s_col])
-
-    ##split cc into exon and junction objects
-    exon_row <- values(cc)$kind == "e"
-    junc_row <- !exon_row
-
-    ##dataset dimension
-    n <- ncol(depth)
-    p_e <- sum(exon_row)
-    p_j <- sum(junc_row)
 
     
     ##color generators
@@ -74,22 +65,22 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
     crp2 <- colorRamp(c("#f7fbff", "#047760"))
 
     
-    ##determine order of samples
-    if (sort_sep) {
-        depth <- t(apply(depth, 1, sort))
-    } else {
-        if (sort_idx == 1) {
-            idx <- order(depth[1, ])
-        } else if (sort_idx == 2) {
-            pca <- prcomp(t(depth[exon_row, ]))
-            idx <- order(pca$x[, 2])
-        } else {
-            idx <- 1:n
-        }
-        depth <- depth[, idx]
-    }
+    ##parse input connected component
+    s_col <- grepl("^s", names(values(cc)))
+    depth <- as.data.frame(values(cc)[s_col])
 
 
+    ##split cc into exon and junction objects
+    exon_row <- values(cc)$kind == "e"
+    junc_row <- !exon_row
+
+    
+    ##dataset dimension
+    n <- ncol(depth)
+    p_e <- sum(exon_row)
+    p_j <- sum(junc_row)
+
+    
     ##change GRanges coordinates if non-genomic coordinates are desired
     if (!genomic) {
         dna_len <- width(range(cc))
@@ -113,7 +104,37 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
         cc <- cc2
     }
 
+
+    ##if negative strand ordering, flip order of cc
+    if (flip_neg && all(as.vector(strand(cc))[exon_row] == '-')) {
+        cc <- rev(cc)
+        exon_row <- rev(exon_row)
+        junc_row <- rev(junc_row)
+        depth <- depth[(p_e+p_j):1, ]
+    }
+
     
+    ##determine order of samples
+    if (sort_sep) {
+        depth <- t(apply(depth, 1, sort))
+    } else {
+        if (sort_idx == 1) {
+            idx <- order(depth[1, ])
+        } else if (sort_idx == 2) {
+            pca <- prcomp(t(depth[exon_row, ]))
+            idx <- order(pca$x[, 2])
+        } else {
+            idx <- 1:n
+        }
+        depth <- depth[, idx]
+    }
+
+    
+    ##strand of junctions for arrow heads
+    arrowhead <- ifelse(as.character(strand(cc))[junc_row] == "+",
+                        "first", "last")
+    
+
     ##construct ggplot2 object
     gg_e <- data.frame(xmin=start(ranges(cc)[exon_row]),
                        xmax=end(ranges(cc)[exon_row]),
@@ -125,7 +146,7 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
     
     ##transform if desired
     if (log_base > 0) {
-        gg_e$value <- log(1 + gg_e$value, base=log_base)
+        gg_e$value <- log(log_shift + gg_e$value, base=log_base)
         v_max <- max(gg_e$value)
     }
     
@@ -208,7 +229,7 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
             annotate("path", size=.75,
                      x=circle1$x, y=circle1$y,
                      color=.rgb2hex(crp2(e_prop[j])),
-                     arrow=arrow(length=unit(.015, "npc"), ends="first"))
+                     arrow=arrow(length=unit(.015, "npc"), ends=arrowhead[j]))
         if (j_incl) {
             g_obj <- g_obj +
                 annotate("text", size=3,
@@ -225,6 +246,12 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
         junc_x <- seq(min(min(ranges(cc))),
                       max(max(ranges(cc))),
                       length.out=p_j+2)[2:(p_j+1)]
+
+        ##flip order of plotting to match negative strand
+        if (flip_neg && all(as.vector(strand(cc)[exon_row]) == "-")) {
+            junc_x <- rev(junc_x)
+        }
+        
         junc_y <- 2.25*n
         s_size <- .5
 
@@ -236,7 +263,7 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
         gg_j$kind <- "j"
         ##transform if desired
         if (log_base > 0) {
-            gg_j$value <- log(1 + gg_j$value, base=log_base)
+            gg_j$value <- log(log_shift + gg_j$value, base=log_base)
         }    
         ##perform binning
         if (bin && log_base > 0) {
@@ -260,6 +287,12 @@ heatgraph <- function(cc, sort_sep = FALSE, sort_idx = 1,
                          alpha=1, color=.rgb2hex(crp2(1)), fill=NA)
         }
                              
+    }
+
+
+    ##plot with horizontal axis oriented on negative strand
+    if (flip_neg && all(as.vector(strand(cc))[exon_row] == '-')) {
+        g_obj <- g_obj + scale_x_reverse()
     }
 
     g_obj

@@ -4,12 +4,21 @@
 #'
 #' @param cc a connected component GRanges object with exon and junction
 #'        information
+#' @param npc a numeric value specifying number of PCs to plot (default = 3)
+#' @param pc_sep a logical whether PCA should be performed on exon and junction
+#'        coverage separately (default = TRUE)
+#' @param ej_w a numeric vector of length two specifying the relative sum of squares
+#'        for exon and junctions (default = c(1, 1))
+#' @param log_base a numeric specifying the scale of the expression values at each exon,
+#'        which 0 resulting in no log scaling being applied (default = 10)
+#' @param log_shift a numeric specifying the shift to be used in the log transformation
+#'        for handling 0 values (default = 1)
 #' @param genomic a logical whether genomic coordinates should be used to
 #'        plot the heatmap (default = TRUE)
 #' @param ex_use a numeric specifying the proportion of the plot exons should occupy if
 #'        non-genomic coordinate plotting is desired (default = 2/3)
-#' @param j_incl a logical whether to include heatmaps for junctions
-#'        (default = FALSE)
+#' @param flip_neg a logical whether to flip plotting of genes on negative strand
+#'        to run left to right (default = TRUE)
 #' @param use_blk a logical whether to use a black background (default = FALSE)
 #' @param ... other parameters to be passed
 #' 
@@ -36,16 +45,19 @@ library("reshape2")
 library("grid")
 
 
-graphPCA <- function(cc, genomic = TRUE, ex_use = 2/3,
-                     j_incl = FALSE, use_blk = FALSE, ...) {
-    
+graphPCA <- function(cc, npc = 3, pc_sep = TRUE, ej_w = c(1, 1),
+                     log_base = 10, log_shift = 1, genomic = TRUE, 
+                     ex_use = 2/3, flip_neg = TRUE, use_blk = FALSE, ...) {
+
     ##parse input connected component
     s_col <- grepl("^s", names(values(cc)))
     depth <- as.data.frame(values(cc)[s_col])
+    
 
     ##split cc into exon and junction objects
     exon_row <- values(cc)$kind == "e"
     junc_row <- !exon_row
+    
 
     ##dataset dimension
     n <- ncol(depth)
@@ -54,24 +66,8 @@ graphPCA <- function(cc, genomic = TRUE, ex_use = 2/3,
 
     
     ##color generators
-    crp <- colorRampPalette(c("#f7fbff", "#08306b"))
-    crp2 <- colorRamp(c("#f7fbff", "#047760"))
-
-    
-    ##determine order of samples
-    if (sort_sep) {
-        depth <- t(apply(depth, 1, sort))
-    } else {
-        if (sort_idx == 1) {
-            idx <- order(depth[1, ])
-        } else if (sort_idx == 2) {
-            pca <- prcomp(t(depth[exon_row, ]))
-            idx <- order(pca$x[, 2])
-        } else {
-            idx <- 1:n
-        }
-        depth <- depth[, idx]
-    }
+    crp <- colorRampPalette(c("#053061", "#f7f7f7", "#67001f"))
+    crp2 <- colorRamp(c("#053061", "#f7f7f7", "#67001f"))
 
 
     ##change GRanges coordinates if non-genomic coordinates are desired
@@ -98,52 +94,77 @@ graphPCA <- function(cc, genomic = TRUE, ex_use = 2/3,
     }
 
     
+    ## ##plot with horizontal axis oriented on negative strand
+    ## if (flip_neg && all(as.vector(strand(cc))[exon_row] == '-')) {
+    ##     t_range <- ranges(cc)
+    ##     start(ranges(cc)) <- -end(t_range)
+    ##     end(ranges(cc)) <- -start(t_range)
+    ##     strand(cc) <- ifelse(as.vector(strand(cc)) == '-', '+', '-')
+    ## }
+
+    
+    ##strand of junctions for arrow heads
+    arrowhead <- ifelse(as.character(strand(cc))[junc_row] == "+",
+                        "first", "last")
+
+
+    ##transform if desired
+    if (log_base > 0) {
+        depth <- log(log_shift + depth, base=log_base)
+    }
+
+
+    ##compute PCA decomposition of vectors
+    if (pc_sep) {
+        pca_e <- prcomp(t(depth[exon_row, ]))
+        pca_j <- prcomp(t(depth[junc_row, ]))
+
+        basis_e <- pca_e$rotation[, 1:npc, drop=FALSE]
+        basis_j <- pca_j$rotation[, 1:npc, drop=FALSE]
+        pvar_e <- pca_e$sdev^2 / sum(pca_e$sdev^2)
+        pvar_j <- pca_j$sdev^2 / sum(pca_j$sdev^2)
+        pvar_ej <- paste(
+            paste0("exon var expl = ", round(pvar_e, 3)),
+            paste0("junc var expl = ", round(pvar_j, 3)), sep=", ")
+
+    } else {
+        ej_w <- ej_w / sum(ej_w)
+        depth2 <- depth - matrix(rowMeans(depth), nrow=nrow(depth), ncol=ncol(depth))
+        row_var <- apply(depth2, 1, sd)^2
+        depth2[exon_row, ] <- depth2[exon_row, ] * sqrt(ej_w[1]/sum(row_var[exon_row]))
+        depth2[junc_row, ] <- depth2[junc_row, ] * sqrt(ej_w[2]/sum(row_var[junc_row]))
+        pca_ej <- prcomp(t(depth2))
+        
+        basis_e <- pca_ej$rotation[exon_row, 1:npc, drop=FALSE]
+        basis_j <- pca_ej$rotation[junc_row, 1:npc, drop=FALSE]
+        pvar_ej <- pca_ej$sdev^2 / sum(pca_ej$sdev^2)
+        pvar_ej <- paste0("total var expl = ", round(pvar_ej, 3))
+        
+    }
+    
+    
     ##construct ggplot2 object
     gg_e <- data.frame(xmin=start(ranges(cc)[exon_row]),
                        xmax=end(ranges(cc)[exon_row]),
-                       depth[exon_row, ])
+                       basis_e)
     gg_e <- melt(gg_e, id.vars=c("xmin", "xmax"))
-    gg_e$ymin <- as.numeric(gg_e$variable)
-    gg_e$ymax <- gg_e$ymin + 1
-
+    gg_e$ymin <- -1
+    gg_e$ymax <- 1
     
-    ##transform if desired
-    if (log_base > 0) {
-        gg_e$value <- log(1 + gg_e$value, base=log_base)
-        v_max <- max(gg_e$value)
-    }
-    
-    
-    ##perform binning
-    if (bin && log_base > 0) {
-        gg_e$value <- factor(floor(gg_e$value))
-    }
-        
     
     ##plot on genomic coordinates
     g_obj <- ggplot(gg_e, aes(xmin=xmin, xmax=xmax,
                               ymin=ymin, ymax=ymax,
                               color=value, fill=value))
 
-
-    ##add annotation colors if specified
-    if (!is.null(highlight)) {
-        hl_cols <- brewer.pal(8, "Set2")
-        for (i in 1:n) {
-            if (highlight[i] > 0)
-                g_obj <- g_obj +
-                    annotate("rect", xmin=-width(range(cc))*0.1, xmax=width(range(cc))*1.1,
-                             ymin=i, ymax=i+1, fill=hl_cols[highlight[i]],
-                             alpha=1/2)
-        }
-    }
-
     
     ##add basic plot structure
-    g_obj <- g_obj + 
-        geom_hline(yintercept=n/2, color=ifelse(use_blk, "#F0F0F0", "#3C3C3C")) +
+    g_obj <-
+        g_obj + 
+        geom_hline(yintercept=0, color=ifelse(use_blk, "#F0F0F0", "#3C3C3C")) +
         geom_rect() +
-        scale_y_continuous(breaks=NULL, limits=c(0, (2.1+j_incl)*n)) +
+        facet_grid(variable~.) +
+        scale_y_continuous(breaks=NULL, limits=c(-1, 3)) +
         ylab("") +
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(cc[1])),
                     "non-genomic coordinates")) +
@@ -161,89 +182,39 @@ graphPCA <- function(cc, genomic = TRUE, ex_use = 2/3,
             annotate("rect", size=.25,
                      xmin=start(ranges(cc))[exon_row]-2,
                      xmax=end(ranges(cc))[exon_row]+2,
-                     ymin=0, ymax=n+1,
+                     ymin=-1, ymax=1,
                      alpha=1, color="#3C3C3C", fill=NA)
     }
 
-
     
-    ##add continuous or discrete color palette
-    if (log_base > 0 && bin) {
-        g_obj <- g_obj + 
-            scale_color_manual("expr", breaks=0:v_max, values=crp(v_max+1), guide="none") +
-            scale_fill_manual("expr", breaks=0:v_max, values=crp(v_max+1),
-                              labels=paste0("<", log_base^(1:(v_max+1))))
-    } else {
-        g_obj <- g_obj +
-            scale_color_continuous("expr", low="#f7fbff", high="#08306b", guide="none") +
-            scale_fill_continuous("expr", low="#f7fbff", high="#08306b")
-    }
+    ##add continuous color palette
+    g_obj <- g_obj +
+        scale_color_gradient2("expr", low="#053061", mid="#f7f7f7", high="#67001f", guide="none") +
+        scale_fill_gradient2("expr", low="#053061", mid="#f7f7f7", high="#67001f")
 
     
     ##add splicing arrows to plot
     w_t <- diff(range(as.vector(ranges(cc))))
-    e_prop <- rowMeans(depth[junc_row, ] > 0) 
     for (j in 1:p_j) {
-        w_prop <- width(ranges(cc)[junc_row][j]) / w_t
-        circle1 <- .pseudoArc(xmin=start(ranges(cc))[junc_row][j],
-                              xmax=end(ranges(cc))[junc_row][j],
-                              ymin=n+2, height=1*n*sqrt(w_prop))
-        g_obj <- g_obj +
-            annotate("path", size=.75,
-                     x=circle1$x, y=circle1$y,
-                     color=.rgb2hex(crp2(e_prop[j])),
-                     arrow=arrow(length=unit(.015, "npc"), ends="first"))
-        if (j_incl) {
+        for (ipc in 1:npc) {
+            w_prop <- width(ranges(cc)[junc_row][j]) / w_t
+            circle1 <- .pseudoArc(xmin=start(ranges(cc))[junc_row][j],
+                                  xmax=end(ranges(cc))[junc_row][j],
+                                  ymin=1, height=2*sqrt(w_prop))
+            circle2 <- cbind(circle1, xmin=gg_e$xmin[1], xmax=gg_e$xmax[1],
+                             ymin=gg_e$xmin[1], ymax=gg_e$ymax[1],
+                             variable=paste0("PC", ipc), value=0)
             g_obj <- g_obj +
-                annotate("text", size=3,
-                         x=(start(ranges(cc))[junc_row][j] + end(ranges(cc))[junc_row][j])/2,
-                         y=n + 5 + 1*n*sqrt(w_prop), vjust=0, 
-                         label=LETTERS[j], color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+                geom_path(data=circle2, size=.75, aes(x=x, y=y),
+                          color=.rgb2hex(crp2(basis_j[j, ipc]/2+.5)), 
+                          arrow=arrow(length=unit(.015*npc, "npc"), ends=arrowhead[j]))
         }
     }
 
 
-    ##include junctions if necessary
-    if (j_incl) {
-
-        junc_x <- seq(min(min(ranges(cc))),
-                      max(max(ranges(cc))),
-                      length.out=p_j+2)[2:(p_j+1)]
-        junc_y <- 2.25*n
-        s_size <- .5
-
-        ##create data.frame
-        gg_j <- data.frame(xmin=junc_x - 50, xmax=junc_x + 50, depth[junc_row, ])
-        gg_j <- melt(gg_j, id.vars=c("xmin", "xmax"))
-        gg_j$ymin <- as.numeric(gg_j$variable)*s_size + junc_y
-        gg_j$ymax <- gg_j$ymin + s_size
-        gg_j$kind <- "j"
-        ##transform if desired
-        if (log_base > 0) {
-            gg_j$value <- log(1 + gg_j$value, base=log_base)
-        }    
-        ##perform binning
-        if (bin && log_base > 0) {
-            gg_j$value <- factor(floor(gg_j$value))
-        }
-        gg_ej <- gg_e
-        gg_ej$kind <- "e"
-        gg_ej <- rbind(gg_ej, gg_j)
-        
-        g_obj <-
-            g_obj %+% gg_ej +
-            annotate("text", size=3,
-                     x=junc_x, y=rep(junc_y + n*s_size + 5, p_j),
-                     label=LETTERS[1:p_j], vjust=0,
-                     color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
-        if (!use_blk) {
-            g_obj <- g_obj +
-                annotate("rect", size=.25,
-                         xmin=junc_x - 51, xmax=junc_x + 51,
-                         ymin=junc_y - 2, ymax=junc_y + n*s_size + 2,
-                         alpha=1, color=.rgb2hex(crp2(1)), fill=NA)
-        }
-                             
+    ##plot with horizontal axis oriented on negative strand
+    if (flip_neg && all(as.vector(strand(cc))[exon_row] == '-')) {
+        g_obj <- g_obj + scale_x_reverse()
     }
 
     g_obj
