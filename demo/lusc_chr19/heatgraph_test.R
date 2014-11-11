@@ -16,7 +16,7 @@
 knitr::opts_chunk$set(collapse=TRUE, comment="##",
                       echo=TRUE, warning=FALSE,
                       error=FALSE, message=FALSE,
-                      hide=TRUE, fig_width=12, fig.height=5)
+                      hide=TRUE, fig.width=12, fig.height=5)
 start_time <- proc.time()
 
 
