@@ -46,6 +46,7 @@ brew_greys <- brewer.pal(9, "Greys")
 root <-"/Users/pkimes/Dropbox/Git/spliceclust/"
 source(paste0(root, "R/readchr.R"))
 source(paste0(root, "R/heatgraph.R"))
+source(paste0(root, "R/heatgraphPCA.R"))
 
 ## load KLK12 component
 load(paste0(root, "demo/lusc_chr19/klk12_gr1.rdata"))
@@ -55,6 +56,12 @@ load(paste0(root, "demo/lusc_chr19/klk12_gr1.rdata"))
 #' basic plot
 #' 
 heatgraph(klk12_gr1)
+
+
+#'
+#' basic plot, don't flip on strand
+#' 
+heatgraph(klk12_gr1, flip_neg=FALSE)
 
 
 #'
@@ -82,6 +89,12 @@ heatgraph(klk12_gr1, genomic=FALSE, use_blk=TRUE, j_incl=TRUE)
 
 
 #'
+#' include splicing information (black background) without flipping
+#' 
+heatgraph(klk12_gr1, genomic=FALSE, use_blk=TRUE, j_incl=TRUE, flip_neg=FALSE)
+
+
+#'
 #' plot on continuous scale
 #' 
 heatgraph(klk12_gr1, bin=FALSE, genomic=FALSE, j_incl=TRUE)
@@ -102,10 +115,26 @@ heatgraph(klk12_gr1, sort_sep=TRUE, genomic=FALSE, j_incl=TRUE)
 #'
 #' add annotations
 #'
-lbls <- c(rep(1, 50), rep(2, 30), rep(3, 40),
-          rep(1, 20), rep(3, 10), rep(2, 27))
-heatgraph(klk12_gr1, genomic=FALSE, use_blk = FALSE,
-          highligh=lbls)
+##lbls <- c(rep(1, 50), rep(2, 30), rep(3, 40),
+##          rep(1, 20), rep(3, 10), rep(2, 27))
+##heatgraph(klk12_gr1, genomic=FALSE, use_blk = FALSE,
+##          highligh=lbls)
 
 
+#'
+#' plot PCA of connected component with exon and junctions considered separately
+#'
+graphPCA(klk12_gr1)
+
+
+#'
+#' plot PCA not using genomic coordinates
+#'
+graphPCA(klk12_gr1, genomic=FALSE)
+
+
+#'
+#' compute PCA using exon and junction values jointly
+#'
+graphPCA(klk12_gr1, pc_sep=FALSE, genomic=FALSE)
 
