@@ -1,17 +1,19 @@
-#' read in single chromosome data
+#' read in data for single chromosome
 #'
 #' Function to read in data for single chromosome output from
-#' \code{diffsplice_bam} function from Yin Hu.
-#' Last updated on 09/08/2014.
+#' \code{diffsplice_bam} function provided by Yin Hu.
 #'
 #' @param file character string to data directory
 #' @param n integer value specifying number of samples
 #' 
-#' @return a \code{data.frame} object containing splicing information for data
+#' @return
+#' a \code{data.frame} object containing splicing information in
+#' \code{6 + n} columns. The columns are:
+#' \code{gIdx}, \code{gStart}, \code{gStop}, \code{kind}, \code{start},
+#' \code{stop}, \code{s1}, \code{s2}, ...
 #' 
 #' @export
-#' 
-#' @author Patrick
+#' @author Patrick Kimes
 
 readchr <- function(file, n) {
     ##for faster loading, specify column types

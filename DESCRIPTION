@@ -3,6 +3,7 @@ Title: visualization and analysis of connected components output
 Version: 0.1
 Authors@R: "Patrick Kimes <patrick.kimes@gmail.com> [aut, cre]"
 Description: Currently just includes workflow in demo/ directory
-Depends: R (>= 3.1.1)
+Depends:
+    R (>= 3.1.1)
 License: GPL (>= 2)
 LazyData: true
