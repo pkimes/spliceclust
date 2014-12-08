@@ -78,6 +78,13 @@ NULL
 
         e_loads <- pca_e$rotation[, 1:npc, drop=FALSE]
         j_loads <- pca_j$rotation[, 1:npc, drop=FALSE]
+
+        ##flip junction loadings if scores opposite of exon scores
+        for (ipc in 1:npc) {
+            if (cor(pca_e$x[, ipc], pca_j$x[, ipc]) < 0)
+                j_loads[, ipc, drop=FALSE] <- -j_loads[, ipc, drop=FALSE]
+        }
+        
         pvar_e <- pca_e$sdev^2 / sum(pca_e$sdev^2)
         pvar_j <- pca_j$sdev^2 / sum(pca_j$sdev^2)
         pvar_ej <- paste(
