@@ -3,14 +3,15 @@
 \alias{concomp2name}
 \title{match concomp with gene or transcript name}
 \usage{
-concomp2name(obj, txlist, txdb, orgdb = NULL)
+concomp2name(obj, txlist, txdb = NULL, orgdb = NULL)
 }
 \arguments{
-\item{obj}{a \code{concomp} object}
+\item{obj}{a \code{\link[=concomp-constructor]{concomp}} object}
 
 \item{txlist}{a list of transcripts, e.g. \code{exonsBy(txdb)}}
 
-\item{txdb}{a transcript database, e.g. \code{TxDb.Hsapiens.UCSC.hg19.knownGene}}
+\item{txdb}{a transcript database, e.g. \code{TxDb.Hsapiens.UCSC.hg19.knownGene}
+(default = NULL)}
 
 \item{orgdb}{a organism database, e.g. \code{org.Hs.eg.db} (default = NULL)}
 }
@@ -18,10 +19,10 @@ concomp2name(obj, txlist, txdb, orgdb = NULL)
 a vector of transcript or gene names
 }
 \description{
-Function matches concomp to nearest transcript and corresponding
-gene names if both transcript list and organism db are provided. If
-\code{orgdb} is not provided, the transcript IDs are returned rather than
-the gene symbols
+Function matches \code{\link[=concomp-constructor]{concomp}} to nearest
+transcript using \code{txdb} and \code{txlist}. This is further mapepd to
+gene names if \code{orgdb} is specified. If \code{orgdb} is not provided,
+transcript IDs are returned instead of gene symbols.
 }
 \author{
 Patrick Kimes

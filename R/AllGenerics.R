@@ -42,6 +42,18 @@ setGeneric("splicegralp",
            function(obj, ...)  standardGeneric("splicegralp"))
 
 
+#' Splice Graph PCA Plot
+#'
+#' Method for plotting PCA loading vectors for a \code{concomp}
+#' object (wrapper to splicegralp)
+#'
+#' @export
+#' @docType methods
+#' @name splicePCA-generic
+#' @keywords internal
+setGeneric("splicePCA",
+           function(obj, ...)  standardGeneric("splicePCA"))
+
 
 
 ## ###################################################################

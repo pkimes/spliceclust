@@ -1,6 +1,6 @@
 Package: spliceclust
-Title: visualization and analysis of connected components output
-Version: 0.1
+Title: visualization and analysis of connected components
+Version: 0.2
 Authors@R: "Patrick Kimes <patrick.kimes@gmail.com> [aut, cre]"
 Description: Currently just includes workflow in demo/ directory
 Depends:

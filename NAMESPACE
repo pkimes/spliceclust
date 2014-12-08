@@ -2,11 +2,13 @@
 
 export(concomp)
 export(concomp2name)
+export(diffsplice2name)
 export(exonValues)
 export(exons)
 export(juncValues)
 export(juncs)
 export(readchr)
+export(splicePCA)
 export(splicegrahm)
 export(splicegralp)
 exportClasses(concomp)

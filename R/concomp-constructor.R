@@ -1,7 +1,7 @@
 #' Connected Component (concomp) object
 #'
 #' construct a connected component object from various input objects
-#'
+#' 
 #' @return \code{concomp} object
 #'
 #' @import GenomicRanges IRanges
@@ -61,8 +61,8 @@ NULL
     val_cols <- grep("^s[0-9]", names(obj), value=TRUE)
     if (length(val_cols) > 0) {
         vals <- as.matrix(obj[val_cols])
-        vals_e <- vals[obj$kind == "e", ]
-        vals_j <- vals[obj$kind == "j", ]
+        vals_e <- vals[obj$kind == "e", , drop=FALSE]
+        vals_j <- vals[obj$kind == "j", , drop=FALSE]
     } else {
         vals_e <- NULL
         vals_j <- NULL

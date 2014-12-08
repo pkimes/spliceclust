@@ -193,7 +193,7 @@ NULL
             g_obj <- g_obj +
                 geom_path(data=circle2, size=.75, aes(x=x, y=y),
                           color=.rgb2hex(crp2(j_col_scale[j, ipc])),
-                          arrow=arrow(length=unit(.015*n_vec, "npc"),
+                          arrow=grid::arrow(length=grid::unit(.015*n_vec, "npc"),
                               ends=arrowhead[j]))
         }
     }
@@ -205,15 +205,18 @@ NULL
     }
 
 
+    ##warm user that txlist won't be processed unless on genomic coordinates
+    if (!is.null(txlist) && !genomic) {
+        cat(paste0("!!!  can't plot model transcripts unless ",
+                   "genomic=TRUE  !!!\n"))
+    }
+
+
     ##add annotations if txdb was passed to function
     if (!is.null(txlist) && genomic) {
-        cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
-
-        if (is.null(txdb)) {
-            cand_names <- as.character(cand_idx)
-        } else {
-            cand_names <- concomp2name(obj, txlist, txdb, orgdb)
-        }
+        cand_names <- concomp2name(obj, txlist, txdb, orgdb)
+        cand_idx <- cand_names[, 1]
+        cand_names <- cand_names[, 2]
         
         if (length(cand_idx) > 0) {
             tx_match <- txlist[cand_idx]
@@ -221,11 +224,11 @@ NULL
             annot_track <- ggplot(tx_match) +
                 geom_alignment() + theme_bw()            
             if (iflip) { annot_track <- annot_track + scale_x_reverse() }
-
+            
             g_obj <- tracks(g_obj, annot_track, heights=c(2, 1))
         }
     }
-    
+
     g_obj
 }
 
