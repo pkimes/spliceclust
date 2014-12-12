@@ -208,7 +208,7 @@ NULL
         junc_y <- 2.25*n
         s_size <- .5
         junc_w <- width(range(gr_e)) / (2.5*(p_j+1))
-        junc_w <- min(junc_w, 50)
+        ## junc_w <- min(junc_w, 50)
 
         ##create data.frame
         gg_j <- data.frame(xmin=junc_x - junc_w, xmax=junc_x + junc_w, vals_j)
@@ -251,12 +251,14 @@ NULL
     ##add annotation colors if specified
     if (!is.null(highlight)) {
         wrc <- width(range(gr_e))
+        minrc <- min(c(start(gr_e), end(gr_e)))
+        maxrc <- max(c(start(gr_e), end(gr_e)))
         for (i in 1:n) {
             if (highlight[i] > 0)
                 g_obj <- g_obj +
                     annotate("rect",
-                             xmin=c(-wrc*0.05, wrc*0.98),
-                             xmax=c( wrc*0.02, wrc*1.05),
+                             xmin=c(minrc-wrc*0.05, maxrc),
+                             xmax=c(minrc, maxrc+wrc*0.05),
                              ymin=c(i, i), ymax=c(i+1, i+1),
                              fill=hl_cols[highlight[i]], alpha=1)
         }

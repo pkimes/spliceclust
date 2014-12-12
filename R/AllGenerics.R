@@ -39,7 +39,7 @@ setGeneric("splicegrahm",
 #' @name splicegralp-generic
 #' @keywords internal
 setGeneric("splicegralp",
-           function(obj, ...)  standardGeneric("splicegralp"))
+           function(obj, ...) standardGeneric("splicegralp"))
 
 
 #' Splice Graph PCA Plot
@@ -52,14 +52,28 @@ setGeneric("splicegralp",
 #' @name splicePCA-generic
 #' @keywords internal
 setGeneric("splicePCA",
-           function(obj, ...)  standardGeneric("splicePCA"))
+           function(obj, ...) standardGeneric("splicePCA"))
+
+
+
+## ###################################################################
+## ###################################################################
+## analysis methods
+
+#' cluster
+#' cluster object and return class labels
+#' @export
+#' @docType methods
+#' @param obj object which can be clustered
+#' @keywords internal
+setGeneric("cluster",
+           function(obj, ...) standardGeneric("cluster"))
 
 
 
 ## ###################################################################
 ## ###################################################################
 ## getter methods
-
 
 #' exons
 #' return \code{exons} slot
