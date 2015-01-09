@@ -78,29 +78,35 @@ NULL
         dna_len <- width(range(gr_e))
         rna_len <- sum(width(gr_e))
 
-        shift_1 <- -start(ranges(gr_e))[1]+1
-        ranges(gr_e) <- shift(ranges(gr_e), shift_1)
-        ranges(gr_j) <- shift(ranges(gr_j), shift_1)
+        ##don't try to shrink gene model if intronic space is already small
+        if (rna_len/dna_len <= ex_use) {
+            shift_1 <- -start(ranges(gr_e))[1]+1
+            ranges(gr_e) <- shift(ranges(gr_e), shift_1)
+            ranges(gr_j) <- shift(ranges(gr_j), shift_1)
 
-        shrink_by <- 1 - (1 - ex_use)/ex_use * rna_len/(dna_len - rna_len)
-        gps <- distance(ranges(gr_e)[-p_e], ranges(gr_e)[-1]) * shrink_by
+            shrink_by <- 1 - (1 - ex_use)/ex_use * rna_len/(dna_len - rna_len)
+            gps <- distance(ranges(gr_e)[-p_e], ranges(gr_e)[-1]) * shrink_by
 
-        eeb <- start(ranges(gr_e))[-1]
-        for (ii in (p_e-1):1) {
-            i_adj <- start(ranges(gr_e)) >= eeb[ii]
-            start(ranges(gr_e))[i_adj] <- start(ranges(gr_e))[i_adj] - gps[ii]
-            
-            i_adj <- end(ranges(gr_e)) >= eeb[ii]
-            end(ranges(gr_e))[i_adj] <- end(ranges(gr_e))[i_adj] - gps[ii]
+            eeb <- start(ranges(gr_e))[-1]
+            for (ii in (p_e-1):1) {
+                i_adj <- start(ranges(gr_e)) >= eeb[ii]
+                start(ranges(gr_e))[i_adj] <- start(ranges(gr_e))[i_adj] - gps[ii]
+                
+                i_adj <- end(ranges(gr_e)) >= eeb[ii]
+                end(ranges(gr_e))[i_adj] <- end(ranges(gr_e))[i_adj] - gps[ii]
 
-            i_adj <- start(ranges(gr_j)) >= eeb[ii]
-            start(ranges(gr_j))[i_adj] <- start(ranges(gr_j))[i_adj] - gps[ii]
-            
-            i_adj <- end(ranges(gr_j)) >= eeb[ii]
-            end(ranges(gr_j))[i_adj] <- end(ranges(gr_j))[i_adj] - gps[ii]
+                i_adj <- start(ranges(gr_j)) >= eeb[ii]
+                start(ranges(gr_j))[i_adj] <- start(ranges(gr_j))[i_adj] - gps[ii]
+                
+                i_adj <- end(ranges(gr_j)) >= eeb[ii]
+                end(ranges(gr_j))[i_adj] <- end(ranges(gr_j))[i_adj] - gps[ii]
+            }
+
+        } else {
+            genomic <- TRUE
         }
+        
     }
-
 
     ##determine whether plots should be flipped
     iflip <- flip_neg && all(strand(gr_e) == '-')
