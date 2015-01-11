@@ -65,7 +65,7 @@ NULL
                     "consider using splicegralp instead."))
 
 
-    ##currently can't include gene models if not plotting on genomic scale
+    ##can't include gene models if not plotting on genomic scale
     if (!is.null(txlist) && !genomic)
         cat("ignoring txlist input since plotting on non-genomic scale. \n")
 
@@ -75,6 +75,7 @@ NULL
     crp2 <- colorRamp(c("#f7fbff", "#047760"))
     hl_cols <- c("#646464", "#CA4942", "#5A3589")
 
+    
     ##long list of letters
     ll_LETTERS <- LETTERS
     for (k in 2:5) {
@@ -88,6 +89,7 @@ NULL
     gr_j <- juncs(obj)
     vals_e <- exonValues(obj)
     vals_j <- juncValues(obj)
+
     
     ##dataset dimension
     n <- ncol(vals_e)
@@ -134,6 +136,7 @@ NULL
     ##determine whether plots should be flipped
     iflip <- flip_neg && all(strand(gr_e) == '-')
 
+    
     ##if negative strand ordering, flip order of obj
     if (iflip) {
         gr_e <- rev(gr_e)
@@ -237,6 +240,7 @@ NULL
     }
 
 
+    ##merge exon and junction data
     if (j_incl) {
         gg_e$kind <- "e"
         gg_e <- rbind(gg_e, gg_j)

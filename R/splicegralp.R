@@ -52,6 +52,7 @@ NULL
     ##unpack concomp
     gr_e <- exons(obj)
     gr_j <- juncs(obj)
+
     
     ##dataset dimension
     p_e <- length(gr_e)
@@ -107,6 +108,7 @@ NULL
         }
         
     }
+    
 
     ##determine whether plots should be flipped
     iflip <- flip_neg && all(strand(gr_e) == '-')

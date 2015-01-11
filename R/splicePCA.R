@@ -37,13 +37,13 @@
 #' @return
 #' a ggplot2 plot showing the specified number of loadings
 #'
-#' @name splicePCA
+#' @name splicepca
 #' @export
 #' @import ggplot2 RColorBrewer reshape2 grid
 #' @author Patrick Kimes
 NULL
 
-.splicePCA.concomp <- function(obj, npc = 3, pc_sep = TRUE, ej_w = c(1, 1),
+.splicepca.concomp <- function(obj, npc = 3, pc_sep = TRUE, ej_w = c(1, 1),
                                log_base = 10, log_shift = 1,
                                genomic = TRUE, ex_use = 2/3,
                                flip_neg = TRUE, use_blk = FALSE,
@@ -121,8 +121,8 @@ NULL
 
 
 
-#' @rdname splicePCA
-#' @aliases splicePCA,concomp-method
-setMethod("splicePCA",
+#' @rdname splicepca
+#' @aliases splicepca,concomp-method
+setMethod("splicepca",
           signature(obj = "concomp"),
-          function(obj, ...) .splicePCA.concomp(obj, ...))
+          function(obj, ...) .splicepca.concomp(obj, ...))
