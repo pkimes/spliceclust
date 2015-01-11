@@ -49,10 +49,24 @@ setGeneric("splicegralp",
 #'
 #' @export
 #' @docType methods
-#' @name splicePCA-generic
+#' @name splicepca-generic
 #' @keywords internal
-setGeneric("splicePCA",
-           function(obj, ...) standardGeneric("splicePCA"))
+setGeneric("splicepca",
+           function(obj, ...) standardGeneric("splicepca"))
+
+
+#' Splice Graph Parallel Coordinates Plot
+#'
+#' Method for plotting exon expression for a \code{concomp}
+#' object with each exon given equal width with heights corresponding
+#' to expression level
+#'
+#' @export
+#' @docType methods
+#' @name splicepcp-generic
+#' @keywords internal
+setGeneric("splicepcp",
+           function(obj, ...) standardGeneric("splicepcp"))
 
 
 
