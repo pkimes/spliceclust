@@ -201,8 +201,8 @@ NULL
             xtxt <- max(pl$data$xmax)
         }
 
-        ann_text <- data.frame(xmin = 0, xmax = 0, ymin = 0, ymax = 0,
-                               x = xtxt, y = 2.2, lab = pvar_ej, value = 0,
+        ann_text <- data.frame(xmin = xtxt, xmax = xtxt, ymin = 0, ymax = 0,
+                               x = xtxt, y = 2.1, lab = pvar_ej, value = 0,
                                variable = paste0("Dir", 1:length(pvar_ej)))
 
         ## return final plot

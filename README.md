@@ -99,7 +99,8 @@ splicegrahm(klk12_cc)
 
 In the plot above, each box arranged horizontally corresponds to a contiguous exonic region
 along the genome. Each box is colored by 177 horizontal lines, showing the expression level
-for the 177 samples being analyzed. Note that the exons are plotted along genomic coordinates.  
+for the 177 samples being analyzed. Note that the exons are plotted along genomic coordinates, and
+log expression is shown in color.  
 
 In addition to the boxes, the plot contains arrows which correspond to a splicing events with
 sufficient support in the data (e.g. at least 5 samples each with at least 5 reads spanning the splice
@@ -203,9 +204,7 @@ annotated to this gene. Note that above the PCs are computed separately for exon
 splicepca(klk12_cc, npc = 3, scores = TRUE)
 ```
 
-```
-## Error in .splicepca.concomp(obj, ...): could not find function "ggpairs"
-```
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
 It is also possible to perform the PCA analysis using the concatenated exon and junction information by
 setting the `pc_sep` parameter to `FALSE`, and specifying the relative "weight" of each with `ej_w`. The
@@ -251,18 +250,19 @@ sessionInfo()
 ##  [9] rtracklayer_1.26.2                     
 ## [10] Biostrings_2.34.1                      
 ## [11] XVector_0.6.0                          
-## [12] annotate_1.44.0                        
-## [13] XML_3.98-1.1                           
-## [14] AnnotationDbi_1.28.1                   
-## [15] Biobase_2.26.0                         
-## [16] GenomicRanges_1.18.4                   
-## [17] GenomeInfoDb_1.2.4                     
-## [18] IRanges_2.0.1                          
-## [19] S4Vectors_0.4.0                        
-## [20] RColorBrewer_1.1-2                     
-## [21] ggbio_1.14.0                           
-## [22] BiocGenerics_0.12.1                    
-## [23] ggplot2_1.0.0                          
+## [12] GGally_0.5.0                           
+## [13] annotate_1.44.0                        
+## [14] XML_3.98-1.1                           
+## [15] AnnotationDbi_1.28.1                   
+## [16] Biobase_2.26.0                         
+## [17] GenomicRanges_1.18.4                   
+## [18] GenomeInfoDb_1.2.4                     
+## [19] IRanges_2.0.1                          
+## [20] S4Vectors_0.4.0                        
+## [21] RColorBrewer_1.1-2                     
+## [22] ggbio_1.14.0                           
+## [23] BiocGenerics_0.12.1                    
+## [24] ggplot2_1.0.0                          
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3          base64enc_0.1-2         
@@ -277,9 +277,9 @@ sessionInfo()
 ## [19] fail_1.2                 foreach_1.4.2           
 ## [21] foreign_0.8-62           formatR_1.0             
 ## [23] Formula_1.1-2            GenomicAlignments_1.2.1 
-## [25] GGally_0.5.0             graph_1.44.1            
-## [27] grid_3.1.1               gridExtra_0.9.1         
-## [29] gtable_0.1.2             Hmisc_3.14-6            
+## [25] graph_1.44.1             grid_3.1.1              
+## [27] gridExtra_0.9.1          gtable_0.1.2            
+## [29] Hmisc_3.14-6             htmltools_0.2.6         
 ## [31] iterators_1.0.7          knitr_1.8               
 ## [33] labeling_0.3             lattice_0.20-29         
 ## [35] latticeExtra_0.6-26      MASS_7.3-35             
@@ -288,11 +288,11 @@ sessionInfo()
 ## [41] proto_0.3-10             RBGL_1.42.0             
 ## [43] Rcpp_0.11.3              RCurl_1.95-4.5          
 ## [45] reshape_0.8.5            reshape2_1.4.1          
-## [47] rpart_4.1-8              Rsamtools_1.18.2        
-## [49] scales_0.2.4             sendmailR_1.2-1         
-## [51] splines_3.1.1            stringr_0.6.2           
-## [53] survival_2.37-7          tools_3.1.1             
-## [55] VariantAnnotation_1.12.8 xtable_1.7-4            
-## [57] zlibbioc_1.12.0
+## [47] rmarkdown_0.4.2          rpart_4.1-8             
+## [49] Rsamtools_1.18.2         scales_0.2.4            
+## [51] sendmailR_1.2-1          splines_3.1.1           
+## [53] stringr_0.6.2            survival_2.37-7         
+## [55] tools_3.1.1              VariantAnnotation_1.12.8
+## [57] xtable_1.7-4             zlibbioc_1.12.0
 ```
 
