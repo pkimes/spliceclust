@@ -179,10 +179,10 @@ NULL
     
     ##add continuous color palette
     g_obj <- g_obj +
-        scale_color_gradient2("expr", limits=color_lim,
+        scale_color_gradient2("Loading", limits=color_lim,
                               low="#053061", mid="#f7f7f7", high="#67001f",
                               guide="none") +
-        scale_fill_gradient2("expr", limits=color_lim,
+        scale_fill_gradient2("Loading", limits=color_lim,
                              low="#053061", mid="#f7f7f7", high="#67001f")
 
 

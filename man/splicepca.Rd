@@ -51,6 +51,12 @@ identified from txlist (default = NULL)}
 
 \item{orgdb}{a database that can be queried using keys obtained from \code{txdb}
 to determine corresponding gene symbols (default = NULL)}
+
+\item{scores}{a logical whether to produce score plot rather than loadings plot
+(default = FALSE)}
+
+\item{plot}{a logical whether to output a plot or the actually PCA analyses
+performed by \code{prcomp} (default = TRUE)}
 }
 \value{
 a ggplot2 plot showing the specified number of loadings

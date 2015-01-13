@@ -158,6 +158,17 @@ splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx,
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
 
+If a gray/black background is preferred, e.g. to see faint arrows corresponding to rare splice variants,
+this is also possible by setting the `use_blk` parameter to `TRUE`.
+
+
+```r
+splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, use_blk = TRUE,
+            txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
+```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+
 
 
 ## <a name="splicepca"></a> SplicePCA Examples
@@ -176,7 +187,7 @@ KLK12 dataset from above.
 splicepca(klk12_cc, npc = 3)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
 
 In the above PC loadings plot, red and blue are used to denote the magnitude of the PC loadings
 for each exon and splice junction. From the plot above, we see that the greatest source of variation
@@ -184,7 +195,29 @@ in expression at the KLK12 gene locus is the overall expression of the gene. How
 PC loading shows interesting behavior where the primary source of variation is attributable to the
 expression of the central exon. Scrolling up a little to the UCSC KnownGenes shown included above,
 we see that the presence or absence of the central exon actually corresponds to differing isoforms
-annotated to this gene.
+annotated to this gene. Note that above the PCs are computed separately for exons and junctions
+ information. As such, we obtain separate PC "scores" for the exon and junction PC loadings.
+ 
+
+```r
+splicepca(klk12_cc, npc = 3, scores = TRUE)
+```
+
+```
+## Error in .splicepca.concomp(obj, ...): could not find function "ggpairs"
+```
+
+It is also possible to perform the PCA analysis using the concatenated exon and junction information by
+setting the `pc_sep` parameter to `FALSE`, and specifying the relative "weight" of each with `ej_w`. The
+exon and junction data are rescaled to each have sum-of-squares equal to the values specified by `ej_w`.
+In the following example, we use equal weights for the two data sources.
+
+
+```r
+splicepca(klk12_cc, npc = 3, pc_sep = FALSE, ej_w = c(1, 1))
+```
+
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
 
 
 
@@ -203,8 +236,8 @@ sessionInfo()
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 ## 
 ## attached base packages:
-##  [1] grid      stats4    parallel  stats     graphics  grDevices utils    
-##  [8] datasets  methods   base     
+## [1] stats4    parallel  stats     graphics  grDevices utils     datasets 
+## [8] methods   base     
 ## 
 ## other attached packages:
 ##  [1] spliceclust_0.2                        
@@ -212,29 +245,24 @@ sessionInfo()
 ##  [3] RSQLite_1.0.0                          
 ##  [4] DBI_0.3.1                              
 ##  [5] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [6] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
-##  [7] BSgenome_1.34.1                        
-##  [8] rtracklayer_1.26.2                     
-##  [9] annotate_1.44.0                        
-## [10] XML_3.98-1.1                           
-## [11] SplicingGraphs_1.6.0                   
-## [12] Rgraphviz_2.10.0                       
-## [13] graph_1.44.1                           
-## [14] GenomicAlignments_1.2.1                
-## [15] Rsamtools_1.18.2                       
-## [16] Biostrings_2.34.1                      
-## [17] XVector_0.6.0                          
-## [18] GenomicFeatures_1.18.3                 
-## [19] AnnotationDbi_1.28.1                   
-## [20] Biobase_2.26.0                         
-## [21] RColorBrewer_1.1-2                     
-## [22] ggbio_1.14.0                           
+##  [6] GenomicFeatures_1.18.3                 
+##  [7] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
+##  [8] BSgenome_1.34.1                        
+##  [9] rtracklayer_1.26.2                     
+## [10] Biostrings_2.34.1                      
+## [11] XVector_0.6.0                          
+## [12] annotate_1.44.0                        
+## [13] XML_3.98-1.1                           
+## [14] AnnotationDbi_1.28.1                   
+## [15] Biobase_2.26.0                         
+## [16] GenomicRanges_1.18.4                   
+## [17] GenomeInfoDb_1.2.4                     
+## [18] IRanges_2.0.1                          
+## [19] S4Vectors_0.4.0                        
+## [20] RColorBrewer_1.1-2                     
+## [21] ggbio_1.14.0                           
+## [22] BiocGenerics_0.12.1                    
 ## [23] ggplot2_1.0.0                          
-## [24] GenomicRanges_1.18.4                   
-## [25] GenomeInfoDb_1.2.4                     
-## [26] IRanges_2.0.1                          
-## [27] S4Vectors_0.4.0                        
-## [28] BiocGenerics_0.12.1                    
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3          base64enc_0.1-2         
@@ -248,23 +276,23 @@ sessionInfo()
 ## [17] digest_0.6.8             evaluate_0.5.5          
 ## [19] fail_1.2                 foreach_1.4.2           
 ## [21] foreign_0.8-62           formatR_1.0             
-## [23] Formula_1.1-2            GGally_0.5.0            
-## [25] gridExtra_0.9.1          gtable_0.1.2            
-## [27] Hmisc_3.14-6             htmltools_0.2.6         
-## [29] igraph_0.7.1             iterators_1.0.7         
-## [31] knitr_1.8                labeling_0.3            
-## [33] lattice_0.20-29          latticeExtra_0.6-26     
-## [35] MASS_7.3-35              munsell_0.4.2           
-## [37] nnet_7.3-8               OrganismDbi_1.8.0       
-## [39] plyr_1.8.1               proto_0.3-10            
-## [41] RBGL_1.42.0              Rcpp_0.11.3             
-## [43] RCurl_1.95-4.5           reshape_0.8.5           
-## [45] reshape2_1.4.1           rmarkdown_0.4.2         
-## [47] roxygen2_4.1.0           rpart_4.1-8             
-## [49] rstudioapi_0.2           scales_0.2.4            
-## [51] sendmailR_1.2-1          splines_3.1.1           
-## [53] stringr_0.6.2            survival_2.37-7         
-## [55] tools_3.1.1              VariantAnnotation_1.12.8
-## [57] xtable_1.7-4             zlibbioc_1.12.0
+## [23] Formula_1.1-2            GenomicAlignments_1.2.1 
+## [25] GGally_0.5.0             graph_1.44.1            
+## [27] grid_3.1.1               gridExtra_0.9.1         
+## [29] gtable_0.1.2             Hmisc_3.14-6            
+## [31] iterators_1.0.7          knitr_1.8               
+## [33] labeling_0.3             lattice_0.20-29         
+## [35] latticeExtra_0.6-26      MASS_7.3-35             
+## [37] munsell_0.4.2            nnet_7.3-8              
+## [39] OrganismDbi_1.8.0        plyr_1.8.1              
+## [41] proto_0.3-10             RBGL_1.42.0             
+## [43] Rcpp_0.11.3              RCurl_1.95-4.5          
+## [45] reshape_0.8.5            reshape2_1.4.1          
+## [47] rpart_4.1-8              Rsamtools_1.18.2        
+## [49] scales_0.2.4             sendmailR_1.2-1         
+## [51] splines_3.1.1            stringr_0.6.2           
+## [53] survival_2.37-7          tools_3.1.1             
+## [55] VariantAnnotation_1.12.8 xtable_1.7-4            
+## [57] zlibbioc_1.12.0
 ```
 

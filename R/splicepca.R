@@ -32,6 +32,10 @@
 #'        identified from txlist (default = NULL)
 #' @param orgdb a database that can be queried using keys obtained from \code{txdb}
 #'        to determine corresponding gene symbols (default = NULL)
+#' @param scores a logical whether to produce score plot rather than loadings plot
+#'        (default = FALSE)
+#' @param plot a logical whether to output a plot or the actually PCA analyses
+#'        performed by \code{prcomp} (default = TRUE)
 #' @param ... other parameters to be passed
 #' 
 #' @return
@@ -39,7 +43,7 @@
 #'
 #' @name splicepca
 #' @export
-#' @import ggplot2 RColorBrewer reshape2 grid
+#' @import ggplot2 GGally RColorBrewer reshape2 grid
 #' @author Patrick Kimes
 NULL
 
@@ -48,7 +52,8 @@ NULL
                                genomic = TRUE, ex_use = 2/3,
                                flip_neg = TRUE, use_blk = FALSE,
                                txlist = NULL, txdb = NULL,
-                               orgdb = NULL, ...) {
+                               orgdb = NULL, scores = FALSE,
+                               plot = TRUE, ...) {
     
     ##currently can't include gene models if not plotting on genomic scale
     if (!is.null(txlist) && !genomic)
@@ -79,18 +84,36 @@ NULL
         e_loads <- pca_e$rotation[, 1:npc, drop=FALSE]
         j_loads <- pca_j$rotation[, 1:npc, drop=FALSE]
 
-        ##flip junction loadings if scores opposite of exon scores
+        e_scores <- pca_e$x[, 1:npc, drop=FALSE]
+        j_scores <- pca_j$x[, 1:npc, drop=FALSE]
+            
+        ##flip junction scores/loadings if scores opposite of exon scores
         for (ipc in 1:npc) {
-            if (cor(pca_e$x[, ipc], pca_j$x[, ipc]) < 0)
+            if (cor(e_scores[, ipc], j_scores[, ipc]) < 0) {
+                j_scores[, ipc] <- -j_scores[, ipc]
                 j_loads[, ipc] <- -j_loads[, ipc]
+            }
         }
+        ej_scores <- data.frame(cbind(e_scores, j_scores))
+        names(ej_scores) <- c(paste0("E_PC", 1:npc),
+                              paste0("J_PC", 1:npc))
         
+        ##generate text for % var expl
         pvar_e <- pca_e$sdev^2 / sum(pca_e$sdev^2)
         pvar_j <- pca_j$sdev^2 / sum(pca_j$sdev^2)
-        pvar_ej <- paste(
-            paste0("exon var expl = ", round(pvar_e, 3)),
-            paste0("junc var expl = ", round(pvar_j, 3)), sep=", ")
-
+        pvar_e <- pvar_e[1:npc]
+        pvar_j <- pvar_j[1:npc]
+        if (scores) {
+            pvar_ej <- c(
+                paste0("EXON var expl = ", sprintf("%.2f", round(100*pvar_e, 2)), "%"),
+                paste0("JUNC var expl = ", sprintf("%.2f", round(100*pvar_j, 2)), "%"))
+        } else {
+            pvar_ej <- paste(
+                paste0("EXON var expl = ", sprintf("%.2f", round(100*pvar_e, 2)), "%"),
+                paste0("JUNC var expl = ", sprintf("%.2f", round(100*pvar_j, 2)), "%"), sep="\n")
+        }
+            
+        
     } else {
         ej_w <- ej_w / sum(ej_w)
 
@@ -108,15 +131,87 @@ NULL
         e_loads <- pca_ej$rotation[1:p_e, 1:npc, drop=FALSE]
         j_loads <- pca_ej$rotation[-(1:p_e), 1:npc, drop=FALSE]
 
-        pvar_ej <- pca_ej$sdev^2 / sum(pca_ej$sdev^2)
-        pvar_ej <- paste0("total var expl = ", round(pvar_ej, 3))
+        ej_scores <- data.frame(pca_ej$x[, 1:npc, drop=FALSE])
+        names(ej_scores) <- paste0("PC", 1:npc)
         
+        pvar_ej <- pca_ej$sdev^2 / sum(pca_ej$sdev^2)
+        pvar_ej <- paste0("TOTAL var expl = ", sprintf("%.2f", round(100*pvar_ej, 2)), "%")
+        pvar_ej <- pvar_ej[1:npc]
     }
     
-    splicegralp(obj, e_loads, j_loads, load_lims = c(-1, 1), 
-                genomic = genomic, ex_use = ex_use,
-                flip_neg = flip_neg, use_blk = use_blk,
-                txlist = txlist, txdb = txdb, orgdb = orgdb)
+    
+    ##return values if not interested in plots
+    if (!plot) {
+        if (pc_sep) {
+            return(list(pca_e = pca_e, pca_j = pca_j))
+        } else {
+            return(pca_ej)
+        }
+    }
+    
+    
+    ##create final scores or loadings plot
+    if (scores) {
+        ##create scores plot
+        pl <- ggpairs(ej_scores, alpha=0.4, upper="blank")
+        
+        if (pc_sep) {
+            ##give color to exon scores
+            for (ii in 1:npc) {
+                for (jj in 1:ii) {
+                    pl$plots[[2*npc*(ii-1)+jj]] <-
+                        paste0(pl$plots[[2*npc*(ii-1)+jj]],
+                               "+ theme(panel.background = element_rect(fill = '#B7C8D6'))")
+                }
+            }
+            
+            ##give color to junction scores
+            for (ii in (npc+1):(2*npc)) {
+                for (jj in (npc+1):ii) {
+                    pl$plots[[2*npc*(ii-1)+jj]] <-
+                        paste0(pl$plots[[2*npc*(ii-1)+jj]],
+                               "+ theme(panel.background = element_rect(fill = '#DDF2CC'))")
+                }
+            }
+            
+            ##remove cross plots
+            for (ii in (npc+1):(2*npc)) {
+                for (jj in 1:npc) {
+                    if (ii != jj+npc)
+                        pl$plots[[2*npc*(ii-1)+jj]] <- "ggally_blank()"
+                }
+            }            
+        }
+
+        ##return final plot
+        pl
+        
+        
+    } else {
+        ## create splicing plot
+        pl <- splicegralp(obj, e_loads, j_loads, load_lims = c(-1, 1), 
+                          genomic = genomic, ex_use = ex_use,
+                          flip_neg = flip_neg, use_blk = use_blk,
+                          txlist = txlist, txdb = txdb, orgdb = orgdb)
+
+        
+        ## add % var expl to each panel, determine where to add text
+        xtxt <- 0
+        if (flip_neg && all(strand(exons(obj)) == "-")) {
+            xtxt <- max(pl$data$xmax)
+        }
+
+        ann_text <- data.frame(xmin = 0, xmax = 0, ymin = 0, ymax = 0,
+                               x = xtxt, y = 2.2, lab = pvar_ej, value = 0,
+                               variable = paste0("Dir", 1:length(pvar_ej)))
+
+        ## return final plot
+        pl + geom_text(data = ann_text, 
+                       aes(x = x, y = y, label = lab),
+                       size = 3, family = "mono",
+                       color = ifelse(use_blk, "white", "black"),
+                       hjust = 0, vjust = 0)
+    }    
 }
 
 
@@ -126,3 +221,4 @@ NULL
 setMethod("splicepca",
           signature(obj = "concomp"),
           function(obj, ...) .splicepca.concomp(obj, ...))
+
