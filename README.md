@@ -6,8 +6,7 @@ spliceclust
 ## Contents
 1. [Introduction](#intro)
 2. [SpliceGraHM Examples](#splicegrahm)
-3. [SpliceGraLP Examples](#splicegralp)
-4. [SplicePCA Examples](#splicepca)
+3. [SplicePCA Examples](#splicepca)
 
 
 ## <a name="intro"></a> Introduction
