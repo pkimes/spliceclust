@@ -82,7 +82,7 @@ NULL
         ##flip junction loadings if scores opposite of exon scores
         for (ipc in 1:npc) {
             if (cor(pca_e$x[, ipc], pca_j$x[, ipc]) < 0)
-                j_loads[, ipc, drop=FALSE] <- -j_loads[, ipc, drop=FALSE]
+                j_loads[, ipc] <- -j_loads[, ipc]
         }
         
         pvar_e <- pca_e$sdev^2 / sum(pca_e$sdev^2)
