@@ -199,6 +199,8 @@ NULL
         xtxt <- 0
         if (flip_neg && all(strand(exons(obj)) == "-")) {
             xtxt <- max(pl$data$xmax)
+        } else if (genomic) {
+            xtxt <- min(pl$data$xmin)
         }
 
         ann_text <- data.frame(xmin = xtxt, xmax = xtxt, ymin = 0, ymax = 0,
