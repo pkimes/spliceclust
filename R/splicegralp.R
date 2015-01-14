@@ -44,11 +44,13 @@ NULL
                                  txlist = NULL, txdb = NULL,
                                  orgdb = NULL, ...) {
     
-    ##currently can't include gene models if not plotting on genomic scale
-    if (!is.null(txlist) && !genomic)
-        cat("ignoring txlist input since plotting on non-genomic scale. \n")
+    ##can't include gene models if not plotting on genomic scale
+    if (!is.null(txlist) && !genomic) {
+        cat("since txlist provided, plotting on genomic scale. \n")
+        genomic <- TRUE
+    }
 
-    
+
     ##unpack concomp
     gr_e <- exons(obj)
     gr_j <- juncs(obj)
@@ -110,9 +112,30 @@ NULL
     }
     
 
-    ##determine whether plots should be flipped
-    iflip <- flip_neg && all(strand(gr_e) == '-')
+    ##determine overlapping gene models
+    if (!is.null(txlist) && genomic) {
+        cand_names <- concomp2name(obj, txlist, txdb, orgdb)
+        cand_idx <- cand_names[, 1]
+        cand_names <- cand_names[, 2]
+        
+        if (length(cand_idx) > 0) {
+            tx_match <- txlist[cand_idx]
+            names(tx_match) <- make.unique(cand_names)
+            annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()            
+        }
+    }
 
+
+    ##determine whether plots should be flipped based on passed data
+    ## or matched models -- remove arrows if not passed !!!!!
+    if (all(strand(gr_e) == "*") &&
+        !is.null(txlist) &&
+        length(cand_idx) > 0) {
+        iflip <- flip_neg && all(strand(tx_match) == '-')
+    } else {
+        iflip <- flip_neg && all(strand(gr_e) == '-')
+    }
+    
     
     ##strand of junctions for arrow heads
     arrowhead <- ifelse(as.character(strand(gr_j)) == "-",
@@ -198,11 +221,19 @@ NULL
             circle2 <- cbind(circle1, xmin=gg_e$xmin[1], xmax=gg_e$xmax[1],
                              ymin=gg_e$xmin[1], ymax=gg_e$ymax[1],
                              variable=paste0("Dir", ipc), value=0)
-            g_obj <- g_obj +
-                geom_path(data=circle2, size=.75, aes(x=x, y=y),
-                          color=.rgb2hex(crp2(j_col_scale[j, ipc])),
-                          arrow=grid::arrow(length=grid::unit(.015*n_vec, "npc"),
-                              ends=arrowhead[j]))
+
+            ##only include arrows if direction is known
+            if (all(strand(gr_e) == "*")) {
+                g_obj <- g_obj +
+                    geom_path(data=circle2, size=.75, aes(x=x, y=y),
+                              color=.rgb2hex(crp2(j_col_scale[j, ipc])))
+            } else {
+                g_obj <- g_obj +
+                    geom_path(data=circle2, size=.75, aes(x=x, y=y),
+                              color=.rgb2hex(crp2(j_col_scale[j, ipc])),
+                              arrow=grid::arrow(length=grid::unit(.015*n_vec, "npc"),
+                                  ends=arrowhead[j]))
+            }
         }
     }
 
@@ -213,28 +244,10 @@ NULL
     }
 
 
-    ##warm user that txlist won't be processed unless on genomic coordinates
-    if (!is.null(txlist) && !genomic) {
-        cat(paste0("!!!  can't plot model transcripts unless ",
-                   "genomic=TRUE  !!!\n"))
-    }
-
-
     ##add annotations if txdb was passed to function
-    if (!is.null(txlist) && genomic) {
-        cand_names <- concomp2name(obj, txlist, txdb, orgdb)
-        cand_idx <- cand_names[, 1]
-        cand_names <- cand_names[, 2]
-        
-        if (length(cand_idx) > 0) {
-            tx_match <- txlist[cand_idx]
-            names(tx_match) <- make.unique(cand_names)
-            annot_track <- ggplot(tx_match) +
-                geom_alignment() + theme_bw()            
-            if (iflip) { annot_track <- annot_track + scale_x_reverse() }
-            
-            g_obj <- tracks(g_obj, annot_track, heights=c(2, 1))
-        }
+    if (!is.null(txlist) && genomic && length(cand_idx) > 0) {
+        if (iflip) { annot_track <- annot_track + scale_x_reverse() }
+        g_obj <- tracks(g_obj, annot_track, heights=c(2, 1))
     }
 
     g_obj
