@@ -14,8 +14,8 @@ NULL
     if (!setequal(names(obj), c("e", "j")))
         stop("GRangesList must only contain two objects: 'e' and 'j'")
 
-    gr_e <- obj[["e"]]
-    gr_j <- obj[["j"]]
+    gr_e <- sort(obj[["e"]])
+    gr_j <- sort(obj[["j"]])
 
     vals_e <- mcols(gr_e)
     vals_j <- mcols(gr_j)
@@ -55,8 +55,8 @@ NULL
     
     gr <- makeGRangesFromDataFrame(obj, seqnames.field="chr")
     seqlengths(gr) <- obj$seqlengths[1]
-    gr_e <- gr[obj$kind == "e"]
-    gr_j <- gr[obj$kind == "j"]
+    gr_e <- sort(gr[obj$kind == "e"])
+    gr_j <- sort(gr[obj$kind == "j"])
 
     val_cols <- grep("^s[0-9]", names(obj), value=TRUE)
     if (length(val_cols) > 0) {

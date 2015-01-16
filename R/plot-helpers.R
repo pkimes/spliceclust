@@ -64,7 +64,7 @@ concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
             return(cbind(cand_idx, pair))
     
         } else {
-            pair <- select(txdb, keys=cand_idx,
+            pair <- select(txdb, keys=as.character(cand_idx),
                            columns="TXNAME", keytype="TXID")$TXNAME
             return(cbind(cand_idx, pair))
         }
@@ -128,4 +128,37 @@ diffsplice2name <- function(obj, ichr, seqlen, txlist, txdb = NULL, orgdb = NULL
     }
     
     return(output)
+}
+
+
+#' match gene name (symbol) to connected component index
+#' 
+#' Function matches a character string gene symbol to overlapping connected components
+#' according to annotations in \code{txdb} and \code{txlist}. Note to self: R follows
+#' copy-on-write semantics.
+#'
+#' @param name a \code{character} string specifying the gene of interest
+#' @param obj a \code{GRangesList} of connected component ranges, each name corresponding
+#'        to the 'gene index'
+#' @param txlist a list of transcripts, e.g. \code{exonsBy(txdb)}
+#' @param txdb a transcript database, e.g. \code{TxDb.Hsapiens.UCSC.hg19.knownGene}
+#'        (default = NULL)
+#' @param orgdb a organism database, e.g. \code{org.Hs.eg.db} (default = NULL)
+#'
+#' @return a \code{data.frame} with connected component IDs and overlapping
+#'         transcript or gene names
+#'
+#' @import GenomicRanges
+#' @export
+#' @author Patrick Kimes
+name2gidx <- function(name, obj, txlist, txdb, orgdb) {
+    ##identify gene models
+    eid <- select(orgdb, keys=name, columns="ENTREZID", keytype="SYMBOL")
+    txid <- select(txdb, keys=eid$ENTREZID, columns=c("TXID", "TXNAME"), keytype="GENEID")
+    tx <- txlist[as.character(txid$TXID)]
+    uniontx <- reduce(unlist(tx))
+
+    ##compare to GRangesList of connect components
+    matches <- subjectHits(findOverlaps(uniontx, obj))
+    names(obj)[unique(matches)]
 }
