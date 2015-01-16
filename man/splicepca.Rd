@@ -65,7 +65,7 @@ a ggplot2 plot showing the specified number of loadings
 Splice graphs with PCA loadings shown along the exons and junctions to illustrate
 expression patterns across a connected component. The function can be used to
 illustrate, e.g. differences across groups/clusters or principal component
-loadings.
+loadings. Note that PCA is performed on the log-transfored data by default.
 }
 \author{
 Patrick Kimes

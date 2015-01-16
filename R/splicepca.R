@@ -3,7 +3,7 @@
 #' Splice graphs with PCA loadings shown along the exons and junctions to illustrate
 #' expression patterns across a connected component. The function can be used to
 #' illustrate, e.g. differences across groups/clusters or principal component
-#' loadings.
+#' loadings. Note that PCA is performed on the log-transfored data by default.
 #'
 #' @param obj a \code{concomp} object with exon and junction information
 #' @param npc a numeric value specifying number of PCs to plot (default = 3)
