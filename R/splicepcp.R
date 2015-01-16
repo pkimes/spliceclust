@@ -245,10 +245,17 @@ NULL
             circle2 <- cbind(circle1, xmin=gg_e$xmin[1], xmax=gg_e$xmax[1],
                              ymin=gg_e$xmin[1], ymax=gg_e$ymax[1],
                              value=0)
-            g_mobj <- g_mobj +
-                geom_path(data=circle2, size=.25, aes(x=x, y=y),
-                          arrow=grid::arrow(length=grid::unit(.025, "npc"),
-                              ends=arrowhead[j]))
+
+            ##only include arrows if direction is known
+            if (all(strand(gr_e) == "*")) {
+                g_mobj <- g_mobj +
+                    geom_path(data=circle2, size=.25, aes(x=x, y=y))
+            } else {
+                g_mobj <- g_mobj +
+                    geom_path(data=circle2, size=.25, aes(x=x, y=y),
+                              arrow=grid::arrow(length=grid::unit(.025, "npc"),
+                                  ends=arrowhead[j]))
+            }
         }
     }
 

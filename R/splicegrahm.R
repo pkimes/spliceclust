@@ -360,7 +360,7 @@ NULL
                               ymin=n+1, height=1*n*sqrt(w_prop))
 
         ##only include arrows if direction is known
-       if (all(strand(gr_e) == "*")) {
+        if (all(strand(gr_e) == "*")) {
             g_obj <- g_obj +
                 annotate("path", size=.75,
                          x=circle1$x, y=circle1$y,
