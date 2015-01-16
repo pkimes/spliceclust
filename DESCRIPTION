@@ -1,9 +1,20 @@
 Package: spliceclust
-Title: visualization and analysis of connected components
-Version: 0.2
-Authors@R: "Patrick Kimes <patrick.kimes@gmail.com> [aut, cre]"
-Description: Currently just includes workflow in demo/ directory
+Title: Visualization and Clustering of Spliced Components
+Version: 0.1.0
+Author: Patrick Kimes
+Maintainer: <patrick.kimes@gmail.com>
+Description: Visualization tools for coverage/expression along genomic connected components (objects comprised of exons and splice junctions)
+             across large cohorts of samples.
 Depends:
     R (>= 3.1.1)
+Imports:
+    GGally,
+    GenomicRanges,
+    RColorBrewer,
+    IRanges,
+    ggbio,
+    ggplot2,
+    grid,
+    reshape2
 License: GPL (>= 2)
 LazyData: true
