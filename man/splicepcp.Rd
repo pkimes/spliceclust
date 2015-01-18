@@ -53,8 +53,11 @@ Splice graph expression plot with exons along horizontal axis with vertical
 axis showing expression level. The plot provides an alternative to the
 heatmaps used to visualize expression using the \code{splicegrahm} and
 \code{splicegralp} functions.
+
+splicepcp method
 }
 \author{
 Patrick Kimes
 }
+\keyword{internal}
 

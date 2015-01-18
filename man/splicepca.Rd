@@ -42,10 +42,6 @@ to run left to right (default = TRUE)}
 added to the plot if falling within the region of the connected component
 (default = NULL)}
 
-\item{txlist}{a GRangesList of transcripts or genes which should be queried and
-added to the plot if falling within the region of the connected component
-(default = NULL)}
-
 \item{txdb}{a transcript database which can be used to query the transcript IDs
 identified from txlist (default = NULL)}
 
@@ -66,8 +62,11 @@ Splice graphs with PCA loadings shown along the exons and junctions to illustrat
 expression patterns across a connected component. The function can be used to
 illustrate, e.g. differences across groups/clusters or principal component
 loadings. Note that PCA is performed on the log-transfored data by default.
+
+splicepca method
 }
 \author{
 Patrick Kimes
 }
+\keyword{internal}
 

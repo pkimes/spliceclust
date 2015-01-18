@@ -421,8 +421,8 @@ NULL
     g_obj
 }
 
-
-
+#' @keywords internal
+#' @title splicegrahm method
 #' @name splicegrahm-concomp
 #' @aliases splicegrahm,concomp-method
 setMethod("splicegrahm",

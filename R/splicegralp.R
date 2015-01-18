@@ -20,9 +20,6 @@
 #' @param txlist a GRangesList of transcripts or genes which should be queried and
 #'        added to the plot if falling within the region of the connected component
 #'        (default = NULL)
-#' @param txlist a GRangesList of transcripts or genes which should be queried and
-#'        added to the plot if falling within the region of the connected component
-#'        (default = NULL)
 #' @param txdb a transcript database which can be used to query the transcript IDs
 #'        identified from txlist (default = NULL)
 #' @param orgdb a database that can be queried using keys obtained from \code{txdb}
@@ -256,9 +253,9 @@ NULL
     g_obj
 }
 
-
-
-#' @rdname splicegralp
+#' @keywords internal
+#' @title splicegralp method
+#' @name splicegralp-concomp
 #' @aliases splicegralp,concomp-method
 setMethod("splicegralp",
           signature(obj = "concomp"),

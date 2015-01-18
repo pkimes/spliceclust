@@ -289,10 +289,8 @@ NULL
     g_obj
 }
 
-
-
-    
-
+#' @keywords internal
+#' @title splicepcp method
 #' @rdname splicepcp
 #' @aliases splicepcp,concomp-method
 setMethod("splicepcp",
