@@ -18,6 +18,8 @@ setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
 #'       spanning reads, with number of rows equal to the length of
 #'       \code{juncs}, or \code{NULL} if not available
 #'
+#' @param obj a \code{concomp} object
+#' 
 #' @details
 #' The columns of \code{exonValues} and \code{juncValues} correspond
 #' to individual samples or experiments, and should be of equal length.

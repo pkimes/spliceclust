@@ -17,6 +17,9 @@
 
 \S4method{juncValues}{concomp}(obj)
 }
+\arguments{
+\item{obj}{a \code{concomp} object}
+}
 \description{
 S4 class encapsulating exon and junction
 information for single connected component
