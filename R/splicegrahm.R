@@ -45,10 +45,13 @@
 #' \item{\code{1}}: sort based on first exon
 #' \item{\code{2}}: sort based on PC 2
 #' }
-#'
+#' 
 #' @name splicegrahm
 #' @export
-#' @import ggbio ggplot2 RColorBrewer reshape2 grid GenomicRanges
+#' @import ggplot2 GenomicRanges
+#' @importFrom ggbio geom_alignment
+#' @importFrom grid arrow unit
+#' @importFrom reshape2 melt
 #' @author Patrick Kimes
 NULL
 
@@ -420,7 +423,7 @@ NULL
 
 
 
-#' @rdname splicegrahm
+#' @name splicegrahm-concomp
 #' @aliases splicegrahm,concomp-method
 setMethod("splicegrahm",
           signature(obj = "concomp"),

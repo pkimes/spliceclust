@@ -35,7 +35,10 @@
 #'
 #' @name splicepcp
 #' @export
-#' @import ggbio ggplot2 RColorBrewer reshape2 grid GenomicRanges
+#' @import ggplot2 GenomicRanges
+#' @importFrom ggbio geom_alignment
+#' @importFrom grid arrow unit
+#' @importFrom reshape2 melt
 #' @author Patrick Kimes
 NULL
 
@@ -177,15 +180,8 @@ NULL
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
                     "non-genomic coordinates")) +
         theme_bw()
-
     
-    ## ##add discrete color palette
-    ## if (!is.null(highlight)) {
-    ##     g_obj <- g_obj +
-    ##         scale_color_manual("expr", values=hl_cols[1:nlevels(gg_e$hl)])
-    ## }
     
-
     ##plot with horizontal axis oriented on negative strand
     if (iflip) {
         g_obj <- g_obj + scale_x_reverse()

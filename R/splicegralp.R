@@ -34,7 +34,10 @@
 #'
 #' @name splicegralp
 #' @export
-#' @import ggplot2 RColorBrewer reshape2 grid
+#' @import ggplot2
+#' @importFrom ggbio geom_alignment
+#' @importFrom grid arrow unit
+#' @importFrom reshape2 melt
 #' @author Patrick Kimes
 NULL
 
@@ -121,7 +124,7 @@ NULL
         if (length(cand_idx) > 0) {
             tx_match <- txlist[cand_idx]
             names(tx_match) <- make.unique(cand_names)
-            annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()            
+            annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()
         }
     }
 

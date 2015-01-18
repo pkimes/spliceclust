@@ -43,7 +43,8 @@
 #'
 #' @name splicepca
 #' @export
-#' @import ggplot2 GGally RColorBrewer reshape2 grid
+#' @import ggplot2
+#' @importFrom GGally ggpairs
 #' @author Patrick Kimes
 NULL
 
