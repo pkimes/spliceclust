@@ -15,9 +15,10 @@ concomp(obj, ...)
 \S4method{concomp}{data.frame}(obj)
 }
 \arguments{
-\item{obj}{a \code{GRangesList} with two elements named "e" and "j"}
+\item{obj}{a \code{GRangesList} with two elements named "e" and "j" or
+a \code{data.frame} containing all of the information}
 
-\item{obj}{a \code{data.frame} containing all of the information}
+\item{...}{other parameters to be passed}
 }
 \value{
 \code{concomp} object

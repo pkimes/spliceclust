@@ -2,6 +2,10 @@
 #'
 #' construct a connected component object from various input objects
 #' 
+#' @param obj a \code{GRangesList} with two elements named "e" and "j" or
+#'        a \code{data.frame} containing all of the information
+#' @param ... other parameters to be passed
+#' 
 #' @return \code{concomp} object
 #'
 #' @import GenomicRanges IRanges
@@ -76,14 +80,12 @@ NULL
 }
 
 
-#' @param obj a \code{GRangesList} with two elements named "e" and "j"
 #' @rdname concomp-constructor
 setMethod("concomp",
           signature(obj = "GRangesList"),
           .concomp.GRangesList)
 
 
-#' @param obj a \code{data.frame} containing all of the information
 #' @rdname concomp-constructor
 setMethod("concomp",
           signature(obj = "data.frame"),
