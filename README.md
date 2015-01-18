@@ -1,6 +1,6 @@
 
 
-spliceclust
+spliceclust [![Build Status](https://travis-ci.org/pkimes/spliceclust.svg?branch=master)](https://travis-ci.org/pkimes/spliceclust)
 =======================
 
 ## Contents
@@ -144,7 +144,9 @@ exbytx <- exonsBy(txdb, "tx")
 splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx)
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
+```
+## Error: ggplot2 doesn't know how to deal with data of class GRangesList
+```
 
 If gene names are desired, the following can be used to match the transcript ID
 in `txdb` against gene symbols (e.g. in `org.Hs.eg.db`).
@@ -157,7 +159,9 @@ splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx,
             txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
+```
+## Error: ggplot2 doesn't know how to deal with data of class GRangesList
+```
 
 If a gray/black background is preferred, e.g. to see faint arrows corresponding to rare splice variants,
 this is also possible by setting the `use_blk` parameter to `TRUE`.
@@ -168,7 +172,9 @@ splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, use_blk = TRUE,
             txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+```
+## Error: ggplot2 doesn't know how to deal with data of class GRangesList
+```
 
 
 
@@ -239,12 +245,12 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] spliceclust_0.2                        
-##  [2] org.Hs.eg.db_3.0.0                     
-##  [3] RSQLite_1.0.0                          
-##  [4] DBI_0.3.1                              
-##  [5] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [6] GenomicFeatures_1.18.3                 
+##  [1] org.Hs.eg.db_3.0.0                     
+##  [2] RSQLite_1.0.0                          
+##  [3] DBI_0.3.1                              
+##  [4] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+##  [5] GenomicFeatures_1.18.3                 
+##  [6] spliceclust_0.1.0                      
 ##  [7] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
 ##  [8] BSgenome_1.34.1                        
 ##  [9] rtracklayer_1.26.2                     
@@ -279,20 +285,19 @@ sessionInfo()
 ## [23] Formula_1.1-2            GenomicAlignments_1.2.1 
 ## [25] graph_1.44.1             grid_3.1.1              
 ## [27] gridExtra_0.9.1          gtable_0.1.2            
-## [29] Hmisc_3.14-6             htmltools_0.2.6         
-## [31] iterators_1.0.7          knitr_1.8               
-## [33] labeling_0.3             lattice_0.20-29         
-## [35] latticeExtra_0.6-26      MASS_7.3-35             
-## [37] munsell_0.4.2            nnet_7.3-8              
-## [39] OrganismDbi_1.8.0        plyr_1.8.1              
-## [41] proto_0.3-10             RBGL_1.42.0             
-## [43] Rcpp_0.11.3              RCurl_1.95-4.5          
-## [45] reshape_0.8.5            reshape2_1.4.1          
-## [47] rmarkdown_0.4.2          rpart_4.1-8             
-## [49] Rsamtools_1.18.2         scales_0.2.4            
-## [51] sendmailR_1.2-1          splines_3.1.1           
-## [53] stringr_0.6.2            survival_2.37-7         
-## [55] tools_3.1.1              VariantAnnotation_1.12.8
-## [57] xtable_1.7-4             zlibbioc_1.12.0
+## [29] Hmisc_3.14-6             iterators_1.0.7         
+## [31] knitr_1.8                labeling_0.3            
+## [33] lattice_0.20-29          latticeExtra_0.6-26     
+## [35] MASS_7.3-35              munsell_0.4.2           
+## [37] nnet_7.3-8               OrganismDbi_1.8.0       
+## [39] plyr_1.8.1               proto_0.3-10            
+## [41] RBGL_1.42.0              Rcpp_0.11.3             
+## [43] RCurl_1.95-4.5           reshape_0.8.5           
+## [45] reshape2_1.4.1           rpart_4.1-8             
+## [47] Rsamtools_1.18.2         scales_0.2.4            
+## [49] sendmailR_1.2-1          splines_3.1.1           
+## [51] stringr_0.6.2            survival_2.37-7         
+## [53] tools_3.1.1              VariantAnnotation_1.12.8
+## [55] xtable_1.7-4             zlibbioc_1.12.0
 ```
 
