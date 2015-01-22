@@ -49,7 +49,7 @@
 #' @name splicegrahm
 #' @export
 #' @import ggplot2 GenomicRanges
-#' @importFrom ggbio geom_alignment
+#' @importFrom ggbio geom_alignment autoplot ggplot
 #' @importFrom grid arrow unit
 #' @importFrom reshape2 melt
 #' @author Patrick Kimes
@@ -236,9 +236,9 @@ NULL
         junc_x <- junc_x[2:(p_j+1)]
         
         ##flip order of plotting to match negative strand
-        if (iflip) {
-            junc_x <- rev(junc_x)
-        }
+        ## if (iflip) {
+        ##     junc_x <- rev(junc_x)
+        ## }
         
         junc_y <- 2.25*n
         s_size <- .5
@@ -380,18 +380,21 @@ NULL
 
     ##add text labels for splicing arrows
     if (j_incl) {
+        abc <- ll_LETTERS[1:p_j]
+        if (iflip) { abc <- rev(abc) }
+
         w_prop <- width(ranges(gr_j)) / width(range(gr_e))
         g_obj <- g_obj +
             annotate("text", size=3,
                      x=(start(ranges(gr_j)) + end(ranges(gr_j))) / 2,
                      y=(n+1)*(1 + sqrt(w_prop)), vjust=0, 
-                     label=ll_LETTERS[1:p_j],
+                     label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
         g_obj <- g_obj +
             annotate("text", size=3,
                      x=junc_x, y=rep(junc_y + (n+1)*(.025 + s_size), p_j),
-                     label=ll_LETTERS[1:p_j], vjust=0,
+                     label=abc, vjust=0,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
         ##add rectangles around 
