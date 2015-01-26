@@ -8,6 +8,7 @@
 #' @param height numeric value of arc height
 #' @param npoints integer number of points to draw arc
 #'
+#' @name pseudoArc
 #' @keywords internal
 #' @author Patrick Kimes
 .pseudoArc <- function(xmin = 0, xmax = 10,
@@ -30,6 +31,7 @@
 #' @return vector of hex colors with length same as number of rows in
 #'         input matrix
 #'
+#' @name rgb2hex
 #' @keywords internal
 #' @author Patrick Kimes
 .rgb2hex <- function(rgb) {
