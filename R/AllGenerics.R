@@ -16,6 +16,19 @@ setGeneric("concomp",
 ## ###################################################################
 ## plot methods
 
+#' Splice Graph HeatMap 2 (SpliceGraHM2)
+#'
+#' Method for plotting both the exon and junction values of a single
+#' connected component
+#'
+#' @export
+#' @docType methods
+#' @name splicegrahm2-generic
+#' @keywords internal
+setGeneric("splicegrahm2",
+           function(obj1, obj2, ...)  standardGeneric("splicegrahm2"))
+
+
 #' Splice Graph HeatMap (SpliceGraHM)
 #'
 #' Method for plotting both the exon and junction values of a single
