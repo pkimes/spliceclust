@@ -65,6 +65,12 @@ loadings. Note that PCA is performed on the log-transfored data by default.
 
 splicepca method
 }
+\details{
+\code{npc} cannot be larger than the rank of the centered data. When \code{pc_sep = TRUE},
+this corresponds to \code{min(p_e, p_j, n-1)}, where \code{p_e}, \code{p_j}, \code{n}
+correspond to the number of exons, junctions, and samples. When \code{pc_sep = TRUE},
+this corresponds to \code{min(p_e+p_j, n-1)}.
+}
 \author{
 Patrick Kimes
 }

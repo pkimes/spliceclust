@@ -20,6 +20,8 @@
 #'        (default = NULL)
 #' @param imodel a logical whether to include the connected component plot generated
 #'        by splicegralp or splicegrahm to the plot (default = TRUE)
+#' @param j_incl a logical whether to include the junction information as a
+#'        parallel coordinates track (default = FALSE)
 #' @param txlist a GRangesList of transcripts or genes which should be queried and
 #'        added to the plot if falling within the region of the connected component
 #'        (default = NULL)
@@ -142,9 +144,31 @@ NULL
                        vals_e)
     gg_e <- reshape2::melt(gg_e, id.vars=c("xmin", "xmax"))
 
+    ##data.frame for in-between portions of PCP
+    gg_1 <- data.frame(xmin = end(ranges(gr_e))[-p_e],
+                       xmax = start(ranges(gr_e))[-1],
+                       vals_e[-p_e, ])
+    gg_1 <- reshape2::melt(gg_1, id.vars=c("xmin", "xmax"))
+    names(gg_1) <- c("xmin", "xmax", "variable", "ymin")
+    
+    gg_2 <- data.frame(xmin = end(ranges(gr_e))[-p_e],
+                       xmax = start(ranges(gr_e))[-1],
+                       vals_e[-1, ])
+    gg_2 <- reshape2::melt(gg_2, id.vars=c("xmin", "xmax"))
+    names(gg_2) <- c("xmin", "xmax", "variable", "ymax")
+
+    gg_new <- merge(gg_1, gg_2)
+    gg_new$transp <- 1/4
+    gg_new <- gg_new[order(gg_new$variable), ]
+    
     ##change y values 
     gg_e$ymin <- gg_e$value
     gg_e$ymax <- gg_e$value
+    gg_e$transp <- 2/3
+    gg_e <- gg_e[c("xmin", "xmax", "variable", "ymin", "ymax", "transp")]
+
+    ##combine exon data.frame and in-between data.frame    
+    gg_e <- rbind(gg_e, gg_new)
 
     
     ##transform if desired
@@ -153,16 +177,18 @@ NULL
         gg_e$ymax <- log(log_shift + gg_e$ymax, base=log_base)
         v_max <- max(gg_e$ymax)
     }
-    
+
     
     ##color by groups if specified for highlight
     if (is.null(highlight)) {
         g_obj <- ggplot(gg_e, aes(x=xmin, xend=xmax,
                                   y=ymin, yend=ymax))
     } else {
-        gg_e$hl <- rep(as.factor(highlight), each=p_e)
+        gg_e$hl <- as.factor(c(rep(highlight, each=p_e),
+                               rep(highlight, each=p_e-1)))
         g_obj <- ggplot(gg_e, aes(x=xmin, xend=xmax,
-                                  y=ymin, yend=ymax, color=hl))
+                                  y=ymin, yend=ymax, color=hl)) +
+                                      scale_color_discrete("Cluster")
     }        
 
     ##add horizontal line first
@@ -171,14 +197,15 @@ NULL
 
     
     ##add main segments
-    g_obj <- g_obj + geom_segment(alpha=2/3, size=1/3)
+    g_obj <- g_obj + geom_segment(aes(alpha=transp), size=1/3) +
+        scale_alpha_continuous(guide=FALSE)
 
     
     ##add basic plot structure
     g_obj <- g_obj + 
-        ylab(ifelse(log_base==0, "Expression", "log Expression")) +
+        ylab(ifelse(log_base == 0, "expression", paste0("log", log_base, " expression"))) +
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
-                    "non-genomic coordinates")) +
+                    "Non-Genomic Coordinates")) +
         theme_bw()
     
     
@@ -278,9 +305,9 @@ NULL
     
     ##combine generated tracks
     if (imodel && itxdb) {
-        g_obj <- tracks(g_obj, g_mobj, annot_track, heights=c(2, 1, 1))
+        g_obj <- tracks(g_obj, g_mobj, annot_track, heights=c(3, 1, 1.5))
     } else if (imodel) {
-        g_obj <- tracks(g_obj, g_mobj, heights=c(2, 1))
+        g_obj <- tracks(g_obj, g_mobj, heights=c(3, 1))
     } else if (itxdb) {
         g_obj <- tracks(g_obj, annot_track, heights=c(2, 1))
     }
