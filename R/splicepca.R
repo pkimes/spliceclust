@@ -34,6 +34,12 @@
 #' @param plot a logical whether to output a plot or the actually PCA analyses
 #'        performed by \code{prcomp} (default = TRUE)
 #' @param ... other parameters to be passed
+#'
+#' @details
+#' \code{npc} cannot be larger than the rank of the centered data. When \code{pc_sep = TRUE},
+#' this corresponds to \code{min(p_e, p_j, n-1)}, where \code{p_e}, \code{p_j}, \code{n}
+#' correspond to the number of exons, junctions, and samples. When \code{pc_sep = TRUE},
+#' this corresponds to \code{min(p_e+p_j, n-1)}.
 #' 
 #' @return
 #' a ggplot2 plot showing the specified number of loadings
@@ -65,8 +71,28 @@ NULL
     ##dataset dimension
     p_e <- nrow(vals_e)
     p_j <- nrow(vals_j)
+    n <- ncol(vals_e)
 
+    ##check that npc is less than dim of data
+    if (pc_sep == TRUE) {
+        if (min(p_e, p_j, n-1) < 1) {
+            warning("not enough dimension in data")
+            return(NULL)
+        } else if (npc > min(p_e, p_j, n-1)) {
+            npc <- min(p_e, p_j, n-1)
+            warning(paste("original npc larger than dim of data, using npc =", npc))
+        }
+    } else {
+        if (min(p_e + p_j, n-1) < 1) {
+            warning("not enough dimension in data")
+            return(NULL)
+        } else if (npc > min(p_e + p_j, n-1)) {
+            npc <- min(p_e + p_j, n-1)
+            warning(paste("original npc larger than dim of data, using npc =", npc))
+        }
+    }            
 
+    
     ##transform if desired
     if (log_base > 0) {
         vals_e <- log(log_shift + vals_e, base=log_base)
