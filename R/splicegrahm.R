@@ -146,7 +146,7 @@ NULL
         if (length(cand_idx) > 0) {
             tx_match <- txlist[cand_idx]
             names(tx_match) <- make.unique(cand_names)
-            annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()            
+            annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()
         }
     }
 
@@ -161,15 +161,6 @@ NULL
         iflip <- flip_neg && all(strand(gr_e) == '-')
     }
     
-    
-    ## ##if negative strand ordering, flip order of obj
-    ## if (iflip) {
-    ##     gr_e <- rev(gr_e)
-    ##     gr_j <- rev(gr_j)
-    ##     vals_e <- vals_e[p_e:1, , drop=FALSE]
-    ##     vals_j <- vals_j[p_j:1, , drop=FALSE]
-    ## }
-
     
     ##determine order of samples
     if (sort_sep) {
