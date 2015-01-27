@@ -34,6 +34,9 @@ to run left to right (default = TRUE)}
 \item{imodel}{a logical whether to include the connected component plot generated
 by splicegralp or splicegrahm to the plot (default = TRUE)}
 
+\item{j_incl}{a logical whether to include the junction information as a
+parallel coordinates track (default = FALSE)}
+
 \item{txlist}{a GRangesList of transcripts or genes which should be queried and
 added to the plot if falling within the region of the connected component
 (default = NULL)}
