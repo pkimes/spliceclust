@@ -296,6 +296,16 @@ find_annotations <- function(obj, txlist, txdb, orgdb) {
     tx_match <- NULL
     annot_track <- NULL
 
+    ## cands <- concomp2name(obj, txlist, txdb, orgdb)
+    ## cand_idx <- cands[, 1]
+    ## cand_names <- unique(cands[, 2])[1]
+    ## eval(bquote(
+    ##     annot_track <- ggplot(txdb) +
+    ##         geom_alignment(which = genesymbol[.(cand_names)]) +
+    ##             theme_bw()
+    ##     ))
+    ## list(tx_match = tx_match, annot_track = annot_track)
+
     cands <- concomp2name(obj, txlist, txdb, orgdb)
     cand_idx <- cands[, 1]
     cand_names <- cands[, 2]
@@ -303,7 +313,13 @@ find_annotations <- function(obj, txlist, txdb, orgdb) {
     if (length(cand_idx) > 0) {
         tx_match <- txlist[cand_idx]
         names(tx_match) <- make.unique(cand_names)
-        annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()            
+
+        ##can't get geom_alignment with GRangesList to plot arrows
+        tx_len <- sapply(tx_match, length)
+        tx_plot <- unlist(tx_match)
+        mcols(tx_plot)$tx <- rep(names(tx_match), times=tx_len)
+        annot_track <- ggplot() +
+            geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) + theme_bw()
     }
     list(tx_match = tx_match, annot_track = annot_track)
 }
