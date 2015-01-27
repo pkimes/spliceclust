@@ -124,14 +124,6 @@ NULL
     ##determine whether plots should be flipped
     iflip <- flip_neg && all(strand(gr_e) == '-')
 
-    ##if negative strand ordering, flip order of obj
-    if (iflip) {
-        gr_e <- rev(gr_e)
-        gr_j <- rev(gr_j)
-        vals_e <- vals_e[p_e:1, , drop=FALSE]
-        vals_j <- vals_j[p_j:1, , drop=FALSE]
-    }
-
     
     ##strand of junctions for arrow heads
     arrowhead <- ifelse(as.character(strand(gr_j)) == "-",
