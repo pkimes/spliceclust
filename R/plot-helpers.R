@@ -260,7 +260,7 @@ adj_ranges <- function(gr_e, gr_j, dna_len, rna_len, ex_use, p_e) {
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
-sampl_sort <- function(sort_idx, vals_e, vals_j) {
+sampl_sort <- function(sort_idx, vals_e, vals_j, n) {
     if (length(sort_idx) == 1) {
         if (sort_idx == 1) {
             idx <- order(vals_e[1, ])
