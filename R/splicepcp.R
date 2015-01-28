@@ -60,19 +60,6 @@ NULL
         cat("ignoring txlist input since plotting on non-genomic scale. \n")
 
     
-    ##color generators
-    crp <- colorRampPalette(c("#f7fbff", "#08306b"))
-    crp2 <- colorRamp(c("#f7fbff", "#047760"))
-    hl_cols <- c("#646464", "#CA4942", "#5A3589")
-
-    ##long list of letters
-    ll_LETTERS <- LETTERS
-    for (k in 2:5) {
-        ll_LETTERS <- c(ll_LETTERS,
-                        do.call("paste0", rep(list(LETTERS), k)))
-    }
-
-    
     ##unpack concomp
     gr_e <- exons(obj)
     gr_j <- juncs(obj)
@@ -83,229 +70,75 @@ NULL
     n <- ncol(vals_e)
     p_e <- nrow(vals_e)
     p_j <- nrow(vals_j)
+    dna_len <- width(range(gr_e))
+    rna_len <- sum(width(gr_e))
 
     
     ##change GRanges coordinates if non-genomic coordinates are desired
     if (!genomic) {
-        dna_len <- width(range(gr_e))
-        rna_len <- sum(width(gr_e))
-
-        ##don't try to shrink gene model if intronic space is already small
         if (rna_len/dna_len <= ex_use) {
-            shift_1 <- -start(ranges(gr_e))[1]+1
-            ranges(gr_e) <- shift(ranges(gr_e), shift_1)
-            ranges(gr_j) <- shift(ranges(gr_j), shift_1)
-            
-            shrink_by <- 1 - (1 - ex_use)/ex_use * rna_len/(dna_len - rna_len)
-            gps <- distance(ranges(gr_e)[-p_e], ranges(gr_e)[-1]) * shrink_by
-            
-            eeb <- start(ranges(gr_e))[-1]
-            for (ii in (p_e-1):1) {
-                i_adj <- start(ranges(gr_e)) >= eeb[ii]
-                start(ranges(gr_e))[i_adj] <- start(ranges(gr_e))[i_adj] - gps[ii]
-                
-                i_adj <- end(ranges(gr_e)) >= eeb[ii]
-                end(ranges(gr_e))[i_adj] <- end(ranges(gr_e))[i_adj] - gps[ii]
-                
-                i_adj <- start(ranges(gr_j)) >= eeb[ii]
-                start(ranges(gr_j))[i_adj] <- start(ranges(gr_j))[i_adj] - gps[ii]
-                
-                i_adj <- end(ranges(gr_j)) >= eeb[ii]
-                end(ranges(gr_j))[i_adj] <- end(ranges(gr_j))[i_adj] - gps[ii]
-            }
-            
+            gr_ej <- adj_ranges(gr_e, gr_j, dna_len, rna_len, ex_use, p_e)
+            gr_e <- gr_ej$gr_e
+            gr_j <- gr_ej$gr_j
         } else {
             genomic <- TRUE
         }
-        
     }
 
+    
+    ##determine overlapping gene models
+    if (genomic && !is.null(txlist)) {
+        a_out <- find_annotations(obj, txlist, txdb, orgdb)
+        tx_match <- a_out$tx_match
+        annot_track <- a_out$annot_track
+    }
 
+    
     ##determine whether plots should be flipped
-    iflip <- flip_neg && all(strand(gr_e) == '-')
-
-    
-    ##strand of junctions for arrow heads
-    arrowhead <- ifelse(as.character(strand(gr_j)) == "-",
-                        "last", "first")
-    
-
-    ##construct ggplot2 object
-    gg_e <- data.frame(xmin=start(ranges(gr_e)),
-                       xmax=end(ranges(gr_e)),
-                       vals_e)
-    gg_e <- reshape2::melt(gg_e, id.vars=c("xmin", "xmax"))
-
-    ##data.frame for in-between portions of PCP
-    gg_1 <- data.frame(xmin = end(ranges(gr_e))[-p_e],
-                       xmax = start(ranges(gr_e))[-1],
-                       vals_e[-p_e, ])
-    gg_1 <- reshape2::melt(gg_1, id.vars=c("xmin", "xmax"))
-    names(gg_1) <- c("xmin", "xmax", "variable", "ymin")
-    
-    gg_2 <- data.frame(xmin = end(ranges(gr_e))[-p_e],
-                       xmax = start(ranges(gr_e))[-1],
-                       vals_e[-1, ])
-    gg_2 <- reshape2::melt(gg_2, id.vars=c("xmin", "xmax"))
-    names(gg_2) <- c("xmin", "xmax", "variable", "ymax")
-
-    gg_new <- merge(gg_1, gg_2)
-    gg_new$transp <- 1/4
-    gg_new <- gg_new[order(gg_new$variable), ]
-    
-    ##change y values 
-    gg_e$ymin <- gg_e$value
-    gg_e$ymax <- gg_e$value
-    gg_e$transp <- 2/3
-    gg_e <- gg_e[c("xmin", "xmax", "variable", "ymin", "ymax", "transp")]
-
-    ##combine exon data.frame and in-between data.frame    
-    gg_e <- rbind(gg_e, gg_new)
-
-    
-    ##transform if desired
-    if (log_base > 0) {
-        gg_e$ymin <- log(log_shift + gg_e$ymin, base=log_base)
-        gg_e$ymax <- log(log_shift + gg_e$ymax, base=log_base)
-        v_max <- max(gg_e$ymax)
-    }
-
-    
-    ##color by groups if specified for highlight
-    if (is.null(highlight)) {
-        g_obj <- ggplot(gg_e, aes(x=xmin, xend=xmax,
-                                  y=ymin, yend=ymax))
+    if (all(strand(gr_e) == "*") && !is.null(txlist) && !is.null(tx_match)) {
+        iflip <- flip_neg && all(strand(tx_match) == '-')
     } else {
-        gg_e$hl <- as.factor(c(rep(highlight, each=p_e),
-                               rep(highlight, each=p_e-1)))
-        g_obj <- ggplot(gg_e, aes(x=xmin, xend=xmax,
-                                  y=ymin, yend=ymax, color=hl)) +
-                                      scale_color_discrete("Cluster")
-    }        
-
-    ##add horizontal line first
-    g_obj <- g_obj + 
-        geom_hline(yintercept=0, color="#3C3C3C")
-
-    
-    ##add main segments
-    g_obj <- g_obj + geom_segment(aes(alpha=transp), size=1/3) +
-        scale_alpha_continuous(guide=FALSE)
-
-    
-    ##add basic plot structure
-    g_obj <- g_obj + 
-        ylab(ifelse(log_base == 0, "expression", paste0("log", log_base, " expression"))) +
-        xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
-                    "Non-Genomic Coordinates")) +
-        theme_bw()
-    
-    
-    ##plot with horizontal axis oriented on negative strand
-    if (iflip) {
-        g_obj <- g_obj + scale_x_reverse()
+        iflip <- flip_neg && all(strand(gr_e) == '-')
     }
 
 
-    ##warm user that txlist won't be processed unless on genomic coordinates
-    if (!is.null(txlist) && !genomic) {
-        cat(paste0("!!!  can't plot model transcripts unless ",
-                   "genomic=TRUE  !!!\n"))
-    }
+    ##construct data.frame
+    sp_df <- sp_create(gr_e, gr_j, vals_e, vals_j, j_incl,
+                       log_base, log_shift, bin, n, p_e, p_j)
+
+    
+    ## sp_drawbase -- same as sg_drawbase?
+    sp_obj <- sp_drawbase(sp_df, highlight, genomic,
+                          log_base, bin, gr_e, p_e)
 
     
     ##combine gene model from splicegrahm or splicegralp to plot
     if (imodel) {
-        ##construct ggplot2 object
-        gg_mod <- data.frame(xmin=start(ranges(gr_e)),
-                             xmax=end(ranges(gr_e)))
-        gg_mod <- reshape2::melt(gg_mod, id.vars=c("xmin", "xmax"))
-        gg_mod$ymin <- -1
-        gg_mod$ymax <- 1
-        
-        ##plot on genomic coordinates
-        g_mobj <- ggplot(gg_mod, aes(xmin=xmin, xmax=xmax,
-                                     ymin=ymin, ymax=ymax))
-        
-        ##add horizontal line first
-        g_mobj <- g_mobj + 
-            geom_hline(yintercept=0, color="#3C3C3C")
-        
-        ##add basic plot structure
-        g_mobj <- g_mobj + 
-            geom_rect() +
-            scale_y_continuous(breaks=NULL, limits=c(-1, 7)) +
-            ylab("") +
-            xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
-                        "non-genomic coordinates")) +
-            theme_bw()
-    
-        ##frame exons if not using black background
-        g_mobj <- g_mobj +
-            annotate("rect", size=.25,
-                     xmin=start(ranges(gr_e)) - 1,
-                     xmax=end(ranges(gr_e)) + 1,
-                     ymin=-1, ymax=1,
-                     alpha=1, color="#3C3C3C", fill=NA)
-
-        if (iflip) { g_mobj <- g_mobj + scale_x_reverse() }
-
-        ##add splicing arrows to plot
-        width_props <- width(ranges(gr_j)) / width(range(gr_e))
-        for (j in 1:p_j) {
-            w_prop <- width_props[j]
-            circle1 <- .pseudoArc(xmin=start(ranges(gr_j))[j],
-                                  xmax=end(ranges(gr_j))[j],
-                                  ymin=1, height=6*sqrt(w_prop))
-            circle2 <- cbind(circle1, xmin=gg_e$xmin[1], xmax=gg_e$xmax[1],
-                             ymin=gg_e$xmin[1], ymax=gg_e$ymax[1],
-                             value=0)
-
-            ##only include arrows if direction is known
-            if (all(strand(gr_e) == "*")) {
-                g_mobj <- g_mobj +
-                    geom_path(data=circle2, size=.25, aes(x=x, y=y))
-            } else {
-                g_mobj <- g_mobj +
-                    geom_path(data=circle2, size=.25, aes(x=x, y=y),
-                              arrow=grid::arrow(length=grid::unit(.025, "npc"),
-                                  ends=arrowhead[j]))
-            }
-        }
+        sp_mobj <- sp_drawmodel(sp_df, gr_e, gr_j, p_j, genomic)
+        if (iflip) { sp_mobj <- sp_mobj + scale_x_reverse() }
     }
 
     
-    ##add annotations if txdb was passed to function
-    if (!is.null(txlist) && genomic) {
-        cand_names <- concomp2name(obj, txlist, txdb, orgdb)
-        cand_idx <- cand_names[, 1]
-        cand_names <- cand_names[, 2]
-        
-        if (length(cand_idx) > 0) {
-            tx_match <- txlist[cand_idx]
-            names(tx_match) <- make.unique(cand_names)
-            annot_track <- ggplot(tx_match) +
-                geom_alignment() + theme_bw()
-            if (iflip) { annot_track <- annot_track + scale_x_reverse() }
+    ##plot with horizontal axis oriented on negative strand
+    if (iflip) { sp_obj <- sp_obj + scale_x_reverse() }
 
-            itxdb <- TRUE
-        }
-    } else {
-        itxdb <- FALSE
+    if (iflip && genomic && !is.null(txlist)) {
+        annot_track <- annot_track + scale_x_reverse()
     }
 
+    
+    itxdb <- !(is.null(txdb) || is.null(tx_match))
     
     ##combine generated tracks
     if (imodel && itxdb) {
-        g_obj <- tracks(g_obj, g_mobj, annot_track, heights=c(3, 1, 1.5))
+        sp_obj <- tracks(sp_obj, sp_mobj, annot_track, heights=c(3, 1, 1.5))
     } else if (imodel) {
-        g_obj <- tracks(g_obj, g_mobj, heights=c(3, 1))
+        sp_obj <- tracks(sp_obj, sp_mobj, heights=c(3, 1))
     } else if (itxdb) {
-        g_obj <- tracks(g_obj, annot_track, heights=c(2, 1))
+        sp_obj <- tracks(sp_obj, annot_track, heights=c(2, 1))
     }
-
     
-    g_obj
+    sp_obj
 }
 
 #' @keywords internal

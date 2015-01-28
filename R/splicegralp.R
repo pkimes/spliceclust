@@ -59,198 +59,69 @@ NULL
     ##dataset dimension
     p_e <- length(gr_e)
     p_j <- length(gr_j)
+    dna_len <- width(range(gr_e))
+    rna_len <- sum(width(gr_e))
+
     n_vec <- ncol(e_loads)
     colnames(e_loads) <- paste0("Dir", 1:n_vec)
     colnames(j_loads) <- paste0("Dir", 1:n_vec)
-    
+
 
     ##check sizes of loading matrices
     if (nrow(e_loads) != p_e ||
         nrow(j_loads) != p_j) {
         stop("loading dimensions not same as obj dimensions")
     }
-
     
-    ##color generators
-    crp <- colorRampPalette(c("#053061", "#f7f7f7", "#67001f"))
-    crp2 <- colorRamp(c("#053061", "#f7f7f7", "#67001f"))
-
 
     ##change GRanges coordinates if non-genomic coordinates are desired
     if (!genomic) {
-        dna_len <- width(range(gr_e))
-        rna_len <- sum(width(gr_e))
-
-        ##don't try to shrink gene model if intronic space is already small
         if (rna_len/dna_len <= ex_use) {
-            shift_1 <- -start(ranges(gr_e))[1]+1
-            ranges(gr_e) <- shift(ranges(gr_e), shift_1)
-            ranges(gr_j) <- shift(ranges(gr_j), shift_1)
-
-            shrink_by <- 1 - (1 - ex_use)/ex_use * rna_len/(dna_len - rna_len)
-            gps <- distance(ranges(gr_e)[-p_e], ranges(gr_e)[-1]) * shrink_by
-
-            eeb <- start(ranges(gr_e))[-1]
-            for (ii in (p_e-1):1) {
-                i_adj <- start(ranges(gr_e)) >= eeb[ii]
-                start(ranges(gr_e))[i_adj] <- start(ranges(gr_e))[i_adj] - gps[ii]
-                
-                i_adj <- end(ranges(gr_e)) >= eeb[ii]
-                end(ranges(gr_e))[i_adj] <- end(ranges(gr_e))[i_adj] - gps[ii]
-
-                i_adj <- start(ranges(gr_j)) >= eeb[ii]
-                start(ranges(gr_j))[i_adj] <- start(ranges(gr_j))[i_adj] - gps[ii]
-                
-                i_adj <- end(ranges(gr_j)) >= eeb[ii]
-                end(ranges(gr_j))[i_adj] <- end(ranges(gr_j))[i_adj] - gps[ii]
-            }
-
+            gr_ej <- adj_ranges(gr_e, gr_j, dna_len, rna_len, ex_use, p_e)
+            gr_e <- gr_ej$gr_e
+            gr_j <- gr_ej$gr_j
         } else {
             genomic <- TRUE
         }
-        
     }
     
 
     ##determine overlapping gene models
-    if (!is.null(txlist) && genomic) {
-        cand_names <- concomp2name(obj, txlist, txdb, orgdb)
-        cand_idx <- cand_names[, 1]
-        cand_names <- cand_names[, 2]
-        
-        if (length(cand_idx) > 0) {
-            tx_match <- txlist[cand_idx]
-            names(tx_match) <- make.unique(cand_names)
-            annot_track <- ggplot(tx_match) + geom_alignment() + theme_bw()
-        }
+    if (genomic && !is.null(txlist)) {
+        a_out <- find_annotations(obj, txlist, txdb, orgdb)
+        tx_match <- a_out$tx_match
+        annot_track <- a_out$annot_track
     }
 
 
-    ##determine whether plots should be flipped based on passed data
-    ## or matched models -- remove arrows if not passed !!!!!
-    if (all(strand(gr_e) == "*") &&
-        !is.null(txlist) &&
-        length(cand_idx) > 0) {
+    ##determine whether plots should be flipped
+    if (all(strand(gr_e) == "*") && !is.null(txlist) && !is.null(tx_match)) {
         iflip <- flip_neg && all(strand(tx_match) == '-')
     } else {
         iflip <- flip_neg && all(strand(gr_e) == '-')
     }
-    
-    
-    ##strand of junctions for arrow heads
-    arrowhead <- ifelse(as.character(strand(gr_j)) == "-",
-                        "last", "first")
 
     
-    ##construct ggplot2 object
-    gg_e <- data.frame(xmin=start(ranges(gr_e)),
-                       xmax=end(ranges(gr_e)),
-                       e_loads)
-    gg_e <- reshape2::melt(gg_e, id.vars=c("xmin", "xmax"))
-    gg_e$ymin <- -1
-    gg_e$ymax <- 1
-    
-    
-    ##plot on genomic coordinates
-    g_obj <- ggplot(gg_e, aes(xmin=xmin, xmax=xmax,
-                              ymin=ymin, ymax=ymax,
-                              color=value, fill=value))
+    ##create dataframe for plotting
+    sl_df <- sl_create(gr_e, e_loads)
 
 
-    ##add horizontal line first
-    g_obj <- g_obj + 
-        geom_hline(yintercept=0,
-                   color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+    ##create base plot
+    sl_obj <- sl_drawbase(sl_df, gr_e, gr_j, p_e, p_j, e_loads, j_loads, 
+                          genomic, use_blk, load_lims, n_vec)
 
     
-    ##add basic plot structure
-    g_obj <-
-        g_obj + 
-        geom_rect() +
-        facet_grid(variable~.) +
-        scale_y_continuous(breaks=NULL, limits=c(-1, 3)) +
-        ylab("") +
-        xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
-                    "non-genomic coordinates")) +
-        theme_bw()
-    
-
-    ##frame exons if not using black background
-    if (use_blk) {
-        g_obj <- g_obj +
-            theme(panel.grid.minor.x = element_blank(),
-                  panel.grid.major.x = element_blank(),
-                  panel.background = element_rect(fill="#3C3C3C"))
-    } else {
-        g_obj <- g_obj +
-            annotate("rect", size=.25,
-                     xmin=start(ranges(gr_e)) - 1,
-                     xmax=end(ranges(gr_e)) + 1,
-                     ymin=-1, ymax=1,
-                     alpha=1, color="#3C3C3C", fill=NA)
-    }
-
-
-    ##determine the same coloring bounds for splices and exons
-    if (is.null(load_lims)) {
-        color_lim <- max(max(abs(j_loads)), max(abs(e_loads)))
-        color_lim <- c(-color_lim, color_lim)
-    } else {
-        color_lim <- load_lims
-    }
-
-    
-    ##add continuous color palette
-    g_obj <- g_obj +
-        scale_color_gradient2("Loading", limits=color_lim,
-                              low="#053061", mid="#f7f7f7", high="#67001f",
-                              guide="none") +
-        scale_fill_gradient2("Loading", limits=color_lim,
-                             low="#053061", mid="#f7f7f7", high="#67001f")
-
-
-    ##add splicing arrows to plot
-    width_props <- width(ranges(gr_j)) / width(range(gr_e))
-    j_col_scale <- j_loads / diff(color_lim) + .5
-    for (j in 1:p_j) {
-        w_prop <- width_props[j]
-        for (ipc in 1:n_vec) {
-            circle1 <- .pseudoArc(xmin=start(ranges(gr_j))[j],
-                                  xmax=end(ranges(gr_j))[j],
-                                  ymin=1, height=2*sqrt(w_prop))
-            circle2 <- cbind(circle1, xmin=gg_e$xmin[1], xmax=gg_e$xmax[1],
-                             ymin=gg_e$xmin[1], ymax=gg_e$ymax[1],
-                             variable=paste0("Dir", ipc), value=0)
-
-            ##only include arrows if direction is known
-            if (all(strand(gr_e) == "*")) {
-                g_obj <- g_obj +
-                    geom_path(data=circle2, size=.75, aes(x=x, y=y),
-                              color=.rgb2hex(crp2(j_col_scale[j, ipc])))
-            } else {
-                g_obj <- g_obj +
-                    geom_path(data=circle2, size=.75, aes(x=x, y=y),
-                              color=.rgb2hex(crp2(j_col_scale[j, ipc])),
-                              arrow=grid::arrow(length=grid::unit(.015*n_vec, "npc"),
-                                  ends=arrowhead[j]))
-            }
-        }
-    }
-
-
     ##plot with horizontal axis oriented on negative strand
-    if (iflip) {
-        g_obj <- g_obj + scale_x_reverse()
-    }
+    if (iflip) { sl_obj <- sl_obj + scale_x_reverse() }
 
 
     ##add annotations if txdb was passed to function
     if (!is.null(txlist) && genomic && length(cand_idx) > 0) {
         if (iflip) { annot_track <- annot_track + scale_x_reverse() }
-        g_obj <- tracks(g_obj, annot_track, heights=c(2, 1))
+        sl_obj <- tracks(sl_obj, annot_track, heights=c(2, 1))
     }
 
-    g_obj
+    sl_obj
 }
 
 #' @keywords internal

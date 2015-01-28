@@ -129,6 +129,7 @@ NULL
         vals_j <- vals_j[, idx]
     }
 
+    
     ##create dataframe for plotting
     sg_df <- sg_create(gr_e, gr_j, vals_e, vals_j, j_incl,
                       log_base, log_shift, bin, n, p_j)
