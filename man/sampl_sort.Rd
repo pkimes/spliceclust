@@ -4,7 +4,7 @@
 \alias{sampl_sort}
 \title{function defining all of the sort orders}
 \usage{
-sampl_sort(sort_idx, vals_e, vals_j)
+sampl_sort(sort_idx, vals_e, vals_j, n)
 }
 \arguments{
 \item{sort_idx}{integer value, see documentation for \code{splicegrahm}}
@@ -12,6 +12,8 @@ sampl_sort(sort_idx, vals_e, vals_j)
 \item{vals_e}{matrix of exon coverages}
 
 \item{vals_j}{matrix of junction coverages}
+
+\item{n}{number of samples}
 }
 \description{
 function defining all of the sort orders

@@ -39,6 +39,10 @@ to run left to right (default = TRUE)}
 
 \item{use_blk}{a logical whether to use a black background (default = FALSE)}
 
+\item{eps}{a numeric value specifying the number of base pairs around \code{obj} to look
+for overlapping gene models, if eps = NULL, then all overlapping gene models are
+included (default = 1e4)}
+
 \item{txlist}{a GRangesList of transcripts or genes which should be queried and
 added to the plot if falling within the region of the connected component
 (default = NULL)}

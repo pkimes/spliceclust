@@ -4,7 +4,7 @@
 \alias{find_annotations}
 \title{construct annotation track for concomp object}
 \usage{
-find_annotations(obj, txlist, txdb, orgdb)
+find_annotations(obj, txlist, txdb, orgdb, eps)
 }
 \arguments{
 \item{obj}{\code{concomp} object}
@@ -14,6 +14,8 @@ find_annotations(obj, txlist, txdb, orgdb)
 \item{txdb}{see \code{splicegrahm} documentation}
 
 \item{orgdb}{see \code{splicegrahm} documentation}
+
+\item{eps}{see \code{splicegrahm} documentation}
 }
 \value{
 list containing a \code{GRangesList}, \code{tx_match}, and a

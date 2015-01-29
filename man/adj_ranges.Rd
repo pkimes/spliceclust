@@ -4,20 +4,16 @@
 \alias{adj_ranges}
 \title{adjust ranges if necessary}
 \usage{
-adj_ranges(gr_e, gr_j, dna_len, rna_len, ex_use, p_e)
+adj_ranges(gr_e, gr_j, tx_plot, ex_use)
 }
 \arguments{
 \item{gr_e}{\code{GenomicRanges} for exons}
 
 \item{gr_j}{\code{GenomicRanges} for junctions}
 
-\item{dna_len}{total range of \code{gr_e}}
-
-\item{rna_len}{total length of \code{gr_e}}
+\item{tx_plot}{output form \code{find_annotations}}
 
 \item{ex_use}{see \code{splicegrahm} documentation}
-
-\item{p_e}{number of exons in \code{gr_e}}
 }
 \description{
 adjust ranges if necessary

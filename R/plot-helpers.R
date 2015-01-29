@@ -216,50 +216,12 @@ plot_colors <- function() {
 }
 
 
-
-#' adjust ranges if necessary
-#'
-#' @param gr_e \code{GenomicRanges} for exons
-#' @param gr_j \code{GenomicRanges} for junctions
-#' @param dna_len total range of \code{gr_e}
-#' @param rna_len total length of \code{gr_e}
-#' @param ex_use see \code{splicegrahm} documentation
-#' @param p_e number of exons in \code{gr_e}
-#'
-#' @keywords internal
-#' @author Patrick Kimes
-adj_ranges <- function(gr_e, gr_j, dna_len, rna_len, ex_use, p_e) {
-    shift_1 <- -start(ranges(gr_e))[1]+1
-    ranges(gr_e) <- shift(ranges(gr_e), shift_1)
-    ranges(gr_j) <- shift(ranges(gr_j), shift_1)
-    
-    shrink_by <- 1 - (1 - ex_use)/ex_use * rna_len/(dna_len - rna_len)
-    gps <- distance(ranges(gr_e)[-p_e], ranges(gr_e)[-1]) * shrink_by
-    
-    eeb <- start(ranges(gr_e))[-1]
-    for (ii in (p_e-1):1) {
-        i_adj <- start(ranges(gr_e)) >= eeb[ii]
-        start(ranges(gr_e))[i_adj] <- start(ranges(gr_e))[i_adj] - gps[ii]
-        
-        i_adj <- end(ranges(gr_e)) >= eeb[ii]
-        end(ranges(gr_e))[i_adj] <- end(ranges(gr_e))[i_adj] - gps[ii]
-        
-        i_adj <- start(ranges(gr_j)) >= eeb[ii]
-        start(ranges(gr_j))[i_adj] <- start(ranges(gr_j))[i_adj] - gps[ii]
-        
-        i_adj <- end(ranges(gr_j)) >= eeb[ii]
-        end(ranges(gr_j))[i_adj] <- end(ranges(gr_j))[i_adj] - gps[ii]
-    }
-    list(gr_e = gr_e, gr_j = gr_j)
-}
-
-
-
 #' function defining all of the sort orders
 #'
 #' @param sort_idx integer value, see documentation for \code{splicegrahm}
 #' @param vals_e matrix of exon coverages
 #' @param vals_j matrix of junction coverages
+#' @param n number of samples
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
@@ -282,12 +244,82 @@ sampl_sort <- function(sort_idx, vals_e, vals_j, n) {
 }
 
 
+
+#' adjust ranges if necessary
+#'
+#' @param gr_e \code{GenomicRanges} for exons
+#' @param gr_j \code{GenomicRanges} for junctions
+#' @param tx_plot output form \code{find_annotations}
+#' @param ex_use see \code{splicegrahm} documentation
+#'
+#' @keywords internal
+#' @author Patrick Kimes
+adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use) {
+    annot_track <- NULL
+
+    if (is.null(tx_plot)) {
+        models <- gr_e
+    } else {
+        bb <- tx_plot
+        mcols(bb) <- NULL
+        models <- reduce(c(gr_e, bb))
+        strand(models) <- "*"
+    }
+
+    dna_len <- width(range(models))
+    rna_len <- sum(width(ranges(models)))
+    base_shift <- min(start(models))
+    
+    ##don't squish exons if not needed (should make shrink = 0)
+    if (rna_len/dna_len >= ex_use) {
+        ex_use <- rna_len/dna_len
+        base_shift <- 1
+    }
+    
+    ##shrinkage factor for introns
+    shrink <- 1 - (1-ex_use)/ex_use * rna_len/(dna_len - rna_len)
+    ir_i <- gaps(ranges(models))
+    preintrons <- function(x) { sum(width(restrict(ir_i, end=x))) }
+    
+    ##shift exons and junctions
+    e_shifts <- sapply(start(gr_e), preintrons) * shrink
+    j_shifts1 <- sapply(start(gr_j), preintrons) * shrink
+    j_shifts2 <- sapply(end(gr_j), preintrons) * shrink
+
+    start(gr_e) <- start(gr_e) - e_shifts
+    end(gr_e) <- end(gr_e) - e_shifts
+    start(gr_j) <- start(gr_j) - j_shifts1
+    end(gr_j) <- end(gr_j) - j_shifts2
+
+    gr_e <- shift(gr_e, -base_shift+1)
+    gr_j <- shift(gr_j, -base_shift+1)
+
+    ##shift annotation models
+    if (!is.null(tx_plot)) {
+        m_shifts1 <- sapply(start(tx_plot), preintrons) * shrink
+        m_shifts2 <- sapply(end(tx_plot), preintrons) * shrink
+        start(tx_plot) <- start(tx_plot) - m_shifts1
+        end(tx_plot) <- end(tx_plot) - m_shifts2
+        tx_plot <- shift(tx_plot, -base_shift+1)
+
+        annot_track <- ggplot() +
+            geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                theme_bw()
+    }
+    
+    ## return gr_e, gr_j, annot_track
+    list(gr_e = gr_e, gr_j = gr_j, annot_track = annot_track)
+}
+
+
+
 #' construct annotation track for concomp object
 #'
 #' @param obj \code{concomp} object
 #' @param txlist see \code{splicegrahm} documentation
 #' @param txdb see \code{splicegrahm} documentation
 #' @param orgdb see \code{splicegrahm} documentation
+#' @param eps see \code{splicegrahm} documentation
 #'
 #' @return
 #' list containing a \code{GRangesList}, \code{tx_match}, and a
@@ -295,19 +327,8 @@ sampl_sort <- function(sort_idx, vals_e, vals_j, n) {
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
-find_annotations <- function(obj, txlist, txdb, orgdb) {
-    tx_match <- NULL
-    annot_track <- NULL
-
-    ## cands <- concomp2name(obj, txlist, txdb, orgdb)
-    ## cand_idx <- cands[, 1]
-    ## cand_names <- unique(cands[, 2])[1]
-    ## eval(bquote(
-    ##     annot_track <- ggplot(txdb) +
-    ##         geom_alignment(which = genesymbol[.(cand_names)]) +
-    ##             theme_bw()
-    ##     ))
-    ## list(tx_match = tx_match, annot_track = annot_track)
+find_annotations <- function(obj, txlist, txdb, orgdb, eps) {
+    tx_plot <- NULL
 
     cands <- concomp2name(obj, txlist, txdb, orgdb)
     cand_idx <- cands[, 1]
@@ -315,14 +336,49 @@ find_annotations <- function(obj, txlist, txdb, orgdb) {
 
     if (length(cand_idx) > 0) {
         tx_match <- txlist[cand_idx]
-        names(tx_match) <- make.unique(cand_names)
-
-        ##can't get geom_alignment with GRangesList to plot arrows
-        tx_len <- sapply(tx_match, length)
-        tx_plot <- unlist(tx_match)
-        mcols(tx_plot)$tx <- rep(names(tx_match), times=tx_len)
-        annot_track <- ggplot() +
-            geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) + theme_bw()
+        names(tx_match) <- cand_names
+        
+        ##take tx_match and compare if lies outside
+        if (!is.null(eps)) {
+            tx_ranges <- unlist(range(tx_match))
+            obj_range <- range(exons(obj))
+            tx_match <- tx_match[start(tx_ranges) > start(obj_range) - eps &
+                                     end(tx_ranges) < end(obj_range) + eps]
+        }
+        
+        ## unlist models to allow arrows in ggbio plot (bug?)
+        if (length(tx_match) > 0) {
+            tx_len <- sapply(tx_match, length)
+            tx_plot <- unlist(tx_match)
+            mcols(tx_plot)$tx <- rep(names(tx_match), times=tx_len)
+        }
     }
-    list(tx_match = tx_match, annot_track = annot_track)
+
+    tx_plot
 }
+
+
+
+
+
+##
+## alternatively, can shrink using e.g. maxgap = 100, with
+## shrink.fun <- shrinkageFun(gaps(gr_e), max.gap = 100)
+## new_gr_e <- shrink.fun(gr_e)
+##  shrinkageFun uses findIntervals(x, y) to determine how many introns are to the left - clever
+##
+
+## alternative approach for find_annotations
+##
+## cands <- concomp2name(obj, txlist, txdb, orgdb)
+## cand_idx <- cands[, 1]
+## cand_names <- unique(cands[, 2])[1]
+## eval(bquote(
+##     annot_track <- ggplot(txdb) +
+##         geom_alignment(which = genesymbol[.(cand_names)]) +
+##             theme_bw()
+##     ))
+## list(tx_match = tx_match, annot_track = annot_track)
+
+
+
