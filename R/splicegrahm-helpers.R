@@ -4,12 +4,12 @@
 #' @param gr_j \code{GenomicRanges} for junctions
 #' @param vals_e matrix of exon coverages
 #' @param vals_j matrix of junction coverages
-#' @param n number of samples in \code{vals_e}, \code{vals_j}
-#' @param p_j number of junctions in \code{gr_j}
 #' @param j_incl see \code{splicegrahm} documentation
 #' @param log_base see \code{splicegrahm} documentation
 #' @param log_shift see \code{splicegrahm} documentation
 #' @param bin see \code{splicegrahm} documentation
+#' @param n number of samples in \code{vals_e}, \code{vals_j}
+#' @param p_j number of junctions in \code{gr_j}
 #'
 #' @keywords internal
 #' @author Patrick Kimes
@@ -74,29 +74,54 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #'
 #' @param sg_df data.frame output from \code{sg_create}
 #' @param gr_e \code{GenomicRanges} for exons
-#' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param use_blk see \code{splicegrahm} documentation
 #' @param j_incl see \code{splicegrahm} documentation
 #' @param genomic see \code{splicegrahm} documentation
 #' @param log_base see \code{splicegrahm} documentation
 #' @param bin see \code{splicegrahm} documentation
+#' @param highlight see \code{splicegrahm} documentation
+#' @param n number of samples in \code{vals_e}, \code{vals_j}
+#' @param p_j number of junctions in \code{gr_j}
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
-                        log_base, bin, n) {
+                        log_base, bin, n, highlight, p_j) {
 
     pal <- plot_colors()
+    hl_cols <- pal$col3
 
     ##base of plot
     sg_obj <- ggplot(sg_df, aes(xmin=xmin, xmax=xmax,
-                              ymin=ymin, ymax=ymax,
-                              color=value, fill=value))
+                                ymin=ymin, ymax=ymax,
+                                color=value, fill=value))
 
     ##add horizontal line first
     sg_obj <- sg_obj + 
         geom_hline(yintercept=n/2,
                    color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+
+    
+    ##add highlighting if necessary
+    if (!is.null(highlight)) {
+        hl_tab <- table(highlight)
+        hl_h <- c(1, cumsum(hl_tab))
+        k <- length(hl_tab)
+        
+        wrc <- width(range(gr_e))
+        minrc <- min(c(start(gr_e), end(gr_e)))
+        maxrc <- max(c(start(gr_e), end(gr_e)))
+        
+        for (i in 1:k) {
+            sg_obj <- sg_obj +
+                annotate("rect",
+                         xmin=c(minrc-wrc*0.05, maxrc),
+                         xmax=c(minrc, maxrc+wrc*0.05),
+                         ymin=rep(hl_h[i], 2), ymax=rep(hl_h[i+1], 2),
+                         fill=hl_cols[i], alpha=1)
+        }
+    }
+    
     
     ##add basic plot structure
     sg_obj <- sg_obj + 
@@ -152,17 +177,19 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
 #' @param p_j number of junctions in \code{gr_j}
 #' @param j_incl see \code{splicegrahm} documentation
 #' @param use_blk see \code{splicegrahm} documentation
+#' @param highlight see \code{splicegrahm} documentation
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
-                         gr_e, gr_j, vals_j, n, p_j) {
+                         gr_e, gr_j, vals_j, n, p_j, highlight) {
 
     ##strand of junctions for arrow heads
     arrowhead <- ifelse(as.character(strand(gr_j)) == "-", "last", "first")
     
     ##color generators
     pal <- plot_colors()
+    hl_cols <- pal$col3
 
     ##long list of letters
     ll_LETTERS <- long_letters()
@@ -224,8 +251,26 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
                          xmin=junc_x - junc_w - 1, xmax=junc_x + junc_w + 1,
                          ymin=junc_y + s_size, ymax=junc_y + (n+1)*s_size,
                          alpha=1, color=.rgb2hex(pal$col2(1)), fill=NA)
-        }   
+        }
+
+        ##add highlighting if necessary
+        if (!is.null(highlight)) {
+            hl_tab <- table(highlight)
+            hl_h <- c(1, cumsum(hl_tab))
+            k <- length(hl_tab)
+            
+            for (i in 1:k) {
+                sg_obj <- sg_obj +
+                    annotate("rect",
+                             xmin=c(min(junc_x)-junc_w*2, max(junc_x)+junc_w),
+                             xmax=c(min(junc_x)-junc_w, max(junc_x)+junc_w*2),
+                             ymin=rep(hl_h[i], 2)*s_size+junc_y,
+                             ymax=rep(hl_h[i+1], 2)*s_size+junc_y,
+                             fill=hl_cols[i], alpha=1)
+            }
+        }
     }
+
 
     sg_obj
 }

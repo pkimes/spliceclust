@@ -127,7 +127,12 @@ NULL
     } else {
         iflip <- flip_neg && all(strand(gr_e) == '-')
     }
-    
+
+    ##force highlight to be ordering for quicker plotting
+    if (!is.null(highlight)) {
+        sort_idx <- order(highlight)
+        highlight <- sort(highlight)
+    }
     
     ##determine order of samples
     if (sort_sep) {
@@ -147,12 +152,12 @@ NULL
     
     ##plot on genomic coordinates
     sg_obj <- sg_drawbase(sg_df, use_blk, j_incl, genomic,
-                          gr_e, log_base, bin, n)
+                          gr_e, log_base, bin, n, highlight, p_j)
     
     
     ##add arrow information if needed
     sg_obj <- sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip,
-                           gr_e, gr_j, vals_j, n, p_j)
+                           gr_e, gr_j, vals_j, n, p_j, highlight)
     
     
     ##plot with horizontal axis oriented on negative strand

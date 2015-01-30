@@ -4,7 +4,8 @@
 \alias{sg_drawjuncs}
 \title{add junction annotations to base ggplot2 object for splicegrahm plot}
 \usage{
-sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip, gr_e, gr_j, vals_j, n, p_j)
+sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip, gr_e, gr_j, vals_j, n, p_j,
+  highlight)
 }
 \arguments{
 \item{sg_obj}{\code{ggplot} object created by \code{sg_drawbase}}
@@ -26,6 +27,8 @@ sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip, gr_e, gr_j, vals_j, n, p_j)
 \item{n}{number of samples in \code{vals_e}, \code{vals_j}}
 
 \item{p_j}{number of junctions in \code{gr_j}}
+
+\item{highlight}{see \code{splicegrahm} documentation}
 }
 \description{
 add junction annotations to base ggplot2 object for splicegrahm plot
