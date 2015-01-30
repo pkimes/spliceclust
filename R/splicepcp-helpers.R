@@ -88,7 +88,7 @@ sp_drawbase <- function(sp_df, highlight, genomic,
                                rep(highlight, each=p_e-1)))
         sp_obj <- ggplot(sp_df, aes(x=xmin, xend=xmax,
                                   y=ymin, yend=ymax, color=hl)) +
-                                      scale_color_discrete("Cluster")
+                                      scale_color_brewer("Cluster", palette="Set1")
     }        
 
     ##add horizontal line first
@@ -126,6 +126,9 @@ sp_drawbase <- function(sp_df, highlight, genomic,
 #' @keywords internal
 #' @author Patrick Kimes
 sp_drawmodel <- function(sp_df, gr_e, gr_j, p_j, genomic) {
+
+    ##strand of junctions for arrow heads
+    arrowhead <- ifelse(as.character(strand(gr_j)) == "-", "last", "first")
 
     ##construct ggplot2 object
     gg_mod <- data.frame(xmin=start(ranges(gr_e)),

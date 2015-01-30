@@ -43,13 +43,6 @@ NULL
                                  flip_neg = TRUE, use_blk = FALSE,
                                  txlist = NULL, txdb = NULL,
                                  orgdb = NULL, ...) {
-    
-    ##can't include gene models if not plotting on genomic scale
-    if (!is.null(txlist) && !genomic) {
-        cat("since txlist provided, plotting on genomic scale. \n")
-        genomic <- TRUE
-    }
-
 
     ##unpack concomp
     gr_e <- exons(obj)
@@ -74,29 +67,34 @@ NULL
     }
     
 
-    ##change GRanges coordinates if non-genomic coordinates are desired
-    if (!genomic) {
-        if (rna_len/dna_len <= ex_use) {
-            gr_ej <- adj_ranges(gr_e, gr_j, dna_len, rna_len, ex_use, p_e)
-            gr_e <- gr_ej$gr_e
-            gr_j <- gr_ej$gr_j
-        } else {
-            genomic <- TRUE
-        }
+    ##determine overlapping annotations
+    if (is.null(txlist)) {
+        tx_plot <- NULL
+    } else {
+        tx_plot <- find_annotations(obj, txlist, txdb, orgdb, eps)
     }
     
 
-    ##determine overlapping gene models
-    if (genomic && !is.null(txlist)) {
-        a_out <- find_annotations(obj, txlist, txdb, orgdb)
-        tx_match <- a_out$tx_match
-        annot_track <- a_out$annot_track
+    ##change GRanges coordinates if non-genomic coordinates are desired
+    if (genomic) {
+        if (is.null(tx_plot)) {
+            annot_track <- NULL
+        } else { 
+            annot_track <- ggplot() +
+                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                    theme_bw()
+        }
+    } else {
+        adj_out <- adj_ranges(gr_e, gr_j, tx_plot, ex_use)
+        gr_e <- adj_out$gr_e
+        gr_j <- adj_out$gr_j
+        annot_track <- adj_out$annot_track
     }
-
+    
 
     ##determine whether plots should be flipped
-    if (all(strand(gr_e) == "*") && !is.null(txlist) && !is.null(tx_match)) {
-        iflip <- flip_neg && all(strand(tx_match) == '-')
+    if (all(strand(gr_e) == "*") && !is.null(txlist) && length(tx_plot) > 0) {
+        iflip <- flip_neg && all(strand(tx_plot) == '-')
     } else {
         iflip <- flip_neg && all(strand(gr_e) == '-')
     }
@@ -116,7 +114,7 @@ NULL
 
 
     ##add annotations if txdb was passed to function
-    if (!is.null(txlist) && genomic && length(cand_idx) > 0) {
+    if (!is.null(txlist) && length(tx_plot) > 0) {
         if (iflip) { annot_track <- annot_track + scale_x_reverse() }
         sl_obj <- tracks(sl_obj, annot_track, heights=c(2, 1))
     }

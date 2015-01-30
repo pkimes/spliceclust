@@ -22,6 +22,9 @@
 #'        by splicegralp or splicegrahm to the plot (default = TRUE)
 #' @param j_incl a logical whether to include the junction information as a
 #'        parallel coordinates track (default = FALSE)
+#' @param eps a numeric value specifying the number of base pairs around \code{obj} to look
+#'        for overlapping gene models, if eps = NULL, then all overlapping gene models are
+#'        included (default = 1e4) 
 #' @param txlist a GRangesList of transcripts or genes which should be queried and
 #'        added to the plot if falling within the region of the connected component
 #'        (default = NULL)
@@ -46,18 +49,13 @@ NULL
 
 .splicepcp.concomp <- function(obj, log_base = 10, log_shift = 1, genomic = TRUE,
                                ex_use = 2/3, flip_neg = TRUE, imodel = TRUE, 
-                               j_incl = FALSE, highlight = NULL, txlist = NULL,
-                               txdb = NULL, orgdb = NULL, ...) {
+                               j_incl = FALSE, highlight = NULL, eps = 1e4,
+                               txlist = NULL, txdb = NULL, orgdb = NULL, ...) {
     
     ##exonValues and juncValues must be specified
     if (is.null(exonValues(obj)) || is.null(juncValues(obj)))
         stop(paste0("exonValues and juncValues cannot be NULL for splicepcp, \n",
                     "consider using splicegralp instead."))
-
-
-    ##currently can't include gene models if not plotting on genomic scale
-    if (!is.null(txlist) && !genomic)
-        cat("ignoring txlist input since plotting on non-genomic scale. \n")
 
     
     ##unpack concomp
@@ -74,29 +72,34 @@ NULL
     rna_len <- sum(width(gr_e))
 
     
-    ##change GRanges coordinates if non-genomic coordinates are desired
-    if (!genomic) {
-        if (rna_len/dna_len <= ex_use) {
-            gr_ej <- adj_ranges(gr_e, gr_j, dna_len, rna_len, ex_use, p_e)
-            gr_e <- gr_ej$gr_e
-            gr_j <- gr_ej$gr_j
-        } else {
-            genomic <- TRUE
-        }
+    ##determine overlapping annotations
+    if (is.null(txlist)) {
+        tx_plot <- NULL
+    } else {
+        tx_plot <- find_annotations(obj, txlist, txdb, orgdb, eps)
     }
 
-    
-    ##determine overlapping gene models
-    if (genomic && !is.null(txlist)) {
-        a_out <- find_annotations(obj, txlist, txdb, orgdb)
-        tx_match <- a_out$tx_match
-        annot_track <- a_out$annot_track
+
+    ##change GRanges coordinates if non-genomic coordinates are desired
+    if (genomic) {
+        if (is.null(tx_plot)) {
+            annot_track <- NULL
+        } else { 
+            annot_track <- ggplot() +
+                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                    theme_bw()
+        }
+    } else {
+        adj_out <- adj_ranges(gr_e, gr_j, tx_plot, ex_use)
+        gr_e <- adj_out$gr_e
+        gr_j <- adj_out$gr_j
+        annot_track <- adj_out$annot_track
     }
 
     
     ##determine whether plots should be flipped
-    if (all(strand(gr_e) == "*") && !is.null(txlist) && !is.null(tx_match)) {
-        iflip <- flip_neg && all(strand(tx_match) == '-')
+    if (all(strand(gr_e) == "*") && !is.null(txlist) && !is.null(tx_plot)) {
+        iflip <- flip_neg && all(strand(tx_plot) == '-')
     } else {
         iflip <- flip_neg && all(strand(gr_e) == '-')
     }
@@ -122,19 +125,19 @@ NULL
     ##plot with horizontal axis oriented on negative strand
     if (iflip) { sp_obj <- sp_obj + scale_x_reverse() }
 
-    if (iflip && genomic && !is.null(txlist)) {
+    if (iflip && !is.null(tx_plot)) {
         annot_track <- annot_track + scale_x_reverse()
     }
 
     
-    itxdb <- !(is.null(txdb) || is.null(tx_match))
+    iannots <- !(is.null(txlist) || is.null(tx_plot))
     
     ##combine generated tracks
-    if (imodel && itxdb) {
+    if (imodel && iannots) {
         sp_obj <- tracks(sp_obj, sp_mobj, annot_track, heights=c(3, 1, 1.5))
     } else if (imodel) {
         sp_obj <- tracks(sp_obj, sp_mobj, heights=c(3, 1))
-    } else if (itxdb) {
+    } else if (iannots) {
         sp_obj <- tracks(sp_obj, annot_track, heights=c(2, 1))
     }
     
