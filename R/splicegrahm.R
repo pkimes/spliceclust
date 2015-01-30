@@ -70,12 +70,6 @@ NULL
         stop(paste0("exonValues and juncValues cannot be NULL for splicegrahm, \n",
                     "consider using splicegralp instead."))
 
-
-    ## ##can't include gene models if not plotting on genomic scale
-    ## if (!is.null(txlist) && !genomic) {
-    ##     cat("since txlist provided, plotting on genomic scale. \n")
-    ##     genomic <- TRUE
-    ## }}
     
     ##unpack concomp
     gr_e <- exons(obj)

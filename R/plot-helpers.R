@@ -68,6 +68,7 @@
 concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
     
     gr_e <- exons(obj)
+    strand(gr_e) <- "*"
     cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
     
     if (is.null(txdb)) {
@@ -336,7 +337,7 @@ find_annotations <- function(obj, txlist, txdb, orgdb, eps) {
 
     if (length(cand_idx) > 0) {
         tx_match <- txlist[cand_idx]
-        names(tx_match) <- cand_names
+        names(tx_match) <- make.unique(cand_names, sep = "_")
         
         ##take tx_match and compare if lies outside
         if (!is.null(eps)) {
