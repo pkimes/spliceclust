@@ -14,6 +14,7 @@ Imports: GGally,
          ggplot2,
          grid, 
          reshape2
+Suggests: testthat
 License: GPL (>= 2)
 LazyData: true
 Packaged: 2015-01-16 20:30:17 UTC; pkimes
