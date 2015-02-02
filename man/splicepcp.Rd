@@ -37,6 +37,10 @@ by splicegralp or splicegrahm to the plot (default = TRUE)}
 \item{j_incl}{a logical whether to include the junction information as a
 parallel coordinates track (default = FALSE)}
 
+\item{eps}{a numeric value specifying the number of base pairs around \code{obj} to look
+for overlapping gene models, if eps = NULL, then all overlapping gene models are
+included (default = 1e4)}
+
 \item{txlist}{a GRangesList of transcripts or genes which should be queried and
 added to the plot if falling within the region of the connected component
 (default = NULL)}
