@@ -91,10 +91,14 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     pal <- plot_colors()
     hl_cols <- pal$col3
 
+    ##add fake scale of ones for alpha plotting
+    sg_df$ones <- runif(2301)
+    
     ##base of plot
     sg_obj <- ggplot(sg_df, aes(xmin=xmin, xmax=xmax,
                                 ymin=ymin, ymax=ymax,
-                                color=value, fill=value))
+                                color=value, fill=value,
+                                alpha=ones))
 
     ##add horizontal line first
     sg_obj <- sg_obj + 
@@ -102,7 +106,7 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                    color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
     
-    ##add highlighting if necessary
+    ##add highlighting of cluster assignments if necessary
     if (!is.null(highlight)) {
         hl_tab <- table(highlight)
         hl_h <- c(1, cumsum(hl_tab))
@@ -127,6 +131,7 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     sg_obj <- sg_obj + 
         geom_rect() +
         scale_y_continuous(breaks=NULL, limits=c(0, (2.15+j_incl)*n)) +
+        scale_alpha_continuous("splicing", breaks=c(.2, .4, .6, .8), range=0:1) + 
         ylab("") +
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
                     "non-genomic coordinates")) +
@@ -160,7 +165,20 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
             scale_fill_continuous("expr", low="#f7fbff", high="#08306b")
     }
 
-    sg_obj
+
+    ##adjust the size and shape of text labels
+    sg_obj + guides(fill=guide_legend(
+                        keywidth = 2,
+                        keyheight = .5,
+                        reverse=TRUE,
+                        label.theme=element_text(size=rel(8), angle=0)),
+                    alpha=guide_legend(
+                        keywidth=2,
+                        keyheight=.5,
+                        reverse=TRUE,
+                        override.aes=list(color="#08306b", fill=.rgb2hex(pal$col2(1))),
+                        label.theme=element_text(size=rel(8), angle=0)))
+    
 }
 
 
@@ -213,7 +231,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
             sg_obj <- sg_obj +
                 annotate("path", size=.75,
                          x=circle1$x, y=circle1$y,
-                         color=.rgb2hex(pal$col2(e_prop[j])),
+                         color=.rgb2hex(pal$col2(1)), alpha = e_prop[j],
                          arrow=grid::arrow(length=grid::unit(.015, "npc"), ends=arrowhead[j]))
         }
     }
