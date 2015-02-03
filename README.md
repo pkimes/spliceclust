@@ -7,7 +7,7 @@ spliceclust [![Build Status](https://travis-ci.org/pkimes/spliceclust.svg?branch
 1. [Introduction](#intro)
 2. [SpliceGraHM Examples](#splicegrahm)
 3. [SplicePCA Examples](#splicepca)
-4. [SplcePCP Examples](#splicepcp)
+4. [SplicePCP Examples](#splicepcp)
 
 
 ## <a name="intro"></a> Introduction
@@ -104,9 +104,9 @@ for the 177 samples being analyzed. Note that the exons are plotted along genomi
 log expression is shown in color.  
 
 In addition to the boxes, the plot contains arrows which correspond to a splicing events with
-sufficient support in the data (e.g. at least 5 samples each with at least 5 reads spanning the splice
+sufficient support in the data (e.g. at least 8 samples, each with at least 5 reads spanning the splice
 junction). The arrows are colored such that darker arrows were present in a higher proportion of the
-177 samples.  
+177 samples (scale shown on right).  
 
 The SpliceGraHM name is in reference to the fact that after removing the spacing between each exon
 the plot simply reduces to a __standard heatmap__ of expression along a single gene. The corresponding
@@ -160,17 +160,36 @@ splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx,
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
 
-If a gray/black background is preferred, e.g. to see faint arrows corresponding to rare splice variants,
-this is also possible by setting the `use_blk` parameter to `TRUE`.
+The `splicegrahm` function can now also plot gene models in non-genomic space
+with an additional parameter `eps`. The `eps` parameter determines how far up/down
+from the connected component to lookfor overlapping gene models. If `eps = NULL`,
+all overlapping gene models are included. If `eps = 1000`, only overlapping gene
+models which are fully contained within 1000bp of the connected component
+are included.
 
 
 ```r
-splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, use_blk = TRUE,
-            txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
+splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
+            txdb = txdb, orgdb = org.Hs.eg.db, eps = NULL)
 ```
 
 ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
 
+
+```r
+splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
+            txdb = txdb, orgdb = org.Hs.eg.db, eps = 0)
+```
+
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
+
+
+```r
+splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
+            txdb = txdb, orgdb = org.Hs.eg.db, eps = 1000)
+```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
 
 ## <a name="splicepca"></a> SplicePCA Examples
@@ -189,7 +208,7 @@ KLK12 dataset from above.
 splicepca(klk12_cc, npc = 3)
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
 
 In the above PC loadings plot, red and blue are used to denote the magnitude of the PC loadings
 for each exon and splice junction. From the plot above, we see that the greatest source of variation
@@ -205,7 +224,7 @@ annotated to this gene. Note that above the PCs are computed separately for exon
 splicepca(klk12_cc, npc = 3, scores = TRUE)
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
 
 It is also possible to perform the PCA analysis using the concatenated exon and junction information by
 setting the `pc_sep` parameter to `FALSE`, and specifying the relative "weight" of each with `ej_w`. The
@@ -217,7 +236,7 @@ In the following example, we use equal weights for the two data sources.
 splicepca(klk12_cc, npc = 3, pc_sep = FALSE, ej_w = c(1, 1))
 ```
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png) 
 
 
 ## <a name="splicepcp"></a> SplicePCP Examples
@@ -233,7 +252,7 @@ a reference to [_parallel coordinates plots_](pcp). The same _KLK12_ data is sho
 splicepcp(klk12_cc, genomic = TRUE, txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png) 
 
 The plot includes 3 tracks:
   1. log-expression values for each exon or region of an exon
@@ -263,12 +282,12 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] spliceclust_0.1.0                      
-##  [2] org.Hs.eg.db_3.0.0                     
-##  [3] RSQLite_1.0.0                          
-##  [4] DBI_0.3.1                              
-##  [5] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [6] GenomicFeatures_1.18.3                 
+##  [1] org.Hs.eg.db_3.0.0                     
+##  [2] RSQLite_1.0.0                          
+##  [3] DBI_0.3.1                              
+##  [4] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+##  [5] GenomicFeatures_1.18.3                 
+##  [6] spliceclust_0.1.1                      
 ##  [7] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
 ##  [8] BSgenome_1.34.1                        
 ##  [9] rtracklayer_1.26.2                     
@@ -303,21 +322,20 @@ sessionInfo()
 ## [23] Formula_1.1-2            GenomicAlignments_1.2.1 
 ## [25] graph_1.44.1             grid_3.1.1              
 ## [27] gridExtra_0.9.1          gtable_0.1.2            
-## [29] Hmisc_3.14-6             htmltools_0.2.6         
-## [31] iterators_1.0.7          knitr_1.8               
-## [33] labeling_0.3             lattice_0.20-29         
-## [35] latticeExtra_0.6-26      MASS_7.3-35             
-## [37] munsell_0.4.2            nnet_7.3-8              
-## [39] OrganismDbi_1.8.0        plyr_1.8.1              
-## [41] proto_0.3-10             RBGL_1.42.0             
-## [43] Rcpp_0.11.3              RCurl_1.95-4.5          
-## [45] reshape_0.8.5            reshape2_1.4.1          
-## [47] rmarkdown_0.4.2          rpart_4.1-8             
-## [49] Rsamtools_1.18.2         scales_0.2.4            
-## [51] sendmailR_1.2-1          splines_3.1.1           
-## [53] stringr_0.6.2            survival_2.37-7         
-## [55] tools_3.1.1              VariantAnnotation_1.12.8
-## [57] xtable_1.7-4             zlibbioc_1.12.0
+## [29] Hmisc_3.14-6             iterators_1.0.7         
+## [31] knitr_1.8                labeling_0.3            
+## [33] lattice_0.20-29          latticeExtra_0.6-26     
+## [35] MASS_7.3-35              munsell_0.4.2           
+## [37] nnet_7.3-8               OrganismDbi_1.8.0       
+## [39] plyr_1.8.1               proto_0.3-10            
+## [41] RBGL_1.42.0              Rcpp_0.11.3             
+## [43] RCurl_1.95-4.5           reshape_0.8.5           
+## [45] reshape2_1.4.1           rpart_4.1-8             
+## [47] Rsamtools_1.18.2         scales_0.2.4            
+## [49] sendmailR_1.2-1          splines_3.1.1           
+## [51] stringr_0.6.2            survival_2.37-7         
+## [53] tools_3.1.1              VariantAnnotation_1.12.8
+## [55] xtable_1.7-4             zlibbioc_1.12.0
 ```
 
 
