@@ -17,11 +17,11 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
                       log_base, log_shift, bin, n, p_j) {
     
     sg_df <- data.frame(xmin=start(ranges(gr_e)),
-                       xmax=end(ranges(gr_e)),
-                       vals_e)
+                        xmax=end(ranges(gr_e)),
+                        vals_e)
     sg_df <- reshape2::melt(sg_df, id.vars=c("xmin", "xmax"))
-    sg_df$ymin <- as.numeric(sg_df$variable)
-    sg_df$ymax <- sg_df$ymin + 1
+    sg_df$ymin <- as.numeric(sg_df$variable) + .25
+    sg_df$ymax <- sg_df$ymin + .50
     
     ##transform if desired
     if (log_base > 0) {
@@ -92,7 +92,7 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     hl_cols <- pal$col3
 
     ##add fake scale of ones for alpha plotting
-    sg_df$ones <- runif(2301)
+    sg_df$ones <- rep(seq(0, 1, .2), length.out=nrow(sg_df))
     
     ##base of plot
     sg_obj <- ggplot(sg_df, aes(xmin=xmin, xmax=xmax,
@@ -100,16 +100,16 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                                 color=value, fill=value,
                                 alpha=ones))
 
-    ##add horizontal line first
-    sg_obj <- sg_obj + 
-        geom_hline(yintercept=n/2,
-                   color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+    ## ##add horizontal line first
+    ## sg_obj <- sg_obj + 
+    ##     geom_hline(yintercept=n/2,
+    ##                color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
     
     ##add highlighting of cluster assignments if necessary
     if (!is.null(highlight)) {
-        hl_tab <- table(highlight)
-        hl_h <- c(1, cumsum(hl_tab))
+        hl_tab <- c(1, table(highlight))
+        hl_h <- cumsum(hl_tab)
         k <- length(hl_tab)
         
         wrc <- width(range(gr_e))
@@ -118,20 +118,21 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
         
         for (i in 1:k) {
             sg_obj <- sg_obj +
-                annotate("rect",
+                annotate("rect", size=.125, 
                          xmin=c(minrc-wrc*0.05, maxrc),
                          xmax=c(minrc, maxrc+wrc*0.05),
-                         ymin=rep(hl_h[i], 2), ymax=rep(hl_h[i+1], 2),
-                         fill=hl_cols[i], alpha=1)
+                         ymin=rep(hl_h[i], 2)+.25, ymax=rep(hl_h[i+1], 2)-.25,
+                         fill=hl_cols[i], color=hl_cols[i], alpha=1)
         }
     }
     
     
     ##add basic plot structure
     sg_obj <- sg_obj + 
-        geom_rect() +
-        scale_y_continuous(breaks=NULL, limits=c(0, (2.15+j_incl)*n)) +
-        scale_alpha_continuous("splicing", breaks=c(.2, .4, .6, .8), range=0:1) + 
+        geom_rect(size=.125 + 0.055) +
+        scale_y_continuous(breaks=NULL, limits=c(-1, (2.15+j_incl)*n)) +
+        scale_alpha_continuous("splicing", breaks=c(0, .2, .4, .6, .8, 1), range=0:1,
+                               labels=paste0(seq(0, 100, 20), "%")) + 
         ylab("") +
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
                     "non-genomic coordinates")) +
@@ -145,10 +146,10 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                   panel.background = element_rect(fill="#3C3C3C"))
     } else {
         sg_obj <- sg_obj +
-            annotate("rect", size = .25,
-                     xmin = start(ranges(gr_e)) - .5,
-                     xmax = end(ranges(gr_e)) + .5,
-                     ymin = 1, ymax = n+1,
+            annotate("rect", size = .125,
+                     xmin = start(ranges(gr_e)) - .25,
+                     xmax = end(ranges(gr_e)) + .25,
+                     ymin = .75 - .125, ymax = n + 1 + .25,
                      alpha = 1, color = "#3C3C3C", fill = NA)
     }
 
@@ -262,33 +263,33 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
                      label=abc, vjust=0,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
-        ##add rectangles around 
-        if (!use_blk) {
-            sg_obj <- sg_obj +
-                annotate("rect", size=.25,
-                         xmin=junc_x - junc_w - 1, xmax=junc_x + junc_w + 1,
-                         ymin=junc_y + s_size, ymax=junc_y + (n+1)*s_size,
-                         alpha=1, color=.rgb2hex(pal$col2(1)), fill=NA)
-        }
 
         ##add highlighting if necessary
         if (!is.null(highlight)) {
-            hl_tab <- table(highlight)
-            hl_h <- c(1, cumsum(hl_tab))
+            hl_tab <- c(1, table(highlight))
+            hl_h <- cumsum(hl_tab)
             k <- length(hl_tab)
             
             for (i in 1:k) {
                 sg_obj <- sg_obj +
-                    annotate("rect",
-                             xmin=c(min(junc_x)-junc_w*2, max(junc_x)+junc_w),
-                             xmax=c(min(junc_x)-junc_w, max(junc_x)+junc_w*2),
-                             ymin=rep(hl_h[i], 2)*s_size+junc_y,
-                             ymax=rep(hl_h[i+1], 2)*s_size+junc_y,
-                             fill=hl_cols[i], alpha=1)
+                    annotate("rect", size = .125,
+                             xmin=c(min(junc_x)-junc_w*2, max(junc_x)+junc_w+1),
+                             xmax=c(min(junc_x)-junc_w-1, max(junc_x)+junc_w*2),
+                             ymin=(rep(hl_h[i], 2)+.25)*s_size + junc_y,
+                             ymax=(rep(hl_h[i+1], 2)-.25)*s_size + junc_y,
+                             fill=hl_cols[i], color=hl_cols[i], alpha=1)
             }
         }
-    }
 
+        ##add rectangles around 
+        if (!use_blk) {
+            sg_obj <- sg_obj +
+                annotate("rect", size = .125,
+                         xmin = junc_x - junc_w - 1, xmax = junc_x + junc_w + 1,
+                         ymin=(.75 - .125)*s_size + junc_y, ymax=(n+1+.25)*s_size + junc_y,
+                         alpha=1, color=.rgb2hex(pal$col2(1)), fill=NA)
+        }
+    }
 
     sg_obj
 }

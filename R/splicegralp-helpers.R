@@ -50,10 +50,10 @@ sl_drawbase <- function(sl_df, gr_e, gr_j, p_e, p_j, e_loads, j_loads,
                                color=value, fill=value))
 
 
-    ##add horizontal line first
-    g_obj <- g_obj + 
-        geom_hline(yintercept=0,
-                   color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+    ## ##add horizontal line first
+    ## g_obj <- g_obj + 
+    ##     geom_hline(yintercept=0,
+    ##                color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
     
     ##add basic plot structure
