@@ -146,7 +146,7 @@ NULL
     
     ##plot on genomic coordinates
     sg_obj <- sg_drawbase(sg_df, use_blk, j_incl, genomic,
-                          gr_e, log_base, bin, n, highlight, p_j)
+                          gr_e, log_base, bin, n, highlight, p_j, iflip)
     
     
     ##add arrow information if needed

@@ -82,11 +82,12 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #' @param highlight see \code{splicegrahm} documentation
 #' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param p_j number of junctions in \code{gr_j}
+#' @param iflip logical whether model will be on negative strand
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
-                        log_base, bin, n, highlight, p_j) {
+                        log_base, bin, n, highlight, p_j, iflip) {
 
     pal <- plot_colors()
     hl_cols <- pal$col3
@@ -100,11 +101,17 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                                 color=value, fill=value,
                                 alpha=ones))
 
-    ## ##add horizontal line first
-    ## sg_obj <- sg_obj + 
-    ##     geom_hline(yintercept=n/2,
-    ##                color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
-
+    ## add horizontal line between exons ("beads on a string")
+    ## can't when flipped: https://github.com/hadley/ggplot2/issues/706/
+    if (!iflip) {
+        sg_obj <- sg_obj +
+            annotate(geom="segment",
+                     x=end(gr_e)[-length(gr_e)],
+                     xend=start(gr_e)[-1],
+                     y=rep(n/2, length(gr_e)-1),
+                     yend=rep(n/2, length(gr_e)-1),
+                     color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+    }
     
     ##add highlighting of cluster assignments if necessary
     if (!is.null(highlight)) {
