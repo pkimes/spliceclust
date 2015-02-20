@@ -124,3 +124,45 @@ setGeneric("exonValues", function(obj) standardGeneric("exonValues"))
 #' @keywords internal
 #' @rdname juncValues
 setGeneric("juncValues", function(obj) standardGeneric("juncValues"))
+
+
+
+## ###################################################################
+## ###################################################################
+## setter methods
+
+#' exons replace
+#' replace \code{exons} slot
+#' @export
+#' @docType methods
+#' @param obj object with slot \code{exons}
+#' @keywords internal
+#' @rdname exons-replace
+setGeneric("exons<-", function(obj, ..., value) standardGeneric("exons<-"))
+
+#' juncs replace
+#' replace \code{juncs} slot
+#' @export
+#' @docType methods
+#' @param obj object with slot \code{juncs}
+#' @keywords internal
+#' @rdname juncs-replace
+setGeneric("juncs<-", function(obj, ..., value) standardGeneric("juncs<-"))
+
+#' exonValues replace
+#' replace \code{exonValues} slot
+#' @export
+#' @docType methods
+#' @param obj object with slot \code{exonValues}
+#' @keywords internal
+#' @rdname exonValues-replace
+setGeneric("exonValues<-", function(obj, ..., value) standardGeneric("exonValues<-"))
+
+#' juncValues replace
+#' replace \code{juncValues} slot
+#' @export
+#' @docType methods
+#' @param obj object with slot \code{juncValues}
+#' @keywords internal
+#' @rdname juncValues-replace
+setGeneric("juncValues<-", function(obj, ..., value) standardGeneric("juncValues<-"))
