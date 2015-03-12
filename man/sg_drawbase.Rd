@@ -5,7 +5,7 @@
 \title{construct base ggplot2 object for splicegrahm plot}
 \usage{
 sg_drawbase(sg_df, use_blk, j_incl, genomic, gr_e, log_base, bin, n, highlight,
-  p_j)
+  p_j, iflip)
 }
 \arguments{
 \item{sg_df}{data.frame output from \code{sg_create}}
@@ -27,6 +27,8 @@ sg_drawbase(sg_df, use_blk, j_incl, genomic, gr_e, log_base, bin, n, highlight,
 \item{highlight}{see \code{splicegrahm} documentation}
 
 \item{p_j}{number of junctions in \code{gr_j}}
+
+\item{iflip}{logical whether model will be on negative strand}
 }
 \description{
 construct base ggplot2 object for splicegrahm plot
