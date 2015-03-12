@@ -53,6 +53,8 @@ identified from txlist (default = NULL)}
 \item{orgdb}{a database that can be queried using keys obtained from \code{txdb}
 to determine corresponding gene symbols (default = NULL)}
 
+\item{title}{a character string title printed at the top of plot (default = "")}
+
 \item{...}{other parameters to be passed}
 }
 \value{

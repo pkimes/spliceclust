@@ -36,6 +36,7 @@
 #'        identified from txlist (default = NULL)
 #' @param orgdb a database that can be queried using keys obtained from \code{txdb}
 #'        to determine corresponding gene symbols (default = NULL)
+#' @param title a character string title printed at the top of plot (default = "")
 #' @param ... other parameters to be passed
 #' 
 #' @return
@@ -52,7 +53,7 @@
 #' @name splicegrahm
 #' @export
 #' @import ggplot2 GenomicRanges
-#' @importFrom ggbio geom_alignment autoplot ggplot
+#' @importFrom ggbio geom_alignment autoplot ggplot tracks
 #' @importFrom grid arrow unit
 #' @importFrom reshape2 melt
 #' @author Patrick Kimes
@@ -63,7 +64,7 @@ NULL
                                  genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
                                  j_incl = FALSE, highlight = NULL,
                                  use_blk = FALSE, eps = 1e4, txlist = NULL,
-                                 txdb = NULL, orgdb = NULL, ...) {
+                                 txdb = NULL, orgdb = NULL, title="", ...) {
 
     ##exonValues and juncValues must be specified
     if (is.null(exonValues(obj)) || is.null(juncValues(obj)))
@@ -96,7 +97,8 @@ NULL
     } else {
         tx_plot <- find_annotations(obj, txlist, txdb, orgdb, eps)
     }
-    
+
+    if (p_e < 2) { genomic <- TRUE }
 
     ##change GRanges coordinates if non-genomic coordinates are desired
     if (genomic) {
@@ -107,7 +109,7 @@ NULL
                 geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
                     theme_bw()
         }
-    } else {
+    } else if (p_e > 1) {
         adj_out <- adj_ranges(gr_e, gr_j, tx_plot, ex_use)
         gr_e <- adj_out$gr_e
         gr_j <- adj_out$gr_j
@@ -134,8 +136,8 @@ NULL
         vals_j <- t(apply(vals_j, 1, sort))
     } else {
         idx <- sampl_sort(sort_idx, vals_e, vals_j, n)
-        vals_e <- vals_e[, idx]
-        vals_j <- vals_j[, idx]
+        vals_e <- vals_e[, idx, drop=FALSE]
+        vals_j <- vals_j[, idx, drop=FALSE]
     }
 
     
@@ -150,9 +152,10 @@ NULL
     
     
     ##add arrow information if needed
-    sg_obj <- sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip,
-                           gr_e, gr_j, vals_j, n, p_j, highlight)
-    
+    if (p_j > 0) {
+        sg_obj <- sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip,
+                               gr_e, gr_j, vals_j, n, p_j, highlight)
+    }
     
     ##plot with horizontal axis oriented on negative strand
     if (iflip) { sg_obj <- sg_obj + scale_x_reverse() }
@@ -161,7 +164,9 @@ NULL
     ##add annotations if txdb was passed to function
     if (!is.null(txlist) && !is.null(tx_plot)) {
         if (iflip) { annot_track <- annot_track + scale_x_reverse() }
-        sg_obj <- tracks(sg_obj, annot_track, heights=c(2, 1))
+        sg_obj <- tracks(sg_obj, annot_track, heights=c(2, 1), title=title)
+    } else {
+        sg_obj <- sg_obj + ggtitle(title)
     }
 
     sg_obj
