@@ -84,8 +84,16 @@ concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
                 gene_id <- select(txdb, keys=as.character(cand_idx),
                                   columns="GENEID", keytype="TXID")$GENEID
                 pair <- rep(NA, length(gene_id))
-                pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
-                                                columns="SYMBOL", keytype="ENTREZID")$SYMBOL
+                ## ugly way to handle ENTREZID and orgdb mismatch
+                output <- tryCatch({
+                    pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
+                                                    columns="SYMBOL", keytype="ENTREZID")$SYMBOL
+                }, error = function(err) {
+                    print("there was an error")
+                    return(select(txdb, keys=as.character(cand_idx),
+                                  columns="TXNAME", keytype="TXID")$TXNAME)
+                })
+                if (all(is.na(pair))) { pair <- output }
                 pair[is.na(pair)] <- "NA"
                 return(cbind(cand_idx, pair))
             }
@@ -282,30 +290,35 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use) {
     ir_i <- gaps(ranges(models))
     preintrons <- function(x) { sum(width(restrict(ir_i, end=x))) }
     
-    ##shift exons and junctions
-    e_shifts <- sapply(start(gr_e), preintrons) * shrink
-    j_shifts1 <- sapply(start(gr_j), preintrons) * shrink
-    j_shifts2 <- sapply(end(gr_j), preintrons) * shrink
+    if (!is.nan(shrink)) {
+        ##shift exons and junctions
+        e_shifts <- sapply(start(gr_e), preintrons) * shrink
+        start(gr_e) <- start(gr_e) - e_shifts
+        end(gr_e) <- end(gr_e) - e_shifts
+        gr_e <- shift(gr_e, -base_shift+1)
 
-    start(gr_e) <- start(gr_e) - e_shifts
-    end(gr_e) <- end(gr_e) - e_shifts
-    start(gr_j) <- start(gr_j) - j_shifts1
-    end(gr_j) <- end(gr_j) - j_shifts2
-
-    gr_e <- shift(gr_e, -base_shift+1)
-    gr_j <- shift(gr_j, -base_shift+1)
-
+        if (length(gr_j) > 0) {
+            j_shifts1 <- sapply(start(gr_j), preintrons) * shrink
+            j_shifts2 <- sapply(end(gr_j), preintrons) * shrink
+            start(gr_j) <- start(gr_j) - j_shifts1
+            end(gr_j) <- end(gr_j) - j_shifts2
+            gr_j <- shift(gr_j, -base_shift+1)
+        }
+    }
+    
     ##shift annotation models
     if (!is.null(tx_plot)) {
-        m_shifts1 <- sapply(start(tx_plot), preintrons) * shrink
-        m_shifts2 <- sapply(end(tx_plot), preintrons) * shrink
-        start(tx_plot) <- start(tx_plot) - m_shifts1
-        end(tx_plot) <- end(tx_plot) - m_shifts2
-        tx_plot <- shift(tx_plot, -base_shift+1)
-
-        annot_track <- ggplot() +
-            geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
-                theme_bw()
+        if (!is.nan(shrink)) {
+            m_shifts1 <- sapply(start(tx_plot), preintrons) * shrink
+            m_shifts2 <- sapply(end(tx_plot), preintrons) * shrink
+            start(tx_plot) <- start(tx_plot) - m_shifts1
+            end(tx_plot) <- end(tx_plot) - m_shifts2
+            tx_plot <- shift(tx_plot, -base_shift+1)
+            
+            annot_track <- ggplot() +
+                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                    theme_bw()
+        }
     }
     
     ## return gr_e, gr_j, annot_track
