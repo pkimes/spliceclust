@@ -20,8 +20,10 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
                         xmax=end(ranges(gr_e)),
                         vals_e)
     sg_df <- reshape2::melt(sg_df, id.vars=c("xmin", "xmax"))
+    if (length(gr_e) == 1) { sg_df$variable <- 1:n }
     sg_df$ymin <- as.numeric(sg_df$variable) + .25
     sg_df$ymax <- sg_df$ymin + .50
+
     
     ##transform if desired
     if (log_base > 0) {
@@ -32,9 +34,10 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
     if (bin && log_base > 0) {
         sg_df$value <- factor(floor(sg_df$value))
     }
-    
+    sg_df$kind <- "e"
+
     ##include junctions if necessary
-    if (j_incl) {
+    if (j_incl && p_j > 0) {
         junc_x <- seq(min(min(ranges(gr_e))),
                       max(max(ranges(gr_e))),
                       length.out=p_j+2)
@@ -61,7 +64,6 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
             gg_j$value <- factor(floor(gg_j$value))
         }
 
-        sg_df$kind <- "e"
         sg_df <- rbind(sg_df, gg_j)
     }
 
@@ -101,17 +103,17 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                                 color=value, fill=value,
                                 alpha=ones))
 
-    ## add horizontal line between exons ("beads on a string")
-    ## can't when flipped: https://github.com/hadley/ggplot2/issues/706/
-    if (!iflip) {
-        sg_obj <- sg_obj +
-            annotate(geom="segment",
-                     x=end(gr_e)[-length(gr_e)],
-                     xend=start(gr_e)[-1],
-                     y=rep(n/2, length(gr_e)-1),
-                     yend=rep(n/2, length(gr_e)-1),
-                     color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
-    }
+    ## ## add horizontal line between exons ("beads on a string")
+    ## ## can't when flipped: https://github.com/hadley/ggplot2/issues/706/
+    ## if (!iflip) {
+    ##     sg_obj <- sg_obj +
+    ##         annotate(geom="segment",
+    ##                  x=end(gr_e)[-length(gr_e)],
+    ##                  xend=start(gr_e)[-1],
+    ##                  y=rep(n/2, length(gr_e)-1),
+    ##                  yend=rep(n/2, length(gr_e)-1),
+    ##                  color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
+    ## }
     
     ##add highlighting of cluster assignments if necessary
     if (!is.null(highlight)) {
