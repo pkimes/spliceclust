@@ -237,7 +237,5 @@ setMethod("splicegrahm2",
 ##
 ## -- match up splice junctions??
 ##
-## for KLK12 example, use sigfuge labels - cleaner
-##
 ##
 
