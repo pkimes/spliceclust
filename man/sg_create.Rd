@@ -4,7 +4,8 @@
 \alias{sg_create}
 \title{construct ggplot2 object for plotting}
 \usage{
-sg_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_j)
+sg_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_j,
+  y_flip = FALSE)
 }
 \arguments{
 \item{gr_e}{\code{GenomicRanges} for exons}
@@ -26,6 +27,9 @@ sg_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_j)
 \item{n}{number of samples in \code{vals_e}, \code{vals_j}}
 
 \item{p_j}{number of junctions in \code{gr_j}}
+
+\item{y_flip}{logical whether model should be flipped on
+       vertical axis (default = FALSE)}
 }
 \description{
 construct ggplot2 object for plotting

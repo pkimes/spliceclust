@@ -231,6 +231,17 @@ plot_colors <- function() {
 #' @param vals_e matrix of exon coverages
 #' @param vals_j matrix of junction coverages
 #' @param n number of samples
+#'
+#' @details
+#' sort_idx can take values of either:
+#' \itemize{
+#' \item{\code{1}}: sort on first exon
+#' \item{\code{2}}: sort on PC 2
+#' \item{\code{3}}: sort on mean exon coverage
+#' \item{\code{4}}: sort on mean exon log-coverage
+#' \item{\code{5}}: rev sort on mean exon coverage
+#' \item{\code{6}}: rev sorton mean exon log-coverage
+#' }
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
@@ -241,6 +252,14 @@ sampl_sort <- function(sort_idx, vals_e, vals_j, n) {
         } else if (sort_idx == 2) {
             pca <- prcomp(t(vals_e))
             idx <- order(pca$x[, 2])
+        } else if (sort_idx == 3) {
+            idx <- order(colMeans(vals_e))
+        } else if (sort_idx == 4) {
+            idx <- order(colMeans(log10(vals_e+1)))
+        } else if (sort_idx == 5) {
+            idx <- order(colMeans(vals_e), decreasing=TRUE)
+        } else if (sort_idx == 6) {
+            idx <- order(colMeans(log10(vals_e+1)), decreasing=TRUE)
         } else {
             idx <- 1:n
         }

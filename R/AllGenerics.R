@@ -29,6 +29,19 @@ setGeneric("splicegrahm",
            function(obj, ...)  standardGeneric("splicegrahm"))
 
 
+#' Two-class Splice Graph HeatMap (SpliceGraHM2)
+#'
+#' Method for plotting both the exon and junction values of a single
+#' connected component for two separate clusters or populations
+#'
+#' @export
+#' @docType methods
+#' @name splicegrahm2-generic
+#' @keywords internal
+setGeneric("splicegrahm2",
+           function(obj1, obj2, ...)  standardGeneric("splicegrahm2"))
+
+
 #' Splice Graph Loadings Plot (SpliceGraLP)
 #'
 #' Method for plotting different loading vectors for a \code{concomp}

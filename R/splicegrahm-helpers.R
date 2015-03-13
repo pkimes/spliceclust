@@ -10,11 +10,14 @@
 #' @param bin see \code{splicegrahm} documentation
 #' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param p_j number of junctions in \code{gr_j}
+#' @param y_flip logical whether model should be flipped on
+#'        vertical axis (default = FALSE)
 #'
 #' @keywords internal
 #' @author Patrick Kimes
 sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
-                      log_base, log_shift, bin, n, p_j) {
+                      log_base, log_shift, bin, n, p_j,
+                      y_flip = FALSE) {
     
     sg_df <- data.frame(xmin=start(ranges(gr_e)),
                         xmax=end(ranges(gr_e)),
@@ -67,6 +70,12 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
         sg_df <- rbind(sg_df, gg_j)
     }
 
+    if (y_flip) {
+        temp <- sg_df$ymin
+        sg_df$ymin <- -sg_df$ymax
+        sg_df$ymax <- -temp
+    }        
+
     return(sg_df)
 }
 
@@ -85,11 +94,14 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param p_j number of junctions in \code{gr_j}
 #' @param iflip logical whether model will be on negative strand
+#' @param y_flip logical whether model should be flipped on
+#'        vertical axis (defualt = FALSE)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
-                        log_base, bin, n, highlight, p_j, iflip) {
+                        log_base, bin, n, highlight, p_j, iflip,
+                        y_flip = FALSE) {
 
     pal <- plot_colors()
     hl_cols <- pal$col3
@@ -139,7 +151,10 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     ##add basic plot structure
     sg_obj <- sg_obj + 
         geom_rect(size=.125 + 0.055) +
-        scale_y_continuous(breaks=NULL, limits=c(-1, (2.15+j_incl)*n)) +
+        scale_y_continuous(breaks=NULL,
+                           limits=ifelse(c(y_flip, y_flip),
+                               c(-(2.15+j_incl)*n, 1),
+                               c(-1, (2.15+j_incl)*n))) +
         scale_alpha_continuous("splicing", breaks=c(0, .2, .4, .6, .8, 1), range=0:1,
                                labels=paste0(seq(0, 100, 20), "%")) + 
         ylab("") +
@@ -147,7 +162,7 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                     "non-genomic coordinates")) +
         theme_bw()
 
-    ##frame exons if not using black background
+    ##frame exons with box if not using black background
     if (use_blk) {
         sg_obj <- sg_obj +
             theme(panel.grid.minor.x = element_blank(),
@@ -158,7 +173,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
             annotate("rect", size = .125,
                      xmin = start(ranges(gr_e)) - .25,
                      xmax = end(ranges(gr_e)) + .25,
-                     ymin = .75 - .125, ymax = n + 1 + .25,
+                     ymin = ifelse(y_flip, -(n+1+.25), .75-.125),
+                     ymax = ifelse(y_flip, -(.75-.125), n+1+.25),
                      alpha = 1, color = "#3C3C3C", fill = NA)
     }
 
@@ -206,11 +222,14 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
 #' @param j_incl see \code{splicegrahm} documentation
 #' @param use_blk see \code{splicegrahm} documentation
 #' @param highlight see \code{splicegrahm} documentation
+#' @param y_flip logical whether model should be flipped on
+#'        vertical axis (defualt = FALSE)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
-                         gr_e, gr_j, vals_j, n, p_j, highlight) {
+                         gr_e, gr_j, vals_j, n, p_j, highlight,
+                         y_flip = FALSE) {
 
     ##strand of junctions for arrow heads
     arrowhead <- ifelse(as.character(strand(gr_j)) == "-", "last", "first")
@@ -225,22 +244,25 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
     ##add splicing arrows to plot
     e_prop <- rowMeans(vals_j > 0) 
     w_prop <- width(ranges(gr_j)) / width(range(gr_e))
+
+    ##whether to flip arrow plotting
+    iud <- ifelse(y_flip, -1, 1)
     
     for (j in 1:p_j) {
         circle1 <- .pseudoArc(xmin=start(ranges(gr_j))[j],
                               xmax=end(ranges(gr_j))[j],
-                              ymin=n+1, height=1*n*sqrt(w_prop[j]))
+                              ymin=n+1, height=n*sqrt(w_prop[j]))
 
         ##only include arrows if direction is known
         if (all(strand(gr_e) == "*")) {
             sg_obj <- sg_obj +
                 annotate("path", size=.75,
-                         x=circle1$x, y=circle1$y,
+                         x=circle1$x, y=iud*circle1$y,
                          color=.rgb2hex(pal$col2(e_prop[j])))
         } else {
             sg_obj <- sg_obj +
                 annotate("path", size=.75,
-                         x=circle1$x, y=circle1$y,
+                         x=circle1$x, y=iud*circle1$y,
                          color=.rgb2hex(pal$col2(1)), alpha = e_prop[j],
                          arrow=grid::arrow(length=grid::unit(.015, "npc"), ends=arrowhead[j]))
         }

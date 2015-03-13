@@ -18,6 +18,17 @@ sampl_sort(sort_idx, vals_e, vals_j, n)
 \description{
 function defining all of the sort orders
 }
+\details{
+sort_idx can take values of either:
+\itemize{
+\item{\code{1}}: sort on first exon
+\item{\code{2}}: sort on PC 2
+\item{\code{3}}: sort on mean exon coverage
+\item{\code{4}}: sort on mean exon log-coverage
+\item{\code{5}}: rev sort on mean exon coverage
+\item{\code{6}}: rev sorton mean exon log-coverage
+}
+}
 \author{
 Patrick Kimes
 }
