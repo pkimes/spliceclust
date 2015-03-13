@@ -175,9 +175,18 @@ NULL
     
     ##plot on genomic coordinates
     sg_obj1 <- sg_drawbase(sg_df1, use_blk, j_incl, genomic,
-                           gr_e1, log_base, bin, n1, NULL, p_j1, iflip, FALSE)
+                           gr_e1, log_base, bin, n1, NULL, p_j1, iflip, FALSE, TRUE)
     sg_obj2 <- sg_drawbase(sg_df2, use_blk, j_incl, genomic,
-                           gr_e2, log_base, bin, n2, NULL, p_j2, iflip, TRUE)
+                           gr_e2, log_base, bin, n2, NULL, p_j2, iflip, TRUE, TRUE)
+
+    
+    ##adjust Y limits for 2 splicegrahms to be same (alt, allow separate)
+    sg_obj1 <- sg_obj1 +
+        scale_y_continuous("", breaks=NULL, limits=c(-1, (2.15+j_incl)*n_max))
+    sg_obj2 <- sg_obj2 +
+        scale_y_continuous("", breaks=NULL, limits=c(-(2.15+j_incl)*n_max, 1))
+
+    
     
     
     ##add arrow information if needed
@@ -221,7 +230,6 @@ setMethod("splicegrahm2",
 
 
 ## necessary fixes:
-## 1. flip bottom plot using negative values, not "scale_y_reverse"
 ## 2. -- consider fixing heights of both plots to be the same
 ## 3. -- consider scaling heights of both plots to be the same
 ## 4. -- also need to fix range of 'expression' colors for both plots

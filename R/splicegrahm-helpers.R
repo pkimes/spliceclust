@@ -96,12 +96,15 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #' @param iflip logical whether model will be on negative strand
 #' @param y_flip logical whether model should be flipped on
 #'        vertical axis (defualt = FALSE)
+#' @param jointplot logical whether to exclude setting of y_axis
+#'        parameters in case of joint plotting with splicegrahm2
+#'        (default = FALSE)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                         log_base, bin, n, highlight, p_j, iflip,
-                        y_flip = FALSE) {
+                        y_flip = FALSE, jointplot = FALSE) {
 
     pal <- plot_colors()
     hl_cols <- pal$col3
@@ -151,17 +154,22 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     ##add basic plot structure
     sg_obj <- sg_obj + 
         geom_rect(size=.125 + 0.055) +
-        scale_y_continuous(breaks=NULL,
-                           limits=ifelse(c(y_flip, y_flip),
-                               c(-(2.15+j_incl)*n, 1),
-                               c(-1, (2.15+j_incl)*n))) +
         scale_alpha_continuous("splicing", breaks=c(0, .2, .4, .6, .8, 1), range=0:1,
                                labels=paste0(seq(0, 100, 20), "%")) + 
-        ylab("") +
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
                     "non-genomic coordinates")) +
         theme_bw()
 
+    ##adjust scaling on own
+    if (!jointplot) {
+        sg_obj <- sg_obj +
+            scale_y_continuous("", breaks=NULL,
+                               limits=ifelse(c(y_flip, y_flip),
+                                   c(-(2.15+j_incl)*n, 1),
+                                   c(-1, (2.15+j_incl)*n)))
+    }
+                                       
+    
     ##frame exons with box if not using black background
     if (use_blk) {
         sg_obj <- sg_obj +
@@ -268,6 +276,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
         }
     }
 
+
     ##add text labels for splicing arrows
     if (j_incl) {
         junc_x <- seq(min(min(ranges(gr_e))),
@@ -284,14 +293,16 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
         sg_obj <- sg_obj +
             annotate("text", size=3,
                      x=(start(ranges(gr_j)) + end(ranges(gr_j))) / 2,
-                     y=(n+1)*(1 + sqrt(w_prop)), vjust=0, 
+                     y=iud*(n+1)*(1 + sqrt(w_prop)), vjust=0+y_flip, 
                      label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
         sg_obj <- sg_obj +
             annotate("text", size=3,
-                     x=junc_x, y=rep(junc_y + (n+1)*(.025 + s_size), p_j),
-                     label=abc, vjust=0,
+                     x=junc_x,
+                     y=iud*rep(junc_y + (n+1)*(.025 + s_size), p_j),
+                     vjust=0+y_flip,
+                     label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
 
@@ -317,7 +328,8 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
             sg_obj <- sg_obj +
                 annotate("rect", size = .125,
                          xmin = junc_x - junc_w - 1, xmax = junc_x + junc_w + 1,
-                         ymin=(.75 - .125)*s_size + junc_y, ymax=(n+1+.25)*s_size + junc_y,
+                         ymin=iud*((.75 - .125)*s_size + junc_y),
+                         ymax=iud*((n+1+.25)*s_size + junc_y),
                          alpha=1, color=.rgb2hex(pal$col2(1)), fill=NA)
         }
     }
