@@ -279,20 +279,28 @@ sampl_sort <- function(sort_idx, vals_e, vals_j, n) {
 #' @param gr_j \code{GenomicRanges} for junctions
 #' @param tx_plot output form \code{find_annotations}
 #' @param ex_use see \code{splicegrahm} documentation
+#' @param gr_base \code{GenomicRanges} to use for adjusting gr_e, gr_j,
+#'        if NULL, then just adjust based on \code{gr_e}
+#'        (default = NULL)
 #'
 #' @keywords internal
 #' @author Patrick Kimes
-adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use) {
+adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
     annot_track <- NULL
 
+    ##use gr_e if gr_base not provided
+    if (is.null(gr_base)) { gr_base <- gr_e } 
+
+    ##create 'union model' based on txlist and gr_base
     if (is.null(tx_plot)) {
-        models <- gr_e
+        models <- gr_base
     } else {
         bb <- tx_plot
         mcols(bb) <- NULL
-        models <- reduce(c(gr_e, bb))
-        strand(models) <- "*"
+        models <- c(gr_base, bb)
     }
+    strand(models) <- "*"
+    models <- reduce(models)
 
     dna_len <- width(range(models))
     rna_len <- sum(width(ranges(models)))

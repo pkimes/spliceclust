@@ -4,7 +4,7 @@
 \alias{adj_ranges}
 \title{adjust ranges if necessary}
 \usage{
-adj_ranges(gr_e, gr_j, tx_plot, ex_use)
+adj_ranges(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL)
 }
 \arguments{
 \item{gr_e}{\code{GenomicRanges} for exons}
@@ -14,6 +14,10 @@ adj_ranges(gr_e, gr_j, tx_plot, ex_use)
 \item{tx_plot}{output form \code{find_annotations}}
 
 \item{ex_use}{see \code{splicegrahm} documentation}
+
+\item{gr_base}{\code{GenomicRanges} to use for adjusting gr_e, gr_j,
+       if NULL, then just adjust based on \code{gr_e}
+       (default = NULL)}
 }
 \description{
 adjust ranges if necessary

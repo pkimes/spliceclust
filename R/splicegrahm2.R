@@ -90,10 +90,6 @@ NULL
     ## processing of concomps
     ## ########################################
 
-    ##create single concomp with both ranges
-    obj <- concomp(GRangesList("e"=c(exons(obj1), exons(obj2)),
-                               "j"=c(juncs(obj1), juncs(obj2))))
-    
     ##unpack and compute dimensions for concomp 1
     gr_e1 <- exons(obj1)
     gr_j1 <- juncs(obj1)
@@ -116,6 +112,13 @@ NULL
     ##take maximum of both datasets to get dimensions of plot
     n_max <- max(n1, n2)
     
+    ##create single concomp with both ranges
+    gr_e <- c(exons(obj1), exons(obj2))
+    gr_j <- c(juncs(obj1), juncs(obj2))
+    strand(gr_e) <- "*"
+    strand(gr_j) <- "*"
+    obj <- concomp(GRangesList("e"=gr_e, "j"=gr_j))
+
     ##determine overlapping annotations for concomps 1 and 2
     if (is.null(txlist)) {
         tx_plot <- NULL
@@ -136,11 +139,11 @@ NULL
                     theme_bw()
         }
     } else {
-        adj_out <- adj_ranges(gr_e1, gr_j1, tx_plot, ex_use)
+        adj_out <- adj_ranges(gr_e1, gr_j1, tx_plot, ex_use, exons(obj))
         gr_e1 <- adj_out$gr_e
         gr_j1 <- adj_out$gr_j
 
-        adj_out <- adj_ranges(gr_e2, gr_j2, tx_plot, ex_use)
+        adj_out <- adj_ranges(gr_e2, gr_j2, tx_plot, ex_use, exons(obj))
         gr_e2 <- adj_out$gr_e
         gr_j2 <- adj_out$gr_j
         annot_track <- adj_out$annot_track
@@ -227,8 +230,8 @@ setMethod("splicegrahm2",
 
 
 ## necessary fixes:
+##
 ## 4. -- need to fix range of 'expression' colors for both plots
 ## 5. reduce to single legend - drop top legend by a little to be centered??
-##
-##
+## 
 
