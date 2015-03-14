@@ -8,6 +8,7 @@ spliceclust [![Build Status](https://travis-ci.org/pkimes/spliceclust.svg?branch
 2. [SpliceGraHM Examples](#splicegrahm)
 3. [SplicePCA Examples](#splicepca)
 4. [SplicePCP Examples](#splicepcp)
+4. [SpliceGraHM2 Examples](#splicegrahm2)
 
 
 ## <a name="intro"></a> Introduction
@@ -241,7 +242,7 @@ splicepca(klk12_cc, npc = 3, pc_sep = FALSE, ej_w = c(1, 1))
 
 ## <a name="splicepcp"></a> SplicePCP Examples
 
-All above plots have used color to represent expression value. However, low frequency or outlier events may
+All above plots have used color to represent expression. However, low frequency or outlier events may
 become lost in this particular view. To handle this problem, we also provide the option to plot the
 splicing objects with vertical height (the y-axis) corresponding to expression. The name of the function is
 a reference to [_parallel coordinates plots_](pcp). The same _KLK12_ data is shown below using the
@@ -263,6 +264,71 @@ Currently, the function is being rewritten to also include junction coverage usi
 parallel coordinates plot in a separate track.
 
 
+## <a name="splicegrahm2"></a> SpliceGraHM2 Examples
+
+To make direct comparison of two populations possible, we have created `splicegrahm2` which
+draws two `splicegrahm` plots in a single figure. Consider, for example, the task of comparing
+the behavior of splicing between the LUSC samples and head and neck squamous cell carcinoma (HNSC)
+samples. We have loaded a connected component for 280 HNSC samples as `klk12_cc_hnsc`.
+
+
+```r
+splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE)
+```
+
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png) 
+
+When gene models are also desired, they are placed in a central track for easy comparison to
+the two `splicegrahm`s.
+
+
+```r
+splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE,
+             txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
+```
+
+![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18-1.png) 
+
+Alternatively, the bottom plot can be drawn with the same orientation as the top plot by
+setting `mirror=FALSE`.
+
+
+```r
+splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE, mirror=FALSE)
+```
+
+![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19-1.png) 
+
+This plotting scheme may be useful for comparing two subpopulations from a single dataset.
+Suppose we perform clustering on the LUSC dataset using the `cluster` function implemented
+in the `spliceclust` package. Note that the two clusters differ in their usage of the
+central exon, with a clear difference in expression and splicing at this exon.
+
+
+```r
+lbls <- cluster(klk12_cc)
+
+##create connected component with just cluster 2 samples
+klk12_cc2 <- klk12_cc
+exonValues(klk12_cc2) <- exonValues(klk12_cc)[, lbls$junc_labs == 2]
+juncValues(klk12_cc2) <- juncValues(klk12_cc)[, lbls$junc_labs == 2]
+
+##create connected component with just cluster 3 samples
+klk12_cc3 <- klk12_cc
+exonValues(klk12_cc3) <- exonValues(klk12_cc)[, lbls$junc_labs == 3]
+juncValues(klk12_cc3) <- juncValues(klk12_cc)[, lbls$junc_labs == 3]
+
+splicegrahm2(klk12_cc2, klk12_cc3, genomic=FALSE, sort_idx1=6, sort_idx2=6)
+```
+
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20-1.png) 
+
+While not modified above, the option ``same_scale`` can be used to specify whether
+the two plots should be drawn using the same or separate scale along the y-axis.
+This can be helpful when the two populations are of substantially different sizes.
+
+
+
 ## <a name="sessioninfo"></a> Session Information
 
 
@@ -282,12 +348,12 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] org.Hs.eg.db_3.0.0                     
-##  [2] RSQLite_1.0.0                          
-##  [3] DBI_0.3.1                              
-##  [4] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [5] GenomicFeatures_1.18.3                 
-##  [6] spliceclust_0.1.1                      
+##  [1] spliceclust_0.1.1                      
+##  [2] org.Hs.eg.db_3.0.0                     
+##  [3] RSQLite_1.0.0                          
+##  [4] DBI_0.3.1                              
+##  [5] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+##  [6] GenomicFeatures_1.18.3                 
 ##  [7] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
 ##  [8] BSgenome_1.34.1                        
 ##  [9] rtracklayer_1.26.2                     
@@ -309,33 +375,35 @@ sessionInfo()
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3          base64enc_0.1-2         
-##  [3] BatchJobs_1.5            BBmisc_1.8              
-##  [5] BiocParallel_1.0.0       biomaRt_2.22.0          
+##  [3] BatchJobs_1.5            BBmisc_1.9              
+##  [5] BiocParallel_1.0.3       biomaRt_2.22.0          
 ##  [7] biovizBase_1.14.1        bitops_1.0-6            
 ##  [9] brew_1.0-6               checkmate_1.5.1         
-## [11] cluster_1.15.3           codetools_0.2-9         
-## [13] colorspace_1.2-4         compiler_3.1.1          
-## [15] devtools_1.6.1           dichromat_2.0-0         
+## [11] cluster_2.0.1            codetools_0.2-10        
+## [13] colorspace_1.2-5         compiler_3.1.1          
+## [15] devtools_1.7.0           dichromat_2.0-0         
 ## [17] digest_0.6.8             evaluate_0.5.5          
 ## [19] fail_1.2                 foreach_1.4.2           
-## [21] foreign_0.8-62           formatR_1.0             
-## [23] Formula_1.1-2            GenomicAlignments_1.2.1 
+## [21] foreign_0.8-63           formatR_1.0             
+## [23] Formula_1.2-0            GenomicAlignments_1.2.2 
 ## [25] graph_1.44.1             grid_3.1.1              
 ## [27] gridExtra_0.9.1          gtable_0.1.2            
-## [29] Hmisc_3.14-6             iterators_1.0.7         
-## [31] knitr_1.8                labeling_0.3            
-## [33] lattice_0.20-29          latticeExtra_0.6-26     
-## [35] MASS_7.3-35              munsell_0.4.2           
-## [37] nnet_7.3-8               OrganismDbi_1.8.0       
-## [39] plyr_1.8.1               proto_0.3-10            
-## [41] RBGL_1.42.0              Rcpp_0.11.3             
-## [43] RCurl_1.95-4.5           reshape_0.8.5           
-## [45] reshape2_1.4.1           rpart_4.1-8             
-## [47] Rsamtools_1.18.2         scales_0.2.4            
-## [49] sendmailR_1.2-1          splines_3.1.1           
-## [51] stringr_0.6.2            survival_2.37-7         
-## [53] tools_3.1.1              VariantAnnotation_1.12.8
-## [55] xtable_1.7-4             zlibbioc_1.12.0
+## [29] Hmisc_3.15-0             htmltools_0.2.6         
+## [31] iterators_1.0.7          knitr_1.9               
+## [33] labeling_0.3             lattice_0.20-30         
+## [35] latticeExtra_0.6-26      MASS_7.3-39             
+## [37] munsell_0.4.2            nnet_7.3-9              
+## [39] OrganismDbi_1.8.1        plyr_1.8.1              
+## [41] proto_0.3-10             RBGL_1.42.0             
+## [43] Rcpp_0.11.5              RCurl_1.95-4.5          
+## [45] reshape_0.8.5            reshape2_1.4.1          
+## [47] rmarkdown_0.5.1          roxygen2_4.1.0          
+## [49] rpart_4.1-9              Rsamtools_1.18.3        
+## [51] scales_0.2.4             sendmailR_1.2-1         
+## [53] splines_3.1.1            stringr_0.6.2           
+## [55] survival_2.38-1          tcltk_3.1.1             
+## [57] tools_3.1.1              VariantAnnotation_1.12.9
+## [59] xtable_1.7-4             zlibbioc_1.12.0
 ```
 
 
