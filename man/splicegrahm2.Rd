@@ -58,6 +58,12 @@ to determine corresponding gene symbols (default = NULL)}
 
 \item{title}{a character string title printed at the top of plot (default = "")}
 
+\item{mirror}{a logical whether bottom plot should be flipped along vertical
+axis for 'mirrored' effect (default = TRUE)}
+
+\item{same_scale}{a logical whether top and bottom plots should be shown on same
+vertical scaling, i.e. to highlight group size differences (default = TRUE)}
+
 \item{...}{other parameters to be passed}
 }
 \value{

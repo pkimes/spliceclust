@@ -94,17 +94,14 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param p_j number of junctions in \code{gr_j}
 #' @param iflip logical whether model will be on negative strand
-#' @param y_flip logical whether model should be flipped on
+#' @param mirror logical whether model should be flipped on
 #'        vertical axis (defualt = FALSE)
-#' @param jointplot logical whether to exclude setting of y_axis
-#'        parameters in case of joint plotting with splicegrahm2
-#'        (default = FALSE)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                         log_base, bin, n, highlight, p_j, iflip,
-                        y_flip = FALSE, jointplot = FALSE) {
+                        mirror = FALSE) {
 
     pal <- plot_colors()
     hl_cols <- pal$col3
@@ -160,17 +157,16 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                     "non-genomic coordinates")) +
         theme_bw()
 
-    ##adjust scaling on own
-    if (!jointplot) {
-        sg_obj <- sg_obj +
-            scale_y_continuous("", breaks=NULL,
-                               limits=ifelse(c(y_flip, y_flip),
-                                   c(-(2.15+j_incl)*n, 1),
-                                   c(-1, (2.15+j_incl)*n)))
-    }
-                                       
     
-    ##frame exons with box if not using black background
+    ##adjust y-axis scaling
+    sg_obj <- sg_obj +
+        scale_y_continuous("", breaks=NULL,
+                           limits=ifelse(c(mirror, mirror),
+                               c(-(2.15+j_incl)*n, 1),
+                               c(-1, (2.15+j_incl)*n)))
+    
+    
+    ##frame exon heatmaps with box if not using black background
     if (use_blk) {
         sg_obj <- sg_obj +
             theme(panel.grid.minor.x = element_blank(),
@@ -181,8 +177,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
             annotate("rect", size = .125,
                      xmin = start(ranges(gr_e)) - .25,
                      xmax = end(ranges(gr_e)) + .25,
-                     ymin = ifelse(y_flip, -(n+1+.25), .75-.125),
-                     ymax = ifelse(y_flip, -(.75-.125), n+1+.25),
+                     ymin = ifelse(mirror, -(n+1+.25), .75-.125),
+                     ymax = ifelse(mirror, -(.75-.125), n+1+.25),
                      alpha = 1, color = "#3C3C3C", fill = NA)
     }
 
@@ -230,14 +226,14 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
 #' @param j_incl see \code{splicegrahm} documentation
 #' @param use_blk see \code{splicegrahm} documentation
 #' @param highlight see \code{splicegrahm} documentation
-#' @param y_flip logical whether model should be flipped on
+#' @param mirror logical whether model should be flipped on
 #'        vertical axis (defualt = FALSE)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
                          gr_e, gr_j, vals_j, n, p_j, highlight,
-                         y_flip = FALSE) {
+                         mirror = FALSE) {
 
     ##strand of junctions for arrow heads
     arrowhead <- ifelse(as.character(strand(gr_j)) == "-", "last", "first")
@@ -254,7 +250,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
     w_prop <- width(ranges(gr_j)) / width(range(gr_e))
 
     ##whether to flip arrow plotting
-    iud <- ifelse(y_flip, -1, 1)
+    iud <- ifelse(mirror, -1, 1)
     
     for (j in 1:p_j) {
         circle1 <- .pseudoArc(xmin=start(ranges(gr_j))[j],
@@ -293,7 +289,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
         sg_obj <- sg_obj +
             annotate("text", size=3,
                      x=(start(ranges(gr_j)) + end(ranges(gr_j))) / 2,
-                     y=iud*(n+1)*(1 + sqrt(w_prop)), vjust=0+y_flip, 
+                     y=iud*(n+1)*(1 + sqrt(w_prop)), vjust=0+mirror, 
                      label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
@@ -301,7 +297,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
             annotate("text", size=3,
                      x=junc_x,
                      y=iud*rep(junc_y + (n+1)*(.025 + s_size), p_j),
-                     vjust=0+y_flip,
+                     vjust=0+mirror,
                      label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
@@ -323,7 +319,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
             }
         }
 
-        ##add rectangles around 
+        ##add rectangles around junction heatmaps
         if (!use_blk) {
             sg_obj <- sg_obj +
                 annotate("rect", size = .125,

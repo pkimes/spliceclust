@@ -41,6 +41,10 @@
 #' @param orgdb a database that can be queried using keys obtained from \code{txdb}
 #'        to determine corresponding gene symbols (default = NULL)
 #' @param title a character string title printed at the top of plot (default = "")
+#' @param mirror a logical whether bottom plot should be flipped along vertical
+#'        axis for 'mirrored' effect (default = TRUE)
+#' @param same_scale a logical whether top and bottom plots should be shown on same
+#'        vertical scaling, i.e. to highlight group size differences (default = TRUE)
 #' @param ... other parameters to be passed
 #' 
 #' @return
@@ -72,7 +76,8 @@ NULL
                                   log_base = 10, log_shift = 1, bin = TRUE,
                                   genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
                                   j_incl = FALSE, use_blk = FALSE, eps = 1e4,
-                                  txlist = NULL, txdb = NULL, orgdb = NULL, title="", ...) {
+                                  txlist = NULL, txdb = NULL, orgdb = NULL, title="",
+                                  mirror = TRUE, same_scale = TRUE, ...) {
 
     ##exonValues and juncValues must be specified
     if (is.null(exonValues(obj1)) || is.null(juncValues(obj1)) ||
@@ -170,23 +175,14 @@ NULL
     sg_df1 <- sg_create(gr_e1, gr_j1, vals_e1, vals_j1, j_incl,
                         log_base, log_shift, bin, n1, p_j1, FALSE)
     sg_df2 <- sg_create(gr_e2, gr_j2, vals_e2, vals_j2, j_incl,
-                        log_base, log_shift, bin, n2, p_j2, TRUE)
+                        log_base, log_shift, bin, n2, p_j2, mirror)
 
     
     ##plot on genomic coordinates
     sg_obj1 <- sg_drawbase(sg_df1, use_blk, j_incl, genomic,
-                           gr_e1, log_base, bin, n1, NULL, p_j1, iflip, FALSE, TRUE)
+                           gr_e1, log_base, bin, n1, NULL, p_j1, iflip, FALSE)
     sg_obj2 <- sg_drawbase(sg_df2, use_blk, j_incl, genomic,
-                           gr_e2, log_base, bin, n2, NULL, p_j2, iflip, TRUE, TRUE)
-
-    
-    ##adjust Y limits for 2 splicegrahms to be same (alt, allow separate)
-    sg_obj1 <- sg_obj1 +
-        scale_y_continuous("", breaks=NULL, limits=c(-1, (2.15+j_incl)*n_max))
-    sg_obj2 <- sg_obj2 +
-        scale_y_continuous("", breaks=NULL, limits=c(-(2.15+j_incl)*n_max, 1))
-
-    
+                           gr_e2, log_base, bin, n2, NULL, p_j2, iflip, mirror)
     
     
     ##add arrow information if needed
@@ -196,7 +192,7 @@ NULL
     }
     if (p_j2 > 0) {
         sg_obj2 <- sg_drawjuncs(sg_obj2, sg_df2, j_incl, use_blk, iflip,
-                                gr_e2, gr_j2, vals_j2, n2, p_j2, NULL, TRUE)
+                                gr_e2, gr_j2, vals_j2, n2, p_j2, NULL, mirror)
     }
 
     
@@ -229,13 +225,10 @@ setMethod("splicegrahm2",
 
 
 
+
 ## necessary fixes:
-## 2. -- consider fixing heights of both plots to be the same
-## 3. -- consider scaling heights of both plots to be the same
-## 4. -- also need to fix range of 'expression' colors for both plots
+## 4. -- need to fix range of 'expression' colors for both plots
 ## 5. reduce to single legend - drop top legend by a little to be centered??
-##
-## -- match up splice junctions??
 ##
 ##
 
