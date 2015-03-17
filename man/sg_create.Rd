@@ -5,7 +5,7 @@
 \title{construct ggplot2 object for plotting}
 \usage{
 sg_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_j,
-  y_flip = FALSE)
+  y_flip = FALSE, same_scale_n = n)
 }
 \arguments{
 \item{gr_e}{\code{GenomicRanges} for exons}
@@ -29,7 +29,11 @@ sg_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_j,
 \item{p_j}{number of junctions in \code{gr_j}}
 
 \item{y_flip}{logical whether model should be flipped on
-       vertical axis (default = FALSE)}
+vertical axis (default = FALSE)}
+
+\item{same_scale_n}{number of samples that should be used to set vertical scaling of
+       \code{splicegrahm2} plot (if \code{splicegrahm2} parameter
+       \code{same_scale = FALSE}, then simply \code{n}) (default = n)}
 }
 \description{
 construct ggplot2 object for plotting

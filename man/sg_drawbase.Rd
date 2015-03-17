@@ -5,7 +5,7 @@
 \title{construct base ggplot2 object for splicegrahm plot}
 \usage{
 sg_drawbase(sg_df, use_blk, j_incl, genomic, gr_e, log_base, bin, n, highlight,
-  p_j, iflip, mirror = FALSE)
+  p_j, iflip, mirror = FALSE, same_scale_n = n)
 }
 \arguments{
 \item{sg_df}{data.frame output from \code{sg_create}}
@@ -31,7 +31,11 @@ sg_drawbase(sg_df, use_blk, j_incl, genomic, gr_e, log_base, bin, n, highlight,
 \item{iflip}{logical whether model will be on negative strand}
 
 \item{mirror}{logical whether model should be flipped on
-       vertical axis (defualt = FALSE)}
+vertical axis (defualt = FALSE)}
+
+\item{same_scale_n}{number of samples that should be used to set vertical scaling of
+       \code{splicegrahm2} plot (if \code{splicegrahm2} parameter
+       \code{same_scale = FALSE}, then simply \code{n}) (default = n)}
 }
 \description{
 construct base ggplot2 object for splicegrahm plot

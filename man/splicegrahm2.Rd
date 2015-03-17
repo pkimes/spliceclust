@@ -84,7 +84,7 @@ sort_idx can take values of either:
 \item{\code{3}}: sort on mean exon coverage
 \item{\code{4}}: sort on mean exon log-coverage
 \item{\code{5}}: rev sort on mean exon coverage
-\item{\code{6}}: rev sorton mean exon log-coverage
+\item{\code{6}}: rev sort on mean exon log-coverage
 }
 }
 \author{

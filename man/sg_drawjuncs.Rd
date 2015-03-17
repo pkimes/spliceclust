@@ -5,7 +5,7 @@
 \title{add junction annotations to base ggplot2 object for splicegrahm plot}
 \usage{
 sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip, gr_e, gr_j, vals_j, n, p_j,
-  highlight, mirror = FALSE)
+  highlight, mirror = FALSE, same_scale_n = n)
 }
 \arguments{
 \item{sg_obj}{\code{ggplot} object created by \code{sg_drawbase}}
@@ -31,7 +31,11 @@ sg_drawjuncs(sg_obj, sg_df, j_incl, use_blk, iflip, gr_e, gr_j, vals_j, n, p_j,
 \item{highlight}{see \code{splicegrahm} documentation}
 
 \item{mirror}{logical whether model should be flipped on
-       vertical axis (defualt = FALSE)}
+vertical axis (defualt = FALSE)}
+
+\item{same_scale_n}{number of samples that should be used to set vertical scaling of
+       \code{splicegrahm2} plot (if \code{splicegrahm2} parameter
+       \code{same_scale = FALSE}, then simply \code{n}) (default = n)}
 }
 \description{
 add junction annotations to base ggplot2 object for splicegrahm plot

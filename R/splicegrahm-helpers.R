@@ -12,12 +12,15 @@
 #' @param p_j number of junctions in \code{gr_j}
 #' @param y_flip logical whether model should be flipped on
 #'        vertical axis (default = FALSE)
+#' @param same_scale_n number of samples that should be used to set vertical scaling of
+#'        \code{splicegrahm2} plot (if \code{splicegrahm2} parameter
+#'        \code{same_scale = FALSE}, then simply \code{n}) (default = n)
 #'
 #' @keywords internal
 #' @author Patrick Kimes
 sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
                       log_base, log_shift, bin, n, p_j,
-                      y_flip = FALSE) {
+                      y_flip = FALSE, same_scale_n = n) {
     
     sg_df <- data.frame(xmin=start(ranges(gr_e)),
                         xmax=end(ranges(gr_e)),
@@ -46,7 +49,7 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
                       length.out=p_j+2)
         junc_x <- junc_x[2:(p_j+1)]
         
-        junc_y <- 2.25*n
+        junc_y <- 2.25 * same_scale_n
         s_size <- .5
         junc_w <- width(range(gr_e)) / (2.5*(max(p_j, 5)+1))
 
@@ -64,7 +67,7 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 
         ##perform binning
         if (bin && log_base > 0) {
-            gg_j$value <- factor(floor(gg_j$value))
+            gg_j$value <- factor(floor(gg_j$value), levels=0:max(floor(gg_j$value)))
         }
 
         sg_df <- rbind(sg_df, gg_j)
@@ -96,16 +99,19 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #' @param iflip logical whether model will be on negative strand
 #' @param mirror logical whether model should be flipped on
 #'        vertical axis (defualt = FALSE)
+#' @param same_scale_n number of samples that should be used to set vertical scaling of
+#'        \code{splicegrahm2} plot (if \code{splicegrahm2} parameter
+#'        \code{same_scale = FALSE}, then simply \code{n}) (default = n)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                         log_base, bin, n, highlight, p_j, iflip,
-                        mirror = FALSE) {
+                        mirror = FALSE, same_scale_n = n) {
 
     pal <- plot_colors()
     hl_cols <- pal$col3
-
+    
     ##add fake scale of ones for alpha plotting
     sg_df$ones <- rep(seq(0, 1, .2), length.out=nrow(sg_df))
     
@@ -162,8 +168,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     sg_obj <- sg_obj +
         scale_y_continuous("", breaks=NULL,
                            limits=ifelse(c(mirror, mirror),
-                               c(-(2.15+j_incl)*n, 1),
-                               c(-1, (2.15+j_incl)*n)))
+                               c(-(2.15+j_incl)*same_scale_n, 1),
+                               c(-1, (2.15+j_incl)*same_scale_n)))
     
     
     ##frame exon heatmaps with box if not using black background
@@ -184,11 +190,15 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
 
     ##add continuous or discrete color palette
     if (log_base > 0 && bin) {
-        v_max <- max(as.numeric(as.character(sg_df$value)))
+        ##v_max <- max(as.numeric(as.character(sg_df$value)))
+        v_max <- length(levels(sg_df$value)) - 1
         sg_obj <- sg_obj + 
-            scale_color_manual("expr", breaks=0:v_max, values=pal$col1(v_max+1), guide="none") +
-            scale_fill_manual("expr", breaks=0:v_max, values=pal$col1(v_max+1),
+            scale_color_manual("expr", breaks=levels(sg_df$value), values=pal$col1(v_max+1), guide="none") +
+            scale_fill_manual("expr", breaks=levels(sg_df$value), values=pal$col1(v_max+1),
                               labels=paste0("<", log_base^(1:(v_max+1))))
+            ## scale_color_manual("expr", breaks=0:v_max, values=pal$col1(v_max+1), guide="none") +
+            ## scale_fill_manual("expr", breaks=0:v_max, values=pal$col1(v_max+1),
+            ##                   labels=paste0("<", log_base^(1:(v_max+1))))
     } else {
         sg_obj <- sg_obj +
             scale_color_continuous("expr", low="#f7fbff", high="#08306b", guide="none") +
@@ -228,12 +238,15 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
 #' @param highlight see \code{splicegrahm} documentation
 #' @param mirror logical whether model should be flipped on
 #'        vertical axis (defualt = FALSE)
+#' @param same_scale_n number of samples that should be used to set vertical scaling of
+#'        \code{splicegrahm2} plot (if \code{splicegrahm2} parameter
+#'        \code{same_scale = FALSE}, then simply \code{n}) (default = n)
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
                          gr_e, gr_j, vals_j, n, p_j, highlight,
-                         mirror = FALSE) {
+                         mirror = FALSE, same_scale_n = n) {
 
     ##strand of junctions for arrow heads
     arrowhead <- ifelse(as.character(strand(gr_j)) == "-", "last", "first")
@@ -279,7 +292,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
                       max(max(ranges(gr_e))),
                       length.out=p_j+2)
         junc_x <- junc_x[2:(p_j+1)]
-        junc_y <- 2.25*n
+        junc_y <- 2.25*same_scale_n
         s_size <- .5
         junc_w <- width(range(gr_e)) / (2.5*(max(p_j, 5)+1))
     
@@ -289,14 +302,14 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
         sg_obj <- sg_obj +
             annotate("text", size=3,
                      x=(start(ranges(gr_j)) + end(ranges(gr_j))) / 2,
-                     y=iud*(n+1)*(1 + sqrt(w_prop)), vjust=0+mirror, 
+                     y=iud*(n+3)*(1 + sqrt(w_prop)), vjust=0+mirror, 
                      label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
 
         sg_obj <- sg_obj +
             annotate("text", size=3,
                      x=junc_x,
-                     y=iud*rep(junc_y + (n+1)*(.025 + s_size), p_j),
+                     y=iud*rep(junc_y + (n+4)*(.025 + s_size), p_j),
                      vjust=0+mirror,
                      label=abc,
                      color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))

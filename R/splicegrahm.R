@@ -46,8 +46,12 @@
 #' @details
 #' sort_idx can take values of either:
 #' \itemize{
-#' \item{\code{1}}: sort based on first exon
-#' \item{\code{2}}: sort based on PC 2
+#' \item{\code{1}}: sort on first exon
+#' \item{\code{2}}: sort on PC 2
+#' \item{\code{3}}: sort on mean exon coverage
+#' \item{\code{4}}: sort on mean exon log-coverage
+#' \item{\code{5}}: rev sort on mean exon coverage
+#' \item{\code{6}}: rev sort on mean exon log-coverage
 #' }
 #' 
 #' @name splicegrahm
