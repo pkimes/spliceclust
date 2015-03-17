@@ -126,7 +126,6 @@ NULL
         tx_plot <- find_annotations(obj, txlist, txdb, orgdb, eps)
     }
 
-
     if (max(p_e1, p_e2) < 2) { genomic <- TRUE }
 
     ##change GRanges coordinates if non-genomic coordinates are desired
@@ -177,18 +176,17 @@ NULL
     ##create dataframe for plotting
     sg_df1 <- sg_create(gr_e1, gr_j1, vals_e1, vals_j1, j_incl,
                         log_base, log_shift, bin, n1, p_j1, FALSE,
-                        ifelse(same_scale, max(n1, n2), n1))
+                        ifelse(same_scale, n_max, n1))
     sg_df2 <- sg_create(gr_e2, gr_j2, vals_e2, vals_j2, j_incl,
                         log_base, log_shift, bin, n2, p_j2, mirror,
-                        ifelse(same_scale, max(n1, n2), n2))
+                        ifelse(same_scale, n_max, n2))
 
+    v_max <- max(length(levels(sg_df1$value)), length(levels(sg_df2$value))) - 1
+    levels(sg_df1$value) <- 0:v_max
+    levels(sg_df2$value) <- 0:v_max
 
-
-    ## 1. before drawbase, need to determine max value to use for color scaling: 'vmax'
-    ##    then pass vmax to sg_drawbase, and use to make joint color scale
     ## 2. pass whether legends should be plotting for sg_drawbase based on whether it's
     ##    the bottom plot in splicegrahm2
-    ##
     ##
     ## need to fix width of lines in heatmap -- current setup is written for ~200 samples
     ## -- alternatively, need to figure out how to set alpha = 1 for everything...
@@ -199,22 +197,22 @@ NULL
     ##plot on genomic coordinates
     sg_obj1 <- sg_drawbase(sg_df1, use_blk, j_incl, genomic,
                            gr_e1, log_base, bin, n1, NULL, p_j1, iflip, FALSE,
-                           ifelse(same_scale, max(n1, n2), n1))
+                           ifelse(same_scale, n_max, n1))
     sg_obj2 <- sg_drawbase(sg_df2, use_blk, j_incl, genomic,
                            gr_e2, log_base, bin, n2, NULL, p_j2, iflip, mirror,
-                           ifelse(same_scale, max(n1, n2), n2))
+                           ifelse(same_scale, n_max, n2))
     
     
     ##add arrow information if needed
     if (p_j1 > 0) {
         sg_obj1 <- sg_drawjuncs(sg_obj1, sg_df1, j_incl, use_blk, iflip,
                                 gr_e1, gr_j1, vals_j1, n1, p_j1, NULL, FALSE,
-                                ifelse(same_scale, max(n1, n2), n1))
+                                ifelse(same_scale, n_max, n1))
     }
     if (p_j2 > 0) {
         sg_obj2 <- sg_drawjuncs(sg_obj2, sg_df2, j_incl, use_blk, iflip,
                                 gr_e2, gr_j2, vals_j2, n2, p_j2, NULL, mirror,
-                                ifelse(same_scale, max(n1, n2), n2))
+                                ifelse(same_scale, n_max, n2))
     }
 
     
