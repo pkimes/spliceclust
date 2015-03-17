@@ -113,7 +113,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     hl_cols <- pal$col3
     
     ##add fake scale of ones for alpha plotting
-    sg_df$ones <- rep(seq(0, 1, .2), length.out=nrow(sg_df))
+    sg_df$ones <- factor(rep(1, length.out=nrow(sg_df)),
+                         levels=seq(0, 1, .2))#rep(seq(0, 1, .2), length.out=nrow(sg_df))
     
     ##base of plot
     sg_obj <- ggplot(sg_df, aes(xmin=xmin, xmax=xmax,
@@ -121,18 +122,6 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
                                 color=value, fill=value,
                                 alpha=ones))
 
-    ## ## add horizontal line between exons ("beads on a string")
-    ## ## can't when flipped: https://github.com/hadley/ggplot2/issues/706/
-    ## if (!iflip) {
-    ##     sg_obj <- sg_obj +
-    ##         annotate(geom="segment",
-    ##                  x=end(gr_e)[-length(gr_e)],
-    ##                  xend=start(gr_e)[-1],
-    ##                  y=rep(n/2, length(gr_e)-1),
-    ##                  yend=rep(n/2, length(gr_e)-1),
-    ##                  color=ifelse(use_blk, "#F0F0F0", "#3C3C3C"))
-    ## }
-    
     ##add highlighting of cluster assignments if necessary
     if (!is.null(highlight)) {
         hl_tab <- c(1, table(highlight))
@@ -157,8 +146,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     ##add basic plot structure
     sg_obj <- sg_obj + 
         geom_rect(size=.125 + 0.055) +
-        scale_alpha_continuous("splicing", breaks=c(0, .2, .4, .6, .8, 1), range=0:1,
-                               labels=paste0(seq(0, 100, 20), "%")) + 
+        scale_alpha_discrete("splicing", range=0:1,
+                             labels=paste0(seq(0, 100, 20), "%"), drop=FALSE) + 
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
                     "non-genomic coordinates")) +
         theme_bw()
@@ -190,15 +179,11 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
 
     ##add continuous or discrete color palette
     if (log_base > 0 && bin) {
-        ##v_max <- max(as.numeric(as.character(sg_df$value)))
         v_max <- length(levels(sg_df$value)) - 1
         sg_obj <- sg_obj + 
             scale_color_manual("expr", breaks=levels(sg_df$value), values=pal$col1(v_max+1), guide="none") +
             scale_fill_manual("expr", breaks=levels(sg_df$value), values=pal$col1(v_max+1),
-                              labels=paste0("<", log_base^(1:(v_max+1))))
-            ## scale_color_manual("expr", breaks=0:v_max, values=pal$col1(v_max+1), guide="none") +
-            ## scale_fill_manual("expr", breaks=0:v_max, values=pal$col1(v_max+1),
-            ##                   labels=paste0("<", log_base^(1:(v_max+1))))
+                              labels=paste0("<", log_base^(1:(v_max+1))), drop=FALSE)
     } else {
         sg_obj <- sg_obj +
             scale_color_continuous("expr", low="#f7fbff", high="#08306b", guide="none") +
