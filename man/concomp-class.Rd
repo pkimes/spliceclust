@@ -21,16 +21,18 @@
 
 \S4method{juncValues}{concomp}(obj)
 
-\S4method{exons}{concomp}(obj, ...) <- value
+\S4method{exons}{concomp}(obj) <- value
 
-\S4method{juncs}{concomp}(obj, ...) <- value
+\S4method{juncs}{concomp}(obj) <- value
 
-\S4method{exonValues}{concomp}(obj, ...) <- value
+\S4method{exonValues}{concomp}(obj) <- value
 
-\S4method{juncValues}{concomp}(obj, ...) <- value
+\S4method{juncValues}{concomp}(obj) <- value
 }
 \arguments{
 \item{obj}{a \code{concomp} object}
+
+\item{value}{new value for \code{concomp} slot}
 }
 \description{
 S4 class encapsulating exon and junction

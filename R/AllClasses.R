@@ -19,6 +19,7 @@ setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
 #'       \code{juncs}, or \code{NULL} if not available
 #'
 #' @param obj a \code{concomp} object
+#' @param value new value for \code{concomp} slot
 #' 
 #' @details
 #' The columns of \code{exonValues} and \code{juncValues} correspond
