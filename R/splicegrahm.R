@@ -57,7 +57,7 @@
 #' @name splicegrahm
 #' @export
 #' @import ggplot2 GenomicRanges
-#' @importFrom ggbio geom_alignment autoplot ggplot tracks
+#' @importFrom ggbio geom_alignment autoplot tracks
 #' @importFrom grid arrow unit
 #' @importFrom reshape2 melt
 #' @author Patrick Kimes
@@ -109,7 +109,7 @@ NULL
         if (is.null(tx_plot)) {
             annot_track <- NULL
         } else { 
-            annot_track <- ggplot() +
+            annot_track <- ggbio() +
                 geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
                     theme_bw()
         }
