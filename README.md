@@ -97,7 +97,7 @@ We first demonstrate the default and __basic SpliceGraHM__ (Splice Graph Heat Ma
 splicegrahm(klk12_cc)
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
 
 In the plot above, each box arranged horizontally corresponds to a contiguous exonic region
 along the genome. Each box is colored by 177 horizontal lines, showing the expression level
@@ -119,7 +119,7 @@ and columns corresponding to samples and exons, respectively.
 splicegrahm(klk12_cc, genomic = FALSE, ex_use = 1, log_base = 2)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
 
 It is possible to show the coverage of each splice junction using a similar convention with rows
 corresponding to samples, and with color being used for coverage.
@@ -129,7 +129,7 @@ corresponding to samples, and with color being used for coverage.
 splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE)
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
 
 If annotation information is available, e.g. from UCSC KnownGenes, these can be passed to the
 function to add an additional track to the plot. The appropriate `GRangesList` object to be
@@ -138,15 +138,51 @@ passed is illustrated in the following example.
 
 ```r
 suppressPackageStartupMessages(library("TxDb.Hsapiens.UCSC.hg19.knownGene"))
-txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
-isActiveSeq(txdb)[paste0("chr", 1:22)] <- TRUE
-exbytx <- exonsBy(txdb, "tx")
+```
 
+```
+## Error in library("TxDb.Hsapiens.UCSC.hg19.knownGene"): there is no package called 'TxDb.Hsapiens.UCSC.hg19.knownGene'
+```
+
+```r
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'TxDb.Hsapiens.UCSC.hg19.knownGene' not found
+```
+
+```r
+isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
+```
+
+```
+## Error in isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE: object 'txdb' not found
+```
+
+```r
+isActiveSeq(txdb)[paste0("chr", 1:22)] <- TRUE
+```
+
+```
+## Error in isActiveSeq(txdb)[paste0("chr", 1:22)] <- TRUE: object 'txdb' not found
+```
+
+```r
+exbytx <- exonsBy(txdb, "tx")
+```
+
+```
+## Error in eval(expr, envir, enclos): could not find function "exonsBy"
+```
+
+```r
 splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx)
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
+```
+## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+```
 
 If gene names are desired, the following can be used to match the transcript ID
 in `txdb` against gene symbols (e.g. in `org.Hs.eg.db`).
@@ -154,12 +190,20 @@ in `txdb` against gene symbols (e.g. in `org.Hs.eg.db`).
 
 ```r
 suppressPackageStartupMessages(library("org.Hs.eg.db"))
+```
 
+```
+## Error in library("org.Hs.eg.db"): there is no package called 'org.Hs.eg.db'
+```
+
+```r
 splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx,
             txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
+```
+## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+```
 
 The `splicegrahm` function can now also plot gene models in non-genomic space
 with an additional parameter `eps`. The `eps` parameter determines how far up/down
@@ -174,7 +218,9 @@ splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
             txdb = txdb, orgdb = org.Hs.eg.db, eps = NULL)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+```
+## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+```
 
 
 ```r
@@ -182,7 +228,9 @@ splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
             txdb = txdb, orgdb = org.Hs.eg.db, eps = 0)
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
+```
+## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+```
 
 
 ```r
@@ -190,7 +238,9 @@ splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
             txdb = txdb, orgdb = org.Hs.eg.db, eps = 1000)
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
+```
+## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+```
 
 
 ## <a name="splicepca"></a> SplicePCA Examples
@@ -209,7 +259,7 @@ KLK12 dataset from above.
 splicepca(klk12_cc, npc = 3)
 ```
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png)
 
 In the above PC loadings plot, red and blue are used to denote the magnitude of the PC loadings
 for each exon and splice junction. From the plot above, we see that the greatest source of variation
@@ -225,7 +275,24 @@ annotated to this gene. Note that above the PCs are computed separately for exon
 splicepca(klk12_cc, npc = 3, scores = TRUE)
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
+```
+## Warning in ggpairs(ej_scores, alpha = 0.4, upper = "blank"): Extra
+## arguments: 'alpha' are being ignored. If these are meant to be aesthetics,
+## submit them using the 'mapping' variable within ggpairs with ggplot2::aes
+## or ggplot2::aes_string.
+```
+
+```
+## Error in getPlot(x, i, j): unknown plot object type.
+## Position: i = 1, j = 1
+## str(plotObj):
+##  chr [1:4] "function (data, mapping, ..., rescale = FALSE) \n{\n    p <- ggplot(data, mapping) + scale_y_continuous()\n    if (identical(re"| __truncated__ ...unknown plot object type.
+## Position: i = 1, j = 1
+## str(plotObj):
+## NULL
+```
+
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png)
 
 It is also possible to perform the PCA analysis using the concatenated exon and junction information by
 setting the `pc_sep` parameter to `FALSE`, and specifying the relative "weight" of each with `ej_w`. The
@@ -237,7 +304,7 @@ In the following example, we use equal weights for the two data sources.
 splicepca(klk12_cc, npc = 3, pc_sep = FALSE, ej_w = c(1, 1))
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png) 
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png)
 
 
 ## <a name="splicepcp"></a> SplicePCP Examples
@@ -253,7 +320,9 @@ a reference to [_parallel coordinates plots_](pcp). The same _KLK12_ data is sho
 splicepcp(klk12_cc, genomic = TRUE, txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png) 
+```
+## Error in .splicepcp.concomp(obj, ...): object 'exbytx' not found
+```
 
 The plot includes 3 tracks:
   1. log-expression values for each exon or region of an exon
@@ -276,7 +345,7 @@ samples. We have loaded a connected component for 280 HNSC samples as `klk12_cc_
 splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE)
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png) 
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png)
 
 When gene models are also desired, they are placed in a central track for easy comparison to
 the two `splicegrahm`s.
@@ -287,7 +356,9 @@ splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE,
              txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
-![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18-1.png) 
+```
+## Error in .splicegrahm2.concomp(obj1, obj2, ...): object 'exbytx' not found
+```
 
 Alternatively, the bottom plot can be drawn with the same orientation as the top plot by
 setting `mirror=FALSE`.
@@ -297,7 +368,7 @@ setting `mirror=FALSE`.
 splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE, mirror=FALSE)
 ```
 
-![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19-1.png) 
+![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19-1.png)
 
 This plotting scheme may be useful for comparing two subpopulations from a single dataset.
 Suppose we perform clustering on the LUSC dataset using the `cluster` function implemented
@@ -321,7 +392,7 @@ juncValues(klk12_cc3) <- juncValues(klk12_cc)[, lbls$junc_labs == 3]
 splicegrahm2(klk12_cc2, klk12_cc3, genomic=FALSE, sort_idx1=6, sort_idx2=6)
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20-1.png) 
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20-1.png)
 
 While not modified above, the option ``same_scale`` can be used to specify whether
 the two plots should be drawn using the same or separate scale along the y-axis.
@@ -337,8 +408,9 @@ sessionInfo()
 ```
 
 ```
-## R version 3.1.1 (2014-07-10)
-## Platform: x86_64-apple-darwin13.3.0 (64-bit)
+## R version 3.2.2 (2015-08-14)
+## Platform: x86_64-apple-darwin15.0.0 (64-bit)
+## Running under: OS X 10.11.3 (El Capitan)
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -348,62 +420,46 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] spliceclust_0.1.1                      
-##  [2] org.Hs.eg.db_3.0.0                     
-##  [3] RSQLite_1.0.0                          
-##  [4] DBI_0.3.1                              
-##  [5] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [6] GenomicFeatures_1.18.3                 
-##  [7] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
-##  [8] BSgenome_1.34.1                        
-##  [9] rtracklayer_1.26.2                     
-## [10] Biostrings_2.34.1                      
-## [11] XVector_0.6.0                          
-## [12] GGally_0.5.0                           
-## [13] annotate_1.44.0                        
-## [14] XML_3.98-1.1                           
-## [15] AnnotationDbi_1.28.1                   
-## [16] Biobase_2.26.0                         
-## [17] GenomicRanges_1.18.4                   
-## [18] GenomeInfoDb_1.2.4                     
-## [19] IRanges_2.0.1                          
-## [20] S4Vectors_0.4.0                        
-## [21] RColorBrewer_1.1-2                     
-## [22] ggbio_1.14.0                           
-## [23] BiocGenerics_0.12.1                    
-## [24] ggplot2_1.0.0                          
+##  [1] spliceclust_0.1.2                 BSgenome.Hsapiens.UCSC.hg19_1.4.0
+##  [3] BSgenome_1.38.0                   rtracklayer_1.30.2               
+##  [5] Biostrings_2.38.4                 XVector_0.10.0                   
+##  [7] GGally_1.0.1                      annotate_1.48.0                  
+##  [9] XML_3.98-1.3                      AnnotationDbi_1.32.3             
+## [11] Biobase_2.30.0                    GenomicRanges_1.22.4             
+## [13] GenomeInfoDb_1.6.3                IRanges_2.4.7                    
+## [15] S4Vectors_0.8.11                  RColorBrewer_1.1-2               
+## [17] ggbio_1.18.5                      BiocGenerics_0.16.1              
+## [19] ggplot2_2.0.0                    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] acepack_1.3-3.3          base64enc_0.1-2         
-##  [3] BatchJobs_1.5            BBmisc_1.9              
-##  [5] BiocParallel_1.0.3       biomaRt_2.22.0          
-##  [7] biovizBase_1.14.1        bitops_1.0-6            
-##  [9] brew_1.0-6               checkmate_1.5.1         
-## [11] cluster_2.0.1            codetools_0.2-10        
-## [13] colorspace_1.2-5         compiler_3.1.1          
-## [15] devtools_1.7.0           dichromat_2.0-0         
-## [17] digest_0.6.8             evaluate_0.5.5          
-## [19] fail_1.2                 foreach_1.4.2           
-## [21] foreign_0.8-63           formatR_1.0             
-## [23] Formula_1.2-0            GenomicAlignments_1.2.2 
-## [25] graph_1.44.1             grid_3.1.1              
-## [27] gridExtra_0.9.1          gtable_0.1.2            
-## [29] Hmisc_3.15-0             htmltools_0.2.6         
-## [31] iterators_1.0.7          knitr_1.9               
-## [33] labeling_0.3             lattice_0.20-30         
-## [35] latticeExtra_0.6-26      MASS_7.3-39             
-## [37] munsell_0.4.2            nnet_7.3-9              
-## [39] OrganismDbi_1.8.1        plyr_1.8.1              
-## [41] proto_0.3-10             RBGL_1.42.0             
-## [43] Rcpp_0.11.5              RCurl_1.95-4.5          
-## [45] reshape_0.8.5            reshape2_1.4.1          
-## [47] rmarkdown_0.5.1          roxygen2_4.1.0          
-## [49] rpart_4.1-9              Rsamtools_1.18.3        
-## [51] scales_0.2.4             sendmailR_1.2-1         
-## [53] splines_3.1.1            stringr_0.6.2           
-## [55] survival_2.38-1          tcltk_3.1.1             
-## [57] tools_3.1.1              VariantAnnotation_1.12.9
-## [59] xtable_1.7-4             zlibbioc_1.12.0
+##  [1] Rcpp_0.12.3                biovizBase_1.18.0         
+##  [3] lattice_0.20-33            Rsamtools_1.22.0          
+##  [5] digest_0.6.9               plyr_1.8.3                
+##  [7] futile.options_1.0.0       acepack_1.3-3.3           
+##  [9] RSQLite_1.0.0              evaluate_0.8              
+## [11] BiocInstaller_1.20.1       zlibbioc_1.16.0           
+## [13] GenomicFeatures_1.22.13    rpart_4.1-10              
+## [15] labeling_0.3               devtools_1.10.0           
+## [17] splines_3.2.2              BiocParallel_1.4.3        
+## [19] stringr_1.0.0              foreign_0.8-66            
+## [21] RCurl_1.95-4.7             biomaRt_2.26.1            
+## [23] munsell_0.4.2              nnet_7.3-12               
+## [25] SummarizedExperiment_1.0.2 gridExtra_2.0.0           
+## [27] roxygen2_5.0.1             Hmisc_3.17-1              
+## [29] reshape_0.8.5              withr_1.0.1               
+## [31] GenomicAlignments_1.6.3    bitops_1.0-6              
+## [33] grid_3.2.2                 RBGL_1.46.0               
+## [35] xtable_1.8-2               gtable_0.1.2              
+## [37] DBI_0.3.1                  magrittr_1.5              
+## [39] formatR_1.2.1              scales_0.3.0              
+## [41] graph_1.48.0               stringi_1.0-1             
+## [43] reshape2_1.4.1             latticeExtra_0.6-28       
+## [45] futile.logger_1.4.1        Formula_1.2-1             
+## [47] lambda.r_1.1.7             tools_3.2.2               
+## [49] dichromat_2.0-0            OrganismDbi_1.12.1        
+## [51] survival_2.38-3            colorspace_1.2-6          
+## [53] cluster_2.0.3              memoise_1.0.0             
+## [55] knitr_1.12.3               VariantAnnotation_1.16.4
 ```
 
 
