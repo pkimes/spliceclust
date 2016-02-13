@@ -235,20 +235,15 @@ NULL
 }
 
 
+#' splicegrahm2 method
+#' 
+#' \code{splicegrahm2} method for \code{concomp} class object.
+#' See \code{splicegrahm2} documentation for more details.
+#' 
 #' @keywords internal
-#' @title splicegrahm2 method
+#' @seealso splicegrahm2
 #' @name splicegrahm2-concomp
 #' @aliases splicegrahm2,concomp,concomp-method
 setMethod("splicegrahm2",
           signature(obj1 = "concomp", obj2 = "concomp"),
           function(obj1, obj2, ... ) .splicegrahm2.concomp(obj1, obj2, ...))
-
-
-
-
-## necessary fixes:
-##
-## 4. -- need to fix range of 'expression' colors for both plots
-## 5. reduce to single legend - drop top legend by a little to be centered??
-## 
-

@@ -122,8 +122,13 @@ NULL
     sl_obj
 }
 
+#' splicegralp method
+#' 
+#' \code{splicegralp} method for \code{concomp} class object.
+#' See \code{splicegralp} documentation for more details.
+#'
 #' @keywords internal
-#' @title splicegralp method
+#' @seealso splicegralp
 #' @name splicegralp-concomp
 #' @aliases splicegralp,concomp-method
 setMethod("splicegralp",

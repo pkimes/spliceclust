@@ -8,5 +8,12 @@
 \usage{
 \S4method{splicegrahm}{concomp}(obj, ...)
 }
+\description{
+\code{splicegrahm} method for \code{concomp} class object.
+See \code{splicegrahm} documentation for more details.
+}
+\seealso{
+splicegrahm
+}
 \keyword{internal}
 

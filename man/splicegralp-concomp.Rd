@@ -8,5 +8,12 @@
 \usage{
 \S4method{splicegralp}{concomp}(obj, ...)
 }
+\description{
+\code{splicegralp} method for \code{concomp} class object.
+See \code{splicegralp} documentation for more details.
+}
+\seealso{
+splicegralp
+}
 \keyword{internal}
 

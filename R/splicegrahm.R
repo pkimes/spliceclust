@@ -176,8 +176,13 @@ NULL
     sg_obj
 }
 
+#' splicegrahm method
+#' 
+#' \code{splicegrahm} method for \code{concomp} class object.
+#' See \code{splicegrahm} documentation for more details.
+#' 
 #' @keywords internal
-#' @title splicegrahm method
+#' @seealso splicegrahm
 #' @name splicegrahm-concomp
 #' @aliases splicegrahm,concomp-method
 setMethod("splicegrahm",
