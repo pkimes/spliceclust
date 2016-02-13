@@ -138,51 +138,15 @@ passed is illustrated in the following example.
 
 ```r
 suppressPackageStartupMessages(library("TxDb.Hsapiens.UCSC.hg19.knownGene"))
-```
-
-```
-## Error in library("TxDb.Hsapiens.UCSC.hg19.knownGene"): there is no package called 'TxDb.Hsapiens.UCSC.hg19.knownGene'
-```
-
-```r
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'TxDb.Hsapiens.UCSC.hg19.knownGene' not found
-```
-
-```r
 isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
-```
-
-```
-## Error in isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE: object 'txdb' not found
-```
-
-```r
 isActiveSeq(txdb)[paste0("chr", 1:22)] <- TRUE
-```
-
-```
-## Error in isActiveSeq(txdb)[paste0("chr", 1:22)] <- TRUE: object 'txdb' not found
-```
-
-```r
 exbytx <- exonsBy(txdb, "tx")
-```
 
-```
-## Error in eval(expr, envir, enclos): could not find function "exonsBy"
-```
-
-```r
 splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx)
 ```
 
-```
-## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
-```
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 If gene names are desired, the following can be used to match the transcript ID
 in `txdb` against gene symbols (e.g. in `org.Hs.eg.db`).
@@ -190,20 +154,20 @@ in `txdb` against gene symbols (e.g. in `org.Hs.eg.db`).
 
 ```r
 suppressPackageStartupMessages(library("org.Hs.eg.db"))
-```
 
-```
-## Error in library("org.Hs.eg.db"): there is no package called 'org.Hs.eg.db'
-```
-
-```r
 splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx,
             txdb = txdb, orgdb = org.Hs.eg.db)
 ```
 
 ```
-## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+## 'select()' returned 1:1 mapping between keys and columns
 ```
+
+```
+## 'select()' returned many:1 mapping between keys and columns
+```
+
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
 
 The `splicegrahm` function can now also plot gene models in non-genomic space
 with an additional parameter `eps`. The `eps` parameter determines how far up/down
@@ -219,8 +183,14 @@ splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
 ```
 
 ```
-## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+## 'select()' returned 1:1 mapping between keys and columns
 ```
+
+```
+## 'select()' returned many:1 mapping between keys and columns
+```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)
 
 
 ```r
@@ -229,8 +199,14 @@ splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
 ```
 
 ```
-## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+## 'select()' returned 1:1 mapping between keys and columns
 ```
+
+```
+## 'select()' returned many:1 mapping between keys and columns
+```
+
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png)
 
 
 ```r
@@ -239,8 +215,14 @@ splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
 ```
 
 ```
-## Error in .splicegrahm.concomp(obj, ...): object 'exbytx' not found
+## 'select()' returned 1:1 mapping between keys and columns
 ```
+
+```
+## 'select()' returned many:1 mapping between keys and columns
+```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png)
 
 
 ## <a name="splicepca"></a> SplicePCA Examples
@@ -272,27 +254,8 @@ annotated to this gene. Note that above the PCs are computed separately for exon
  
 
 ```r
-splicepca(klk12_cc, npc = 3, scores = TRUE)
+## splicepca(klk12_cc, npc = 3, scores = TRUE)
 ```
-
-```
-## Warning in ggpairs(ej_scores, alpha = 0.4, upper = "blank"): Extra
-## arguments: 'alpha' are being ignored. If these are meant to be aesthetics,
-## submit them using the 'mapping' variable within ggpairs with ggplot2::aes
-## or ggplot2::aes_string.
-```
-
-```
-## Error in getPlot(x, i, j): unknown plot object type.
-## Position: i = 1, j = 1
-## str(plotObj):
-##  chr [1:4] "function (data, mapping, ..., rescale = FALSE) \n{\n    p <- ggplot(data, mapping) + scale_y_continuous()\n    if (identical(re"| __truncated__ ...unknown plot object type.
-## Position: i = 1, j = 1
-## str(plotObj):
-## NULL
-```
-
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png)
 
 It is also possible to perform the PCA analysis using the concatenated exon and junction information by
 setting the `pc_sep` parameter to `FALSE`, and specifying the relative "weight" of each with `ej_w`. The
@@ -321,8 +284,14 @@ splicepcp(klk12_cc, genomic = TRUE, txlist = exbytx, txdb = txdb, orgdb = org.Hs
 ```
 
 ```
-## Error in .splicepcp.concomp(obj, ...): object 'exbytx' not found
+## 'select()' returned 1:1 mapping between keys and columns
 ```
+
+```
+## 'select()' returned many:1 mapping between keys and columns
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png)
 
 The plot includes 3 tracks:
   1. log-expression values for each exon or region of an exon
@@ -357,8 +326,14 @@ splicegrahm2(klk12_cc, klk12_cc_hnsc, genomic=FALSE,
 ```
 
 ```
-## Error in .splicegrahm2.concomp(obj1, obj2, ...): object 'exbytx' not found
+## 'select()' returned 1:1 mapping between keys and columns
 ```
+
+```
+## 'select()' returned many:1 mapping between keys and columns
+```
+
+![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18-1.png)
 
 Alternatively, the bottom plot can be drawn with the same orientation as the top plot by
 setting `mirror=FALSE`.
@@ -420,46 +395,59 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] spliceclust_0.1.2                 BSgenome.Hsapiens.UCSC.hg19_1.4.0
-##  [3] BSgenome_1.38.0                   rtracklayer_1.30.2               
-##  [5] Biostrings_2.38.4                 XVector_0.10.0                   
-##  [7] GGally_1.0.1                      annotate_1.48.0                  
-##  [9] XML_3.98-1.3                      AnnotationDbi_1.32.3             
-## [11] Biobase_2.30.0                    GenomicRanges_1.22.4             
-## [13] GenomeInfoDb_1.6.3                IRanges_2.4.7                    
-## [15] S4Vectors_0.8.11                  RColorBrewer_1.1-2               
-## [17] ggbio_1.18.5                      BiocGenerics_0.16.1              
-## [19] ggplot2_2.0.0                    
+##  [1] org.Hs.eg.db_3.2.3                     
+##  [2] RSQLite_1.0.0                          
+##  [3] DBI_0.3.1                              
+##  [4] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+##  [5] GenomicFeatures_1.22.13                
+##  [6] spliceclust_0.1.2                      
+##  [7] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
+##  [8] BSgenome_1.38.0                        
+##  [9] rtracklayer_1.30.2                     
+## [10] Biostrings_2.38.4                      
+## [11] XVector_0.10.0                         
+## [12] GGally_1.0.1                           
+## [13] annotate_1.48.0                        
+## [14] XML_3.98-1.3                           
+## [15] AnnotationDbi_1.32.3                   
+## [16] Biobase_2.30.0                         
+## [17] GenomicRanges_1.22.4                   
+## [18] GenomeInfoDb_1.6.3                     
+## [19] IRanges_2.4.7                          
+## [20] S4Vectors_0.8.11                       
+## [21] RColorBrewer_1.1-2                     
+## [22] ggbio_1.18.5                           
+## [23] BiocGenerics_0.16.1                    
+## [24] ggplot2_2.0.0                          
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.3                biovizBase_1.18.0         
 ##  [3] lattice_0.20-33            Rsamtools_1.22.0          
 ##  [5] digest_0.6.9               plyr_1.8.3                
 ##  [7] futile.options_1.0.0       acepack_1.3-3.3           
-##  [9] RSQLite_1.0.0              evaluate_0.8              
-## [11] BiocInstaller_1.20.1       zlibbioc_1.16.0           
-## [13] GenomicFeatures_1.22.13    rpart_4.1-10              
-## [15] labeling_0.3               devtools_1.10.0           
-## [17] splines_3.2.2              BiocParallel_1.4.3        
-## [19] stringr_1.0.0              foreign_0.8-66            
-## [21] RCurl_1.95-4.7             biomaRt_2.26.1            
-## [23] munsell_0.4.2              nnet_7.3-12               
-## [25] SummarizedExperiment_1.0.2 gridExtra_2.0.0           
-## [27] roxygen2_5.0.1             Hmisc_3.17-1              
-## [29] reshape_0.8.5              withr_1.0.1               
-## [31] GenomicAlignments_1.6.3    bitops_1.0-6              
-## [33] grid_3.2.2                 RBGL_1.46.0               
-## [35] xtable_1.8-2               gtable_0.1.2              
-## [37] DBI_0.3.1                  magrittr_1.5              
-## [39] formatR_1.2.1              scales_0.3.0              
-## [41] graph_1.48.0               stringi_1.0-1             
-## [43] reshape2_1.4.1             latticeExtra_0.6-28       
-## [45] futile.logger_1.4.1        Formula_1.2-1             
-## [47] lambda.r_1.1.7             tools_3.2.2               
-## [49] dichromat_2.0-0            OrganismDbi_1.12.1        
-## [51] survival_2.38-3            colorspace_1.2-6          
-## [53] cluster_2.0.3              memoise_1.0.0             
-## [55] knitr_1.12.3               VariantAnnotation_1.16.4
+##  [9] evaluate_0.8               BiocInstaller_1.20.1      
+## [11] zlibbioc_1.16.0            rpart_4.1-10              
+## [13] labeling_0.3               devtools_1.10.0           
+## [15] splines_3.2.2              BiocParallel_1.4.3        
+## [17] stringr_1.0.0              foreign_0.8-66            
+## [19] RCurl_1.95-4.7             biomaRt_2.26.1            
+## [21] munsell_0.4.2              nnet_7.3-12               
+## [23] SummarizedExperiment_1.0.2 gridExtra_2.0.0           
+## [25] roxygen2_5.0.1             Hmisc_3.17-1              
+## [27] reshape_0.8.5              withr_1.0.1               
+## [29] GenomicAlignments_1.6.3    bitops_1.0-6              
+## [31] grid_3.2.2                 RBGL_1.46.0               
+## [33] xtable_1.8-2               gtable_0.1.2              
+## [35] magrittr_1.5               formatR_1.2.1             
+## [37] scales_0.3.0               graph_1.48.0              
+## [39] stringi_1.0-1              reshape2_1.4.1            
+## [41] latticeExtra_0.6-28        futile.logger_1.4.1       
+## [43] Formula_1.2-1              lambda.r_1.1.7            
+## [45] tools_3.2.2                dichromat_2.0-0           
+## [47] OrganismDbi_1.12.1         survival_2.38-3           
+## [49] colorspace_1.2-6           cluster_2.0.3             
+## [51] memoise_1.0.0              knitr_1.12.3              
+## [53] VariantAnnotation_1.16.4
 ```
 
 
