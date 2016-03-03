@@ -65,7 +65,7 @@
 #' @name splicegrahm2
 #' @export
 #' @import ggplot2 GenomicRanges
-#' @importFrom ggbio geom_alignment autoplot tracks
+#' @importFrom ggbio ggbio geom_alignment autoplot tracks
 #' @importFrom grid arrow unit
 #' @importFrom reshape2 melt
 #' @author Patrick Kimes
