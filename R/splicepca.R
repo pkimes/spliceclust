@@ -47,7 +47,7 @@
 #' @name splicepca
 #' @export
 #' @import ggplot2
-#' @importFrom GGally ggpairs
+#' @importFrom GGally ggpairs wrap
 #' @author Patrick Kimes
 NULL
 
@@ -176,36 +176,59 @@ NULL
     
     ##create final scores or loadings plot
     if (scores) {
-        ##create scores plot
-        pl <- ggpairs(ej_scores, alpha=0.4, upper="blank")
-        
+        ## create scores plot
+        ## diag=list(continuous=wrap("densityDiag")) doesn't work accept params
+        pl <- ggpairs(ej_scores, 
+                      upper="blank", mapping=aes(color="type", fill="type"), 
+                      lower=list(continuous=wrap("points", alpha=.1)),
+                      diag=list(continuous=wrap("barDiag", alpha=.7,
+                                    bins=30)))
+        ## use bw theme
+        pl <- pl + theme_bw()
+
+
         if (pc_sep) {
-            ##give color to exon scores
-            for (ii in 1:npc) {
-                for (jj in 1:ii) {
-                    pl$plots[[2*npc*(ii-1)+jj]] <-
-                        paste0(pl$plots[[2*npc*(ii-1)+jj]],
-                               "+ theme(panel.background = element_rect(fill = '#B7C8D6'))")
+            ## change colors for exon PCA
+            for (i in 1:npc) {
+                for (j in 1:i) {
+                    p <- pl[i, j]
+                    p <- p + scale_color_manual(values="#08306b") +
+                    scale_fill_manual(values="#08306b")
+                    pl[i, j] <- p
                 }
             }
             
-            ##give color to junction scores
-            for (ii in (npc+1):(2*npc)) {
-                for (jj in (npc+1):ii) {
-                    pl$plots[[2*npc*(ii-1)+jj]] <-
-                        paste0(pl$plots[[2*npc*(ii-1)+jj]],
-                               "+ theme(panel.background = element_rect(fill = '#DDF2CC'))")
+            ## change colors for junction PCA
+            for (i in (npc+1):(2*npc)) {
+                for (j in (npc+1):i) {
+                    p <- pl[i, j]
+                    p <- p + scale_color_manual(values="#047760") +
+                    scale_fill_manual(values="#047760")
+                    pl[i, j] <- p
                 }
             }
-            
-            ##remove cross plots
-            for (ii in (npc+1):(2*npc)) {
-                for (jj in 1:npc) {
-                    if (ii != jj+npc)
-                        pl$plots[[2*npc*(ii-1)+jj]] <- "ggally_blank()"
+
+            ## change colors for cross PCA
+            for (i in (npc+1):(2*npc)) {
+                for (j in 1:npc) {
+                    p <- pl[i, j]
+                    p <- p + scale_color_manual(values="black") +
+                        scale_fill_manual(values="black")
+                    pl[i, j] <- p
                 }
-            }            
-        }
+            }
+
+        } else {
+            ## change everything to black if plotting joint
+            for (i in 1:ncol(ej_scores)) {
+                for (j in 1:ncol(ej_scores)) {
+                    p <- pl[i, j]
+                    p <- p + scale_color_manual(values="black") +
+                        scale_fill_manual(values="black")
+                    pl[i, j] <- p
+                }
+            }
+        }            
 
         ##return final plot
         pl
