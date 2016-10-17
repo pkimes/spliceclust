@@ -1,0 +1,12 @@
+.travis.yml
+.gitignore
+.DS_Store
+.Rbuildignore
+.Rhistory
+.git/
+demo/
+misc/
+output/
+figure/
+README.Rmd
+README.html
