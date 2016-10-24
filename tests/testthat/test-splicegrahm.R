@@ -32,17 +32,17 @@ simple_cc <- concomp(simple_df)
 
 test_that("splicegrahm default call works", {
     ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
-
+    expect_silent(plt <- splicegrahm(simple_cc))
+    
     ## check that ggplot is produced
     expect_is(plt, "ggplot")
+    bld <- ggplot_build(plt)
 
     ## check ranges of plot 
-    expect_equal(bld$panel$ranges[[1]]$x.range[1], 51028700)
-    expect_equal(bld$panel$ranges[[1]]$x.range[2], 51035300)
+    expect_equal((-1) * bld$panel$ranges[[1]]$x.range[2], 51028700)
+    expect_equal((-1) * bld$panel$ranges[[1]]$x.range[1], 51035300)
 
-    ## tabulate the layer geoms
+    ## determine layer geoms
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
 
     ## check one GeomPaths per junction
@@ -54,14 +54,14 @@ test_that("splicegrahm default call works", {
 
 
 test_that("splicegrahm accepts j_incl to include junction coverage plots", {
-    ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc, j_incl = TRUE)
-    bld <- ggplot_build(plt)
+    ## plot with simple dataset
+    expect_silent(plt <- splicegrahm(simple_cc, j_incl = TRUE))
 
     ## check that ggplot is produced
     expect_is(plt, "ggplot")
+    bld <- ggplot_build(plt)
 
-    ## tabulate the layer geoms
+    ## determine layer geoms
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
 
     ## check one GeomPaths per junction
@@ -102,40 +102,77 @@ test_that("splicegrahm accepts j_incl to include junction coverage plots", {
 
 
 test_that("splicegrahm accepts sort_sep to sort exons, juncs separately", {
-    ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
+    ## plots with simple dataset
+    expect_silent(plt_sep <- splicegrahm(simple_cc, j_incl = TRUE, sort_sep = TRUE))
+    expect_silent(plt_same <- splicegrahm(simple_cc, j_incl = TRUE, sort_sep = FALSE))
+
+    ## check that ggplot is produced
+    expect_is(plt_sep, "ggplot")
+    expect_is(plt_same, "ggplot")
+    bld_sep <- ggplot_build(plt_same)
+    bld_same <- ggplot_build(plt_same)
+
+    ## determine layer geoms
+    layers_sep <- sapply(plt_sep$layer, function(x) class(x$geom)[1])
+    layers_same <- sapply(plt_same$layer, function(x) class(x$geom)[1])
+
+    ## check that layers are still the same
+    expect_equal(layers_sep, layers_same)
     
+    ## check that order of heatmaps is reversed for junctions
+    dat_e_same <- plt_same$data[plt_same$data$kind == "e", ]
+    dat_e_sep <- plt_sep$data[plt_sep$data$kind == "e", ]
+    dat_j_same <- plt_same$data[plt_same$data$kind == "j", ]
+    dat_j_sep <- plt_sep$data[plt_sep$data$kind == "j", ]
+    expect_equivalent(dat_e_same, dat_e_sep)
+    expect_equivalent(dat_j_same[, c("ymin", "ymax")],
+                      dat_j_sep[, c("ymin", "ymax")])
+    expect_equivalent(dat_j_same[, c("value", "variable")],
+                      dat_j_sep[nrow(dat_j_sep):1, c("value", "variable")])
 })
 
 
 test_that("splicegrahm accepts sort_idx to maually specify sort order", {
-    ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
+    ## plot with simple dataset
+    sidx <- c(11:20, 1:10)
+    expect_silent(plt <- splicegrahm(simple_cc, j_incl = TRUE, sort_idx = sidx))
+
+    ## check that ggplot is produced
+    expect_is(plt, "ggplot")
     bld <- ggplot_build(plt)
+
+    ## determine layer geoms
+    layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
+
+    ## check that specified n-vector of order is used
+    dat_e <- unique(plt$data[plt$data$kind == "e", c("variable", "ymin")])
+    dat_j <- unique(plt$data[plt$data$kind == "j", c("variable", "ymin")])
+    dat_e <- as.character(dat_e$variable[order(dat_e$ymin)])
+    dat_j <- as.character(dat_j$variable[order(dat_j$ymin)])
+    expect_equal(dat_e, paste0("s", sidx))
+    expect_equal(dat_j, paste0("s", sidx))
 })
 
-#' #' @param obj a \code{concomp} object
-#' #' @param j_incl a logical whether to include heatmaps for junctions
-#' #'        (default = FALSE)
-#' #' @param sort_sep a logical whether to sort each exon, junction separately
-#' #'        (default = FALSE)
-#' #' @param sort_idx an integer value specifying the order of the samples in
-#' #'        each exon, see details for more information on all possible
-#' #'        input, if length is n, then this ordering is used (default = 1)
-#' 
 
 test_that("splicegrahm accepts log_base, log_shift to scale heatmap colorscale", {
-    ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
+    ## plot with simple dataset
+    expect_silent(plt <- splicegrahm(simple_cc, j_incl = TRUE, log_base = 2, log_shift = 1))
+
+    ## check that ggplot is produced
+    expect_is(plt, "ggplot")
     bld <- ggplot_build(plt)
+    
 })
 
 
 test_that("splicegrahm accepts bin FALSE to plot on continuous colorscale", {
     ## default plot with simple dataset
     plt <- splicegrahm(simple_cc)
+
+    ## check that ggplot is produced
+    expect_is(plt, "ggplot")
     bld <- ggplot_build(plt)
+
 })
 
 #' #' @param log_base a numeric specifying the scale of the binning for the
@@ -146,9 +183,13 @@ test_that("splicegrahm accepts bin FALSE to plot on continuous colorscale", {
 #' #' @param bin a logical whether to bin the values for easier viewing (default = TRUE)
 
 test_that("splicegrahm accepts genomic, ex_use input to adjust x-axis scaling", {
-    ## default plot with simple dataset
+    ## plot with simple dataset
     plt <- splicegrahm(simple_cc)
+
+    ## check that ggplot is produced
+    expect_is(plt, "ggplot")
     bld <- ggplot_build(plt)
+
 })
 
 #' #' @param genomic a logical whether genomic coordinates should be used to
