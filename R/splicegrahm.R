@@ -89,12 +89,6 @@ NULL
     dna_len <- width(range(gr_e))
     rna_len <- sum(width(gr_e))
     
-    n <- ncol(vals_e)
-    p_e <- nrow(vals_e)
-    p_j <- nrow(vals_j)
-    dna_len <- width(range(gr_e))
-    rna_len <- sum(width(gr_e))
-
     ##determine overlapping annotations
     if (is.null(txlist)) {
         tx_plot <- NULL
