@@ -308,8 +308,14 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
     
     ##don't squish exons if not needed (should make shrink = 0)
     if (rna_len/dna_len >= ex_use) {
-        ex_use <- rna_len/dna_len
-        base_shift <- 1
+        if(!is.null(tx_plot)) {
+            annot_track <- ggplot() +
+                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                    theme_bw()
+        }
+        return(list(gr_e = gr_e, gr_j = gr_j,
+                    annot_track = annot_track,
+                    genomic = TRUE))
     }
     
     ##shrinkage factor for introns
@@ -349,7 +355,7 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
     }
     
     ## return gr_e, gr_j, annot_track
-    list(gr_e = gr_e, gr_j = gr_j, annot_track = annot_track)
+    list(gr_e = gr_e, gr_j = gr_j, annot_track = annot_track, genomic = FALSE)
 }
 
 
