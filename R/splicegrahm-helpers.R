@@ -126,7 +126,7 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     if (!is.null(highlight)) {
         hl_tab <- c(1, table(highlight))
         hl_h <- cumsum(hl_tab)
-        k <- length(hl_tab)
+        k <- length(hl_tab) - 1
         
         wrc <- width(range(gr_e))
         minrc <- min(c(start(gr_e), end(gr_e)))
@@ -304,7 +304,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
         if (!is.null(highlight)) {
             hl_tab <- c(1, table(highlight))
             hl_h <- cumsum(hl_tab)
-            k <- length(hl_tab)
+            k <- length(hl_tab) - 1
             
             for (i in 1:k) {
                 sg_obj <- sg_obj +
