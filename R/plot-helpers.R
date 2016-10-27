@@ -72,14 +72,15 @@ concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
     cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
     
     if (is.null(txdb)) {
-        return(cbind(cand_idx,
-                     as.character(cand_idx)))
+        return(data.frame(cand_idx, as.character(cand_idx),
+                          stringsAsFactors=FALSE))
     } else {
         if (length(cand_idx) > 0) {
             if (is.null(orgdb)) {
                 pair <- select(txdb, keys=as.character(cand_idx),
                                columns="TXNAME", keytype="TXID")$TXNAME
-                return(cbind(cand_idx, pair))
+                return(data.frame(cand_idx, pair,
+                                  stringsAsFactors=FALSE))
             } else {
                 gene_id <- select(txdb, keys=as.character(cand_idx),
                                   columns="GENEID", keytype="TXID")$GENEID
@@ -95,7 +96,7 @@ concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
                 })
                 if (all(is.na(pair))) { pair <- output }
                 pair[is.na(pair)] <- "NA"
-                return(cbind(cand_idx, pair))
+                return(data.frame(cand_idx, pair, stringsAsFactors=FALSE))
             }
         }
     }
@@ -139,8 +140,8 @@ diffsplice2name <- function(obj, ichr, seqlen, txlist, txdb = NULL, orgdb = NULL
     cc_matches <- names(chr_gl)[subjectHits(matches)]
     tx_matches <- as.character(queryHits(matches))
 
-    output <- data.frame("cc_id"=cc_matches,
-                         "tx_id"=tx_matches)
+    output <- data.frame("cc_id"=cc_matches, "tx_id"=tx_matches,
+                         stringsAsFactors=FALSE)
 
     if (!is.null(txdb)) {
         tx_nm <- select(txdb, keys=tx_matches,
