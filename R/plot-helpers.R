@@ -71,28 +71,39 @@ concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
     strand(gr_e) <- "*"
     cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
     
+    if (is.null(txlist)) {
+        cand_id <- as.character(cand_idx)
+    } else {
+        cand_id <- names(txlist)[cand_idx]
+    }
+    
     if (is.null(txdb)) {
-        return(data.frame(cand_idx, as.character(cand_idx),
-                          stringsAsFactors=FALSE))
+        return(data.frame(cand_idx, cand_id, stringsAsFactors=FALSE))
     } else {
         if (length(cand_idx) > 0) {
             if (is.null(orgdb)) {
-                pair <- select(txdb, keys=as.character(cand_idx),
-                               columns="TXNAME", keytype="TXID")$TXNAME
+                suppressMessages(
+                    pair <- select(txdb, keys=cand_id,
+                                   columns="TXNAME", keytype="TXID")$TXNAME
+                    )
                 return(data.frame(cand_idx, pair,
                                   stringsAsFactors=FALSE))
             } else {
-                gene_id <- select(txdb, keys=as.character(cand_idx),
-                                  columns="GENEID", keytype="TXID")$GENEID
+                suppressMessages(
+                    gene_id <- select(txdb, keys=cand_id,
+                                      columns="GENEID", keytype="TXID")$GENEID
+                    )
                 pair <- rep(NA, length(gene_id))
                 ## ugly way to handle ENTREZID and orgdb mismatch
                 output <- tryCatch({
-                    pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
-                                                    columns="SYMBOL", keytype="ENTREZID")$SYMBOL
+                    suppressMessages(
+                        pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
+                                                        columns="SYMBOL", keytype="ENTREZID")$SYMBOL
+                        )
                 }, error = function(err) {
                     print("there was an error")
-                    return(select(txdb, keys=as.character(cand_idx),
-                                  columns="TXNAME", keytype="TXID")$TXNAME)
+                    return(suppressMessages(select(txdb, keys=cand_id,
+                                                   columns="TXNAME", keytype="TXID")$TXNAME))
                 })
                 if (all(is.na(pair))) { pair <- output }
                 pair[is.na(pair)] <- "NA"
