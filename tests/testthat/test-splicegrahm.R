@@ -2,14 +2,33 @@ context("splicegrahm plotting method")
 library("GenomicRanges")
 library("ggplot2")
 
+
+## load annotations packages
+library("TxDb.Hsapiens.UCSC.hg19.knownGene")
+library("BSgenome.Hsapiens.UCSC.hg19")
+library("org.Hs.eg.db")
+
+##library("testthat")
+##devtools::load_all()
+
+
+## ##############################################################################
+## prepare reference hg19/hg37 genome
+
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
+isActiveSeq(txdb)["chr19"] <- TRUE
+exbytx <- exonsBy(txdb, "tx")
+
+
 ## ##############################################################################
 ## construct example dataset for test cases
 
 ## simple gene model overlapping KLK12 on chr19
 ichr <- "chr19"
 iseqlengths <- 59128983
-igStart <- 51029000 + c(0, 2000, 5000, 1000, 1000, 3000)
-igStop <- 51029000 + c(1000, 3000, 6000, 2000, 5000, 5000)
+igStart <- 51532000 + c(0, 2000, 5000, 1000, 1000, 3000)
+igStop <- 51532000 + c(1000, 3000, 6000, 2000, 5000, 5000)
 ikind <- c(rep("e", 3), rep("j", 3))
 istr <- "-"
     
@@ -25,6 +44,10 @@ simple_df <- data.frame(chr=ichr, seqlengths=iseqlengths,
                         strand=istr,
                         samp_cov)
 simple_cc <- concomp(simple_df)
+
+## fix corresponding reference genomes
+seqinfo(exons(simple_cc)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc))]
+seqinfo(juncs(simple_cc)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc))]
 
 
 ## ##############################################################################
@@ -257,52 +280,252 @@ test_that("splicegrahm accepts genomic, ex_use input to adjust x-axis scaling", 
 
 
 test_that("splicegrahm accepts flip_neg to adjust whether stranded-ness matters", {
+    ## datasets with sequence on '+' or '*' strands
+    pos_strand_cc <- simple_cc
+    strand(exons(pos_strand_cc)) <- '+'
+    strand(juncs(pos_strand_cc)) <- '+'
+
+    ## dataset with sequences on '*' strand
+    unk_strand_cc <- simple_cc
+    strand(exons(unk_strand_cc)) <- '*'
+    strand(juncs(unk_strand_cc)) <- '*'
+
+    ## simple_cc uses negative strand annotations
+    neg_strand_cc <- simple_cc
+
     ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
+    expect_silent(plt_pos_noflip <- splicegrahm(pos_strand_cc, j_incl=TRUE, flip_neg=FALSE))
+    expect_silent(plt_pos_flip <- splicegrahm(pos_strand_cc, j_incl=TRUE, flip_neg=TRUE))
+    expect_silent(plt_pos_annot <- splicegrahm(pos_strand_cc, j_incl=TRUE, flip_neg=TRUE, txlist=exbytx))
+    bld_pos_noflip <- ggplot_build(plt_pos_noflip)
+    bld_pos_flip <- ggplot_build(plt_pos_flip)
+    bld_pos_annot <- ggplot_build(plt_pos_annot@plot[[1]])
+    
+    expect_silent(plt_neg_noflip <- splicegrahm(neg_strand_cc, j_incl=TRUE, flip_neg=FALSE))
+    expect_silent(plt_neg_flip <- splicegrahm(neg_strand_cc, j_incl=TRUE, flip_neg=TRUE))
+    expect_silent(plt_neg_annot <- splicegrahm(neg_strand_cc, j_incl=TRUE, flip_neg=FALSE, txlist=exbytx))
+    bld_neg_noflip <- ggplot_build(plt_neg_noflip)
+    bld_neg_flip <- ggplot_build(plt_neg_flip)
+    bld_neg_annot <- ggplot_build(plt_neg_annot@plot[[1]])
+
+    expect_silent(plt_unk_noflip <- splicegrahm(unk_strand_cc, j_incl=TRUE, flip_neg=FALSE))
+    expect_silent(plt_unk_flip <- splicegrahm(unk_strand_cc, j_incl=TRUE, flip_neg=TRUE))
+    expect_silent(plt_unk_annot <- splicegrahm(unk_strand_cc, j_incl=TRUE, flip_neg=TRUE, txlist=exbytx))
+    bld_unk_noflip <- ggplot_build(plt_unk_noflip)
+    bld_unk_flip <- ggplot_build(plt_unk_flip)
+    bld_unk_annot <- ggplot_build(plt_unk_annot@plot[[1]])
+    
+    ## check that coord flipped w/ neg strand
+    expect_equal(bld_neg_noflip$panel$ranges[[1]]$x.range,
+                 (-1) * rev(bld_neg_flip$panel$ranges[[1]]$x.range))
+    
+    ## check that coord flipped w/ unknown strand and neg annot
+    expect_equal(bld_unk_flip$panel$ranges[[1]]$x.range,
+                 (-1) * rev(bld_unk_annot$panel$ranges[[1]]$x.range))
+
+    ## check that coord not flipped w/ pos strand
+    expect_equal(bld_pos_flip$panel$ranges[[1]]$x.range,
+                 bld_pos_noflip$panel$ranges[[1]]$x.range)
+    
+    ## check that coord not flipped w/ unknown strand
+    expect_equal(bld_unk_flip$panel$ranges[[1]]$x.range,
+                 bld_unk_noflip$panel$ranges[[1]]$x.range)
+
+    ## check that coord not flipped w/ pos strand and neg annot
+    expect_equal(bld_pos_flip$panel$ranges[[1]]$x.range,
+                 bld_pos_annot$panel$ranges[[1]]$x.range)
+
+    ## check that coord not flipped w/ neg strand and neg annot if FALSE
+    expect_equal(bld_neg_noflip$panel$ranges[[1]]$x.range,
+                 bld_neg_annot$panel$ranges[[1]]$x.range)
 })
 
-#' #' @param flip_neg a logical whether to flip plotting of genes on negative strand
-#' #'        to run left to right (default = TRUE)
 
 test_that("splicegrahm accepts highlight input to add group annotations", {
-    ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
+    ## check that string labels
+    hl_s1 <- rep("A", each=20)
+    hl_s2 <- rep(c("A", "B"), each=10)
+    hl_s3 <- c(rep(c("A", "B"), each=6), rep("C", 8))
+    hl_s4 <- rep(c("A", "B", "C", "D"), each=5)
+    hl_f2 <- factor(hl_s2)
+    hl_i2 <- rep(1:2, each=10)
+    hl_short <- rep("A", 12)
+    hl_long <- rep("A", 35)
+    hl_reord <- rep(c("A", "B", "C", "D"), 5)
+
+    ## simple plot w/ no highlighting
+    expect_silent(plt_base <- splicegrahm(simple_cc, j_inc=TRUE))
+
+    ## check that reasonable highlight labels are accepted
+    expect_silent(plt_s1 <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_s1))
+    expect_silent(plt_s2 <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_s2))
+    expect_silent(plt_s3 <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_s3))
+
+    ## check that too many levels still accepted (>3)
+    expect_silent(plt_s4 <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_s4))
+
+    ## check that factors can be specified
+    expect_silent(plt_f2 <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_f2))
+
+    ## check that integers can be specified
+    expect_silent(plt_i2 <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_i2))
+    
+    ## chech that incorrect length vector still accepted
+    expect_silent(plt_short <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_short))
+    expect_silent(plt_long <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_long))
+
+    ## check that samples are reordered by highlight
+    expect_silent(plt_reord <- splicegrahm(simple_cc, j_incl=TRUE, highlight=hl_reord))
+
+    ## layers in ggplot
+    layers_base <- sapply(plt_base$layer, function(x) class(x$geom)[1])
+    layers_s1 <- sapply(plt_s1$layer, function(x) class(x$geom)[1])
+    layers_s2 <- sapply(plt_s2$layer, function(x) class(x$geom)[1])
+    layers_s3 <- sapply(plt_s3$layer, function(x) class(x$geom)[1])
+    layers_s4 <- sapply(plt_s4$layer, function(x) class(x$geom)[1])
+    layers_f2 <- sapply(plt_f2$layer, function(x) class(x$geom)[1])
+    layers_i2 <- sapply(plt_i2$layer, function(x) class(x$geom)[1])
+    layers_short <- sapply(plt_short$layer, function(x) class(x$geom)[1])
+    layers_long <- sapply(plt_long$layer, function(x) class(x$geom)[1])
+    layers_reord <- sapply(plt_reord$layer, function(x) class(x$geom)[1])
+
+    ## check that all have more GeomRects (highlight boxes) than base plot
+    expect_equal(sum(layers_s1 == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_s1)))
+    expect_equal(sum(layers_s2 == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_s2)))
+    expect_equal(sum(layers_s3 == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_s3)))
+    expect_equal(sum(layers_s4 == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_s4)))
+    expect_equal(sum(layers_short == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_short)))
+    expect_equal(sum(layers_long == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_long)))
+    expect_equal(sum(layers_reord == "GeomRect") - sum(layers_base == "GeomRect"),
+                 2 * length(unique(hl_reord)))
+
+    ## check that plots are same using character, factor, integer vector
+    expect_equal(plt_s2[names(plt_s2) != "plot_env"],
+                 plt_f2[names(plt_f2) != "plot_env"])
+    expect_equal(plt_s2[names(plt_s2) != "plot_env"],
+                 plt_i2[names(plt_i2) != "plot_env"])
+
+    ## check that heatmap is reordered to group by highlight parameter
+    dat_e <- unique(plt_reord$data[plt_reord$data$kind == "e", c("variable", "ymin")])
+    dat_j <- unique(plt_reord$data[plt_reord$data$kind == "j", c("variable", "ymin")])
+    dat_e <- as.character(dat_e$variable[order(dat_e$ymin)])
+    dat_j <- as.character(dat_j$variable[order(dat_j$ymin)])
+    expect_equal(dat_e, paste0("s", order(hl_reord)))
+    expect_equal(dat_j, paste0("s", order(hl_reord)))
 })
 
-#' #' @param highlight a vector of labels to highlight samples in groups or clusters
-#' #'        (default = NULL)
 
 test_that("splicegrahm accepts use_blk input to invert background color", {
     ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
+    plt_base <- splicegrahm(simple_cc, j_incl = TRUE)
+    bld_base <- ggplot_build(plt_base)
+
+    ## check that parameter is accepted
+    expect_silent(plt_blk <- splicegrahm(simple_cc, j_incl = TRUE, use_blk = TRUE))
+    bld_blk <- ggplot_build(plt_blk)
+
+    ## check that heatmap frames are not drawn in darker plot (2 less 'GeomRect's)
+    layers_base <- sapply(plt_base$layer, function(x) class(x$geom)[1])
+    layers_blk <- sapply(plt_blk$layer, function(x) class(x$geom)[1])
+    expect_equal(sum(layers_base == 'GeomRect') - sum(layers_blk == 'GeomRect'), 2)
+    
+    ## check that junction label colors have changed, everything else the same
+    text_base <- do.call(rbind, bld_base$data[layers_base == 'GeomText'])
+    text_blk <- do.call(rbind, bld_blk$data[layers_blk == 'GeomText'])
+    expect_equal(text_base[, names(text_base) != 'colour'],
+                 text_blk[, names(text_blk) != 'colour'])
+    expect_true(all(text_base$colour != text_blk$colour))
 })
 
-#' #' @param use_blk a logical whether to use a black background (default = FALSE)
 
 test_that("splicegrahm accepts eps, txlist, txdb, orgdb input to add gene annotations", {
     ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
+    plt_base <- splicegrahm(simple_cc, j_incl=TRUE)
+    bld_base <- ggplot_build(plt_base)
+    
+
+    ## create a plot with a transcript annotations track
+    expect_silent(plt_tx <- splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx))
+    expect_is(plt_tx, "Tracks")
+    expect_is(plt_tx@plot[[1]], "ggplot")
+    expect_is(plt_tx@plot[[2]], "GGbio")
+    bld_tx_p1 <- ggplot_build(plt_tx@plot[[1]])
+    bld_tx_p2 <- ggplot_build(plt_tx@plot[[2]])
+    
+    ## check that top track is same as basic plot
+    expect_equivalent(bld_tx_p1$data, bld_base$data)
+    expect_equivalent(bld_tx_p1$plot$layers, plt_base$layers)
+
+    ## check that gene models are included by checking y labels
+    expect_equal(bld_tx_p2$panel$ranges[[1]]$y.labels,
+                 c("70043", "70044", "70045", "70046",
+                   "70047", "70048", "70049", "70050"))
+
+    
+    ## create a plot with only transcripts fully contained in concomp range (eps=0)
+    expect_silent(plt_tx_e0 <- splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx, eps=0))
+    expect_is(plt_tx_e0, "Tracks")
+    bld_tx_e0_p2 <- ggplot_build(plt_tx_e0@plot[[2]]) 
+
+    ## check that eps=0 only keeps fully contained transcript models
+    expect_equal(bld_tx_e0_p2$panel$ranges[[1]]$y.labels, "70043")
+
+    
+    ## create a plot with named transcript track (w/ txdb)
+    expect_silent(plt_txdb <- splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx, txdb=txdb))
+    expect_is(plt_txdb, "Tracks")
+    bld_txdb_p1 <- ggplot_build(plt_txdb@plot[[1]])
+    bld_txdb_p2 <- ggplot_build(plt_txdb@plot[[2]])
+
+    ## check that top track is same as basic plot
+    expect_equivalent(bld_txdb_p1$data, bld_base$data)
+    expect_equivalent(bld_txdb_p1$plot$layers, plt_base$layers)
+
+    ## check that txdb gives transcript IDs as y-axis labels
+    expect_equal(bld_txdb_p2$panel$ranges[[1]]$y.labels,
+                 c("uc002pvg.1", "uc010ycp.1", "uc010ycq.1",
+                   "uc010ycr.1", "uc010ycs.1", "uc002pvh.1",
+                   "uc002pvi.1", "uc002pvj.1"))
+
+    
+    ## create a plot with named transcript track (w/ txdb)
+    expect_silent(plt_orgdb <-
+        splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx, txdb=txdb, orgdb=org.Hs.eg.db))
+    expect_is(plt_orgdb, "Tracks")
+    bld_orgdb_p1 <- ggplot_build(plt_orgdb@plot[[1]])
+    bld_orgdb_p2 <- ggplot_build(plt_orgdb@plot[[2]])
+
+    ## check that top track is same as basic plot
+    expect_equivalent(bld_orgdb_p1$data, bld_base$data)
+    expect_equivalent(bld_orgdb_p1$plot$layers, plt_base$layers)
+
+    ## check that orgdb gives gene symbols as y-axis labels
+    expect_equal(bld_orgdb_p2$panel$ranges[[1]]$y.labels,
+                 c("KLK12", paste0("KLK12_", 1:7)))    
 })
 
-#' #' @param eps a numeric value specifying the number of base pairs around \code{obj} to look
-#' #'        for overlapping gene models, if eps = NULL, then all overlapping gene models are
-#' #'        included (default = 1e4)
-#' #' @param txlist a GRangesList of transcripts or genes which should be queried and
-#' #'        added to the plot if falling within the region of the connected component
-#' #'        (default = NULL)
-#' #' @param txdb a transcript database which can be used to query the transcript IDs
-#' #'        identified from txlist (default = NULL)
-#' #' @param orgdb a database that can be queried using keys obtained from \code{txdb}
-#' #'        to determine corresponding gene symbols (default = NULL)
 
 test_that("splicegrahm accepts title parameter to add title to plot", {
     ## default plot with simple dataset
-    plt <- splicegrahm(simple_cc)
-    bld <- ggplot_build(plt)
+    plt_base <- splicegrahm(simple_cc)
+    bld_base <- ggplot_build(plt_base)
+
+    ## plot with title
+    plt_ttl <- splicegrahm(simple_cc, title = "Simple Title")
+    bld_ttl <- ggplot_build(plt_ttl)
+
+    ## check that title only exists when explicitly specified
+    expect_equal(plt_base$labels$title, "")
+    expect_equal(plt_ttl$labels$title, "Simple Title")
+
+    ## check that after 're-setting' title, plots are same
+    plt_ttl$labels$title <- ""
+    expect_equal(plt_base, plt_ttl)
 })
 
-#' #' @param title a character string title printed at the top of plot (default = "")
