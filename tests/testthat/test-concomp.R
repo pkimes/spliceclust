@@ -12,6 +12,22 @@ test_that("concomp constructor accepts included GRanges data object", {
     ## check that example dataset generates a valid concomp
     expect_silent(klk12_cc <- concomp(klk12_gl))
     expect_is(klk12_cc, "concomp")
+
+    ## check that concomp show method prints expected output
+    expect_output(show(klk12_cc), "concomp object summary:")
+    expect_output(show(klk12_cc), "n sampl: 177")
+    expect_output(show(klk12_cc), "p exons: 13")
+    expect_output(show(klk12_cc), "p juncs: 12")
+
+    ## check that concomp setters/getters work
+    expect_silent(exons(klk12_cc) <- exons(klk12_cc)[1:5])
+    expect_silent(juncs(klk12_cc) <- juncs(klk12_cc)[1:5])
+    expect_silent(exonValues(klk12_cc) <- exonValues(klk12_cc)[1:5, ])
+    expect_silent(juncValues(klk12_cc) <- juncValues(klk12_cc)[1:5, ])
+    expect_true(length(exons(klk12_cc)) == 5)
+    expect_true(length(juncs(klk12_cc)) == 5)
+    expect_true(all(dim(exonValues(klk12_cc)) == c(5, 177)))
+    expect_true(all(dim(juncValues(klk12_cc)) == c(5, 177)))
 })
 
 
