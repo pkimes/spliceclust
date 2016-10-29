@@ -71,7 +71,7 @@ NULL
     if (is.null(txlist)) {
         tx_plot <- NULL
     } else {
-        tx_plot <- find_annotations(obj, txlist, txdb, orgdb, eps)
+        tx_plot <- find_annotations(obj, txlist, txdb, orgdb, eps = NULL)
     }
     
 

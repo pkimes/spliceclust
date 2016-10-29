@@ -241,26 +241,52 @@ NULL
                           flip_neg = flip_neg, use_blk = use_blk,
                           txlist = txlist, txdb = txdb, orgdb = orgdb)
 
-        
-        ## add % var expl to each panel, determine where to add text
-        xtxt <- 0
-        if (flip_neg && all(strand(exons(obj)) == "-")) {
-            xtxt <- max(pl$data$xmax)
-        } else if (genomic) {
-            xtxt <- min(pl$data$xmin)
+        if (is(pl, "Tracks")) {
+            
+            ## add % var expl to each panel, determine where to add text
+            xtxt <- 0
+            if (flip_neg && all(strand(exons(obj)) == "-")) {
+                xtxt <- max(pl@plot[[1]]$data$xmax)
+            } else if (genomic) {
+                xtxt <- min(pl@plot[[1]]$data$xmin)
+            }
+
+            ann_text <- data.frame(xmin = xtxt, xmax = xtxt, ymin = 0, ymax = 0,
+                                   x = xtxt, y = 2.1, lab = pvar_ej, value = 0,
+                                   variable = paste0("Dir", 1:length(pvar_ej)))
+
+            new_geom <- geom_text(data = ann_text, 
+                                  aes(x = x, y = y, label = lab),
+                                  size = 3, family = "mono",
+                                  color = ifelse(use_blk, "white", "black"),
+                                  hjust = 0, vjust = 0)
+            ## return final plot
+            pl@plot[[1]] <- pl@plot[[1]] + new_geom
+            pl@grobs[[1]] <- pl@grobs[[1]] + new_geom
+            
+        } else {
+            ## add % var expl to each panel, determine where to add text
+            xtxt <- 0
+            if (flip_neg && all(strand(exons(obj)) == "-")) {
+                xtxt <- max(pl$data$xmax)
+            } else if (genomic) {
+                xtxt <- min(pl$data$xmin)
+            }
+
+            ann_text <- data.frame(xmin = xtxt, xmax = xtxt, ymin = 0, ymax = 0,
+                                   x = xtxt, y = 2.1, lab = pvar_ej, value = 0,
+                                   variable = paste0("Dir", 1:length(pvar_ej)))
+
+            ## return final plot
+            pl <- pl + geom_text(data = ann_text, 
+                                 aes(x = x, y = y, label = lab),
+                                 size = 3, family = "mono",
+                                 color = ifelse(use_blk, "white", "black"),
+                                 hjust = 0, vjust = 0)
         }
 
-        ann_text <- data.frame(xmin = xtxt, xmax = xtxt, ymin = 0, ymax = 0,
-                               x = xtxt, y = 2.1, lab = pvar_ej, value = 0,
-                               variable = paste0("Dir", 1:length(pvar_ej)))
-
-        ## return final plot
-        pl + geom_text(data = ann_text, 
-                       aes(x = x, y = y, label = lab),
-                       size = 3, family = "mono",
-                       color = ifelse(use_blk, "white", "black"),
-                       hjust = 0, vjust = 0)
-    }    
+        pl
+    }
 }
 
 #' @keywords internal
