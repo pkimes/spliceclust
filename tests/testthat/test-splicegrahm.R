@@ -8,9 +8,6 @@ library("TxDb.Hsapiens.UCSC.hg19.knownGene")
 library("BSgenome.Hsapiens.UCSC.hg19")
 library("org.Hs.eg.db")
 
-##library("testthat")
-##devtools::load_all()
-
 
 ## ##############################################################################
 ## prepare reference hg19/hg37 genome
@@ -62,8 +59,8 @@ test_that("splicegrahm default call works", {
     bld <- ggplot_build(plt)
 
     ## check ranges of plot 
-    expect_equal((-1) * bld$panel$ranges[[1]]$x.range[2], 51028700)
-    expect_equal((-1) * bld$panel$ranges[[1]]$x.range[1], 51035300)
+    expect_equal((-1) * bld$panel$ranges[[1]]$x.range[2], 51532000 - 300)
+    expect_equal((-1) * bld$panel$ranges[[1]]$x.range[1], 51538000 + 300)
 
     ## determine layer geoms
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
