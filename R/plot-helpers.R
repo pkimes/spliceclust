@@ -356,28 +356,3 @@ find_annotations <- function(obj, txlist, txdb, orgdb, eps) {
     tx_plot
 }
 
-
-
-
-
-##
-## alternatively, can shrink using e.g. maxgap = 100, with
-## shrink.fun <- shrinkageFun(gaps(gr_e), max.gap = 100)
-## new_gr_e <- shrink.fun(gr_e)
-##  shrinkageFun uses findIntervals(x, y) to determine how many introns are to the left - clever
-##
-
-## alternative approach for find_annotations
-##
-## cands <- concomp2name(obj, txlist, txdb, orgdb)
-## cand_idx <- cands[, 1]
-## cand_names <- unique(cands[, 2])[1]
-## eval(bquote(
-##     annot_track <- ggplot(txdb) +
-##         geom_alignment(which = genesymbol[.(cand_names)]) +
-##             theme_bw()
-##     ))
-## list(tx_match = tx_match, annot_track = annot_track)
-
-
-
