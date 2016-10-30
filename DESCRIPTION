@@ -1,7 +1,7 @@
 Package: spliceclust
 Type: Package
 Title: Visualization and Clustering of Spliced Components
-Version: 1.1.1
+Version: 1.1.2
 Date: 2016-10-30
 Author: Patrick Kimes
 Maintainer: <patrick.kimes@gmail.com>
@@ -22,6 +22,7 @@ Imports:
 Suggests:
     knitr,
     testthat,
+    AnnotationDbi (>= 1.35.4),
     TxDb.Hsapiens.UCSC.hg19.knownGene,
     BSgenome.Hsapiens.UCSC.hg19,
     org.Hs.eg.db
