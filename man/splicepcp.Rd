@@ -34,9 +34,6 @@ to run left to right (default = TRUE)}
 \item{imodel}{a logical whether to include the connected component plot generated
 by splicegralp or splicegrahm to the plot (default = TRUE)}
 
-\item{j_incl}{a logical whether to include the junction information as a
-parallel coordinates track (default = FALSE)}
-
 \item{eps}{a numeric value specifying the number of base pairs around \code{obj} to look
 for overlapping gene models, if eps = NULL, then all overlapping gene models are
 included (default = 1e4)}

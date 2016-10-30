@@ -6,14 +6,13 @@
 #' @param vals_j matrix of junction coverages
 #' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param p_j number of junctions in \code{gr_j}
-#' @param j_incl see \code{splicegrahm} documentation
 #' @param log_base see \code{splicegrahm} documentation
 #' @param log_shift see \code{splicegrahm} documentation
 #' @param bin see \code{splicegrahm} documentation
 #'
 #' @keywords internal
 #' @author Patrick Kimes
-sp_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
+sp_create <- function(gr_e, gr_j, vals_e, vals_j,
                       log_base, log_shift, bin, n, p_e, p_j) {
 
     ##exon expression data
