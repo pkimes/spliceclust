@@ -85,21 +85,6 @@ setGeneric("splicepcp",
 
 ## ###################################################################
 ## ###################################################################
-## analysis methods
-
-#' cluster
-#' cluster object and return class labels
-#' @export
-#' @docType methods
-#' @param obj object which can be clustered
-#' @keywords internal
-setGeneric("cluster",
-           function(obj, ...) standardGeneric("cluster"))
-
-
-
-## ###################################################################
-## ###################################################################
 ## getter methods
 
 #' exons

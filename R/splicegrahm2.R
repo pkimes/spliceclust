@@ -146,6 +146,11 @@ NULL
         gr_e2 <- adj_out$gr_e
         gr_j2 <- adj_out$gr_j
         annot_track <- adj_out$annot_track
+        genomic <- adj_out$genomic
+        if (genomic) {
+            warning("Using 'genomic = TRUE' since exons occupy more than specified 'ex_use' ",
+                    "proportion of plot in genomic coordinates. No need to squish.")
+        }
     }
     
 
@@ -180,11 +185,12 @@ NULL
     sg_df2 <- sg_create(gr_e2, gr_j2, vals_e2, vals_j2, j_incl,
                         log_base, log_shift, bin, n2, p_j2, mirror,
                         ifelse(same_scale, n_max, n2))
-
-    v_max <- max(length(levels(sg_df1$value)), length(levels(sg_df2$value))) - 1
-    levels(sg_df1$value) <- 0:v_max
-    levels(sg_df2$value) <- 0:v_max
-
+    if (bin) {
+        v_max <- max(length(levels(sg_df1$value)), length(levels(sg_df2$value))) - 1
+        levels(sg_df1$value) <- 0:v_max
+        levels(sg_df2$value) <- 0:v_max
+    }
+    
     ## 2. pass whether legends should be plotting for sg_drawbase based on whether it's
     ##    the bottom plot in splicegrahm2
     ##

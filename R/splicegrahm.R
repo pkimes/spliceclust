@@ -89,12 +89,6 @@ NULL
     dna_len <- width(range(gr_e))
     rna_len <- sum(width(gr_e))
     
-    n <- ncol(vals_e)
-    p_e <- nrow(vals_e)
-    p_j <- nrow(vals_j)
-    dna_len <- width(range(gr_e))
-    rna_len <- sum(width(gr_e))
-
     ##determine overlapping annotations
     if (is.null(txlist)) {
         tx_plot <- NULL
@@ -118,6 +112,11 @@ NULL
         gr_e <- adj_out$gr_e
         gr_j <- adj_out$gr_j
         annot_track <- adj_out$annot_track
+        genomic <- adj_out$genomic
+        if (genomic) {
+            warning("Using 'genomic = TRUE' since exons occupy more than specified 'ex_use' ",
+                    "proportion of plot in genomic coordinates. No need to squish.")
+        }
     }
     
 
@@ -148,7 +147,10 @@ NULL
     ##create dataframe for plotting
     sg_df <- sg_create(gr_e, gr_j, vals_e, vals_j, j_incl,
                       log_base, log_shift, bin, n, p_j)
-
+    if (bin) {
+        v_max <- length(levels(sg_df$value)) - 1
+        levels(sg_df$value) <- 0:v_max
+    }
     
     ##plot on genomic coordinates
     sg_obj <- sg_drawbase(sg_df, use_blk, j_incl, genomic,

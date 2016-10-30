@@ -6,15 +6,13 @@
 #' @param vals_j matrix of junction coverages
 #' @param n number of samples in \code{vals_e}, \code{vals_j}
 #' @param p_j number of junctions in \code{gr_j}
-#' @param j_incl see \code{splicegrahm} documentation
 #' @param log_base see \code{splicegrahm} documentation
 #' @param log_shift see \code{splicegrahm} documentation
-#' @param bin see \code{splicegrahm} documentation
 #'
 #' @keywords internal
 #' @author Patrick Kimes
-sp_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
-                      log_base, log_shift, bin, n, p_e, p_j) {
+sp_create <- function(gr_e, gr_j, vals_e, vals_j,
+                      log_base, log_shift, n, p_e, p_j) {
 
     ##exon expression data
     sp_df <- data.frame(xmin=start(ranges(gr_e)),
@@ -70,12 +68,11 @@ sp_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 #' @param highlight see \code{splicepcp} documentation
 #' @param genomic see \code{splicepcp} documentation
 #' @param log_base see \code{splicepcp} documentation
-#' @param bin see \code{splicepcp} documentation
 #' 
 #' @keywords internal
 #' @author Patrick Kimes
 sp_drawbase <- function(sp_df, highlight, genomic,
-                        log_base, bin, gr_e, p_e) {
+                        log_base, gr_e, p_e) {
 
     pal <- plot_colors()
 
@@ -158,8 +155,8 @@ sp_drawmodel <- function(sp_df, gr_e, gr_j, p_j, genomic) {
     ##frame exons if not using black background
     g_mobj <- g_mobj +
         annotate("rect", size=.25,
-                 xmin=start(ranges(gr_e)) - 1,
-                 xmax=end(ranges(gr_e)) + 1,
+                 xmin=start(ranges(gr_e)),
+                 xmax=end(ranges(gr_e)),
                  ymin=-1, ymax=1,
                  alpha=1, color="#3C3C3C", fill=NA)
 

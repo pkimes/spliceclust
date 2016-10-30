@@ -20,8 +20,6 @@
 #'        (default = NULL)
 #' @param imodel a logical whether to include the connected component plot generated
 #'        by splicegralp or splicegrahm to the plot (default = TRUE)
-#' @param j_incl a logical whether to include the junction information as a
-#'        parallel coordinates track (default = FALSE)
 #' @param eps a numeric value specifying the number of base pairs around \code{obj} to look
 #'        for overlapping gene models, if eps = NULL, then all overlapping gene models are
 #'        included (default = 1e4) 
@@ -49,7 +47,7 @@ NULL
 
 .splicepcp.concomp <- function(obj, log_base = 10, log_shift = 1, genomic = TRUE,
                                ex_use = 2/3, flip_neg = TRUE, imodel = TRUE, 
-                               j_incl = FALSE, highlight = NULL, eps = 1e4,
+                               highlight = NULL, eps = 1e4,
                                txlist = NULL, txdb = NULL, orgdb = NULL, ...) {
     
     ##exonValues and juncValues must be specified
@@ -57,7 +55,6 @@ NULL
         stop(paste0("exonValues and juncValues cannot be NULL for splicepcp, \n",
                     "consider using splicegralp instead."))
 
-    
     ##unpack concomp
     gr_e <- exons(obj)
     gr_j <- juncs(obj)
@@ -71,6 +68,15 @@ NULL
     dna_len <- width(range(gr_e))
     rna_len <- sum(width(gr_e))
 
+    ## highlight must be vector of length n
+    if (!is.null(highlight)) {
+        if (length(highlight) != n) {
+            stop("highlight must be a vector of length n.")
+        }
+        if (length(unique(highlight)) > 9) {
+            stop("highlight currently only support up to 9 unique groups.")
+        }
+    }
     
     ##determine overlapping annotations
     if (is.null(txlist)) {
@@ -94,6 +100,11 @@ NULL
         gr_e <- adj_out$gr_e
         gr_j <- adj_out$gr_j
         annot_track <- adj_out$annot_track
+        genomic <- adj_out$genomic
+        if (genomic) {
+            warning("Using 'genomic = TRUE' since exons occupy more than specified 'ex_use' ",
+                    "proportion of plot in genomic coordinates. No need to squish.")
+        }
     }
 
     
@@ -106,13 +117,12 @@ NULL
 
 
     ##construct data.frame
-    sp_df <- sp_create(gr_e, gr_j, vals_e, vals_j, j_incl,
-                       log_base, log_shift, bin, n, p_e, p_j)
-
+    sp_df <- sp_create(gr_e, gr_j, vals_e, vals_j,
+                       log_base, log_shift, n, p_e, p_j)
     
     ## sp_drawbase -- same as sg_drawbase?
     sp_obj <- sp_drawbase(sp_df, highlight, genomic,
-                          log_base, bin, gr_e, p_e)
+                          log_base, gr_e, p_e)
 
     
     ##combine gene model from splicegrahm or splicegralp to plot
