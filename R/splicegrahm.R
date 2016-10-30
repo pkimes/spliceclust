@@ -147,7 +147,10 @@ NULL
     ##create dataframe for plotting
     sg_df <- sg_create(gr_e, gr_j, vals_e, vals_j, j_incl,
                       log_base, log_shift, bin, n, p_j)
-
+    if (bin) {
+        v_max <- length(levels(sg_df$value)) - 1
+        levels(sg_df$value) <- 0:v_max
+    }
     
     ##plot on genomic coordinates
     sg_obj <- sg_drawbase(sg_df, use_blk, j_incl, genomic,
