@@ -272,7 +272,15 @@ test_that("splicegrahm accepts genomic, ex_use input to adjust x-axis scaling", 
     expect_equal(plt_gen[names(plt_gen) != "plot_env"],
                  plt_non_01[names(plt_non_01) != "plot_env"])
 
-    ## add tests for when txlist specified
+    ## check that txlist creates Tracks plot
+    expect_silent(plt_tx_10 <- splicegrahm(simple_cc, genomic = FALSE, ex_use = 1.0,
+                                           txlist = exbytx))
+    expect_is(plt_tx_10, "Tracks")
+
+    ## check that plot is wider since adjustment accounts for gene models from txlist
+    bld_tx_10_p1 <- ggplot_build(plt_tx_10@plot[[1]])
+    width_tx_10 <- diff(bld_tx_10_p1$panel$ranges[[1]]$x.range)
+    expect_gt(width_tx_10, width_non_10)
 })
 
 
