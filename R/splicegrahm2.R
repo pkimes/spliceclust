@@ -146,6 +146,11 @@ NULL
         gr_e2 <- adj_out$gr_e
         gr_j2 <- adj_out$gr_j
         annot_track <- adj_out$annot_track
+        genomic <- adj_out$genomic
+        if (genomic) {
+            warning("Using 'genomic = TRUE' since exons occupy more than specified 'ex_use' ",
+                    "proportion of plot in genomic coordinates. No need to squish.")
+        }
     }
     
 

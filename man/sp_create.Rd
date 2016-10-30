@@ -4,8 +4,7 @@
 \alias{sp_create}
 \title{construct ggplot2 object for plotting}
 \usage{
-sp_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_e,
-  p_j)
+sp_create(gr_e, gr_j, vals_e, vals_j, log_base, log_shift, bin, n, p_e, p_j)
 }
 \arguments{
 \item{gr_e}{\code{GenomicRanges} for exons}
@@ -15,8 +14,6 @@ sp_create(gr_e, gr_j, vals_e, vals_j, j_incl, log_base, log_shift, bin, n, p_e,
 \item{vals_e}{matrix of exon coverages}
 
 \item{vals_j}{matrix of junction coverages}
-
-\item{j_incl}{see \code{splicegrahm} documentation}
 
 \item{log_base}{see \code{splicegrahm} documentation}
 

@@ -71,94 +71,46 @@ concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
     strand(gr_e) <- "*"
     cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
     
+    if (is.null(txlist)) {
+        cand_id <- as.character(cand_idx)
+    } else {
+        cand_id <- names(txlist)[cand_idx]
+    }
+    
     if (is.null(txdb)) {
-        return(cbind(cand_idx,
-                     as.character(cand_idx)))
+        return(data.frame(cand_idx, cand_id, stringsAsFactors=FALSE))
     } else {
         if (length(cand_idx) > 0) {
             if (is.null(orgdb)) {
-                pair <- select(txdb, keys=as.character(cand_idx),
-                               columns="TXNAME", keytype="TXID")$TXNAME
-                return(cbind(cand_idx, pair))
+                suppressMessages(
+                    pair <- select(txdb, keys=cand_id,
+                                   columns="TXNAME", keytype="TXID")$TXNAME
+                    )
+                return(data.frame(cand_idx, pair,
+                                  stringsAsFactors=FALSE))
             } else {
-                gene_id <- select(txdb, keys=as.character(cand_idx),
-                                  columns="GENEID", keytype="TXID")$GENEID
+                suppressMessages(
+                    gene_id <- select(txdb, keys=cand_id,
+                                      columns="GENEID", keytype="TXID")$GENEID
+                    )
                 pair <- rep(NA, length(gene_id))
                 ## ugly way to handle ENTREZID and orgdb mismatch
                 output <- tryCatch({
-                    pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
-                                                    columns="SYMBOL", keytype="ENTREZID")$SYMBOL
+                    suppressMessages(
+                        pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
+                                                        columns="SYMBOL", keytype="ENTREZID")$SYMBOL
+                        )
                 }, error = function(err) {
                     print("there was an error")
-                    return(select(txdb, keys=as.character(cand_idx),
-                                  columns="TXNAME", keytype="TXID")$TXNAME)
+                    return(suppressMessages(select(txdb, keys=cand_id,
+                                                   columns="TXNAME", keytype="TXID")$TXNAME))
                 })
                 if (all(is.na(pair))) { pair <- output }
                 pair[is.na(pair)] <- "NA"
-                return(cbind(cand_idx, pair))
+                return(data.frame(cand_idx, pair, stringsAsFactors=FALSE))
             }
         }
     }
-}
-
-
-
-#' match matrix of diffsplice output with gene or transcript name
-#' 
-#' Function matches \code{data.frame} of diffsplice output to nearest
-#' transcripts using \code{txdb} and \code{txlist}. This is further mapped to
-#' gene names if \code{orgdb} is specified. If \code{orgdb} is not provided,
-#' transcript IDs are returned instead of gene symbols.
-#'
-#' @param obj a \code{data.frame} loaded from \code{\link{readchr}}
-#' @param ichr a numeric value specifying the chromosome number, e.g. 9
-#' @param seqlen a numeric value specifying the sequence length corresponding to the
-#'        chromosome specified in \code{ichr}, e.g. take from \code{seqlen(txdb)}
-#' @param txlist a list of transcripts, e.g. \code{exonsBy(txdb)}
-#' @param txdb a transcript database, e.g. \code{TxDb.Hsapiens.UCSC.hg19.knownGene}
-#'        (default = NULL)
-#' @param orgdb a organism database, e.g. \code{org.Hs.eg.db} (default = NULL)
-#'
-#' @return a \code{data.frame} with connected component IDs and overlapping
-#'         transcript or gene names
-#'
-#' @import GenomicRanges
-#' @export
-#' @author Patrick Kimes
-diffsplice2name <- function(obj, ichr, seqlen, txlist, txdb = NULL, orgdb = NULL) {
-    
-    chr <- obj[obj$kind == "e", ]
-    chr$chr <- paste0("chr", ichr)
-    
-    chr_gl <- makeGRangesFromDataFrame(chr)
-    seqlengths(chr_gl) <- seqlen
-    
-    chr_gl <- split(chr_gl, chr$gIdx)
-
-    matches <- findOverlaps(txlist, chr_gl)
-    cc_matches <- names(chr_gl)[subjectHits(matches)]
-    tx_matches <- as.character(queryHits(matches))
-
-    output <- data.frame("cc_id"=cc_matches,
-                         "tx_id"=tx_matches)
-
-    if (!is.null(txdb)) {
-        tx_nm <- select(txdb, keys=tx_matches,
-                        columns="TXNAME", keytype="TXID")$TXNAME
-        output$tx_nm <- tx_nm
-
-        if (length(tx_matches) > 0 && !is.null(orgdb)) {
-            gene_id <- select(txdb, keys=tx_matches,
-                              columns="GENEID", keytype="TXID")$GENEID
-            pair <- rep(NA, length(gene_id))
-            pair[!is.na(gene_id)] <- select(orgdb, keys=as.character(gene_id[!is.na(gene_id)]),
-                                            columns="SYMBOL", keytype="ENTREZID")$SYMBOL
-            output$gn_id <- gene_id
-            output$gn_nm <- pair
-        }
-    }
-    
-    return(output)
 }
 
 
@@ -308,8 +260,14 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
     
     ##don't squish exons if not needed (should make shrink = 0)
     if (rna_len/dna_len >= ex_use) {
-        ex_use <- rna_len/dna_len
-        base_shift <- 1
+        if(!is.null(tx_plot)) {
+            annot_track <- ggplot() +
+                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                    theme_bw()
+        }
+        return(list(gr_e = gr_e, gr_j = gr_j,
+                    annot_track = annot_track,
+                    genomic = TRUE))
     }
     
     ##shrinkage factor for introns
@@ -349,7 +307,7 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
     }
     
     ## return gr_e, gr_j, annot_track
-    list(gr_e = gr_e, gr_j = gr_j, annot_track = annot_track)
+    list(gr_e = gr_e, gr_j = gr_j, annot_track = annot_track, genomic = FALSE)
 }
 
 
@@ -397,29 +355,4 @@ find_annotations <- function(obj, txlist, txdb, orgdb, eps) {
 
     tx_plot
 }
-
-
-
-
-
-##
-## alternatively, can shrink using e.g. maxgap = 100, with
-## shrink.fun <- shrinkageFun(gaps(gr_e), max.gap = 100)
-## new_gr_e <- shrink.fun(gr_e)
-##  shrinkageFun uses findIntervals(x, y) to determine how many introns are to the left - clever
-##
-
-## alternative approach for find_annotations
-##
-## cands <- concomp2name(obj, txlist, txdb, orgdb)
-## cand_idx <- cands[, 1]
-## cand_names <- unique(cands[, 2])[1]
-## eval(bquote(
-##     annot_track <- ggplot(txdb) +
-##         geom_alignment(which = genesymbol[.(cand_names)]) +
-##             theme_bw()
-##     ))
-## list(tx_match = tx_match, annot_track = annot_track)
-
-
 

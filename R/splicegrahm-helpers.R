@@ -126,7 +126,7 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     if (!is.null(highlight)) {
         hl_tab <- c(1, table(highlight))
         hl_h <- cumsum(hl_tab)
-        k <- length(hl_tab)
+        k <- length(hl_tab) - 1
         
         wrc <- width(range(gr_e))
         minrc <- min(c(start(gr_e), end(gr_e)))
@@ -304,7 +304,7 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
         if (!is.null(highlight)) {
             hl_tab <- c(1, table(highlight))
             hl_h <- cumsum(hl_tab)
-            k <- length(hl_tab)
+            k <- length(hl_tab) - 1
             
             for (i in 1:k) {
                 sg_obj <- sg_obj +
@@ -322,8 +322,10 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
             sg_obj <- sg_obj +
                 annotate("rect", size = .125,
                          xmin = junc_x - junc_w - 1, xmax = junc_x + junc_w + 1,
-                         ymin=iud*((.75 - .125)*s_size + junc_y),
-                         ymax=iud*((n+1+.25)*s_size + junc_y),
+                         ymin=ifelse(mirror, -1*((n+1+.25)*s_size + junc_y),
+                             (.75 - .125)*s_size + junc_y),
+                         ymax=ifelse(mirror, -1*((.75 - .125)*s_size + junc_y),
+                             (n+1+.25)*s_size + junc_y),
                          alpha=1, color=.rgb2hex(pal$col2(1)), fill=NA)
         }
     }
