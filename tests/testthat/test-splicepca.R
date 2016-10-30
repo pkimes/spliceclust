@@ -28,7 +28,6 @@ igStop <- 51532000 + c(1000, 3000, 6000, 2000, 5000, 5000)
 ikind <- c(rep("e", 3), rep("j", 3))
 istr <- "-"
 
-
 ## samples w/ exon/junc coverage random negative binomial 
 samp_cov <- sapply(c(s=0:19),
                    function(x) rnbinom(6, size=1.5, pro=.005),
