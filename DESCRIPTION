@@ -1,7 +1,7 @@
 Package: spliceclust
 Type: Package
 Title: Visualization and Clustering of Spliced Components
-Version: 1.1.4
+Version: 1.1.5
 Date: 2016-10-30
 Author: Patrick Kimes
 Maintainer: <patrick.kimes@gmail.com>
@@ -10,8 +10,9 @@ Description: Visualization tools for coverage/expression along genomic
     across large cohorts of samples.
 License: GPL (>= 2)
 Depends:
-    R (>= 3.2.2)
+    R (>= 3.3.1)
 Imports:
+    AnnotationDbi (>= 1.36.0),
     GGally,
     GenomicRanges,
     IRanges,
