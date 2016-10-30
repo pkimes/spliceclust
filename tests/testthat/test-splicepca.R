@@ -30,7 +30,7 @@ istr <- "-"
 
 ## samples w/ exon/junc coverage random negative binomial 
 samp_cov <- sapply(c(s=0:19),
-                   function(x) rnbinom(6, size=1.5, pro=.005),
+                   function(x) rnbinom(6, size=1.5, pro=.005) + 1,
                    simplify=FALSE)
 
 ## construct concomp

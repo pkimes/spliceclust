@@ -34,7 +34,7 @@ samp_cov1 <- sapply(c(s=0:19),
                     function(x) c(rep(2^((x+1)/2), 3), rep(2^((20-x)/2), 3)),
                     simplify=FALSE)
 samp_cov2 <- sapply(c(s=0:19),
-                    function(x) rnbinom(6, size=1.2, pro=.005),
+                    function(x) rnbinom(6, size=1.2, pro=.005) + 1,
                     simplify=FALSE)
 
 ## construct concomps
@@ -190,7 +190,7 @@ test_that("splicegrahm2 accepts sort_sep parameter", {
 })
 
 
-test_that("splicegrahm accepts sort_idx to maually specify sort order", {
+test_that("splicegrahm2 accepts sort_idx to maually specify sort order", {
     ## plot splicegrahm2 with sort_idx specified
     sidx1 <- c(11:20, 1:10)
     sidx2 <- c(16:20, 15:1)
@@ -214,7 +214,7 @@ test_that("splicegrahm accepts sort_idx to maually specify sort order", {
 
 
 test_that("splicegrahm2 accepts log_base, log_shift to scale heatmap colorscale", {
-    ## plot splicegrahm2 with log_base, log_shift parameters
+    ## plot splicegrahm2 with log_base, log_shift parameters 
     expect_silent(plt_b2s0 <- splicegrahm2(simple_cc1, simple_cc2, j_incl=TRUE,
                                            log_base = 2, log_shift = 0))
     expect_silent(plt_b0s1 <- splicegrahm2(simple_cc1, simple_cc2, j_incl=TRUE,
@@ -236,9 +236,9 @@ test_that("splicegrahm2 accepts log_base, log_shift to scale heatmap colorscale"
     bld_b0s1_2 <- ggplot_build(plt_b0s1_2)
     
     ## check that data used for plotting is same in splicegrahm2, splicegrahm plots 
-    expect_equal(bld_b2s0_p1$plot$data, bld_b2s0_1$plot$data)
-    expect_equal(bld_b2s0_p2$plot$data[, -which(grepl("^y", names(bld_b2s0_p2$plot$data)))],
-                 bld_b2s0_2$plot$data[, -which(grepl("^y", names(bld_b2s0_2$plot$data)))])
+    expect_equivalent(bld_b2s0_p1$plot$data, bld_b2s0_1$plot$data)
+    expect_equivalent(bld_b2s0_p2$plot$data[, -which(grepl("^y", names(bld_b2s0_p2$plot$data)))],
+                      bld_b2s0_2$plot$data[, -which(grepl("^y", names(bld_b2s0_2$plot$data)))])
     
     ## check that data used for plotting is same in splicegrahm2, splicegrahm plots
     ## - fails with expect_equal
