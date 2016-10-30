@@ -322,8 +322,10 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
             sg_obj <- sg_obj +
                 annotate("rect", size = .125,
                          xmin = junc_x - junc_w - 1, xmax = junc_x + junc_w + 1,
-                         ymin=iud*((.75 - .125)*s_size + junc_y),
-                         ymax=iud*((n+1+.25)*s_size + junc_y),
+                         ymin=ifelse(mirror, -1*((n+1+.25)*s_size + junc_y),
+                             (.75 - .125)*s_size + junc_y),
+                         ymax=ifelse(mirror, -1*((.75 - .125)*s_size + junc_y),
+                             (n+1+.25)*s_size + junc_y),
                          alpha=1, color=.rgb2hex(pal$col2(1)), fill=NA)
         }
     }
