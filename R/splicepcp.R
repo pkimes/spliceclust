@@ -55,7 +55,6 @@ NULL
         stop(paste0("exonValues and juncValues cannot be NULL for splicepcp, \n",
                     "consider using splicegralp instead."))
 
-    
     ##unpack concomp
     gr_e <- exons(obj)
     gr_j <- juncs(obj)
@@ -69,6 +68,15 @@ NULL
     dna_len <- width(range(gr_e))
     rna_len <- sum(width(gr_e))
 
+    ## highlight must be vector of length n
+    if (!is.null(highlight)) {
+        if (length(highlight) != n) {
+            stop("highlight must be a vector of length n.")
+        }
+        if (length(unique(highlight)) > 9) {
+            stop("highlight currently only support up to 9 unique groups.")
+        }
+    }
     
     ##determine overlapping annotations
     if (is.null(txlist)) {
@@ -92,6 +100,11 @@ NULL
         gr_e <- adj_out$gr_e
         gr_j <- adj_out$gr_j
         annot_track <- adj_out$annot_track
+        genomic <- adj_out$genomic
+        if (genomic) {
+            warning("Using 'genomic = TRUE' since exons occupy more than specified 'ex_use' ",
+                    "proportion of plot in genomic coordinates. No need to squish.")
+        }
     }
 
     

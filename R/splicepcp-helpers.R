@@ -157,8 +157,8 @@ sp_drawmodel <- function(sp_df, gr_e, gr_j, p_j, genomic) {
     ##frame exons if not using black background
     g_mobj <- g_mobj +
         annotate("rect", size=.25,
-                 xmin=start(ranges(gr_e)) - 1,
-                 xmax=end(ranges(gr_e)) + 1,
+                 xmin=start(ranges(gr_e)),
+                 xmax=end(ranges(gr_e)),
                  ymin=-1, ymax=1,
                  alpha=1, color="#3C3C3C", fill=NA)
 
