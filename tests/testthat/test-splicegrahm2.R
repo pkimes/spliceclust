@@ -207,9 +207,9 @@ test_that("splicegrahm2 accepts sort_idx to maually specify sort order", {
     bld_2 <- ggplot_build(plt_2)
     
     ## check that data used for plotting is same in splicegrahm2, splicegrahm plots 
-    expect_equal(bld_p1$plot$data, bld_1$plot$data)
-    expect_equal(bld_p2$plot$data[, -which(grepl("^y", names(bld_p2$plot$data)))],
-                 bld_2$plot$data[, -which(grepl("^y", names(bld_2$plot$data)))])
+    expect_equivalent(bld_p1$plot$data, bld_1$plot$data)
+    expect_equivalent(bld_p2$plot$data[, -which(grepl("^y", names(bld_p2$plot$data)))],
+                      bld_2$plot$data[, -which(grepl("^y", names(bld_2$plot$data)))])
 })
 
 
