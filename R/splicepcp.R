@@ -118,15 +118,11 @@ NULL
 
     ##construct data.frame
     sp_df <- sp_create(gr_e, gr_j, vals_e, vals_j,
-                       log_base, log_shift, bin, n, p_e, p_j)
-    if (bin) {
-        v_max <- length(levels(sp_df$value)) - 1
-        levels(sp_df$value) <- 0:v_max
-    }
+                       log_base, log_shift, n, p_e, p_j)
     
     ## sp_drawbase -- same as sg_drawbase?
     sp_obj <- sp_drawbase(sp_df, highlight, genomic,
-                          log_base, bin, gr_e, p_e)
+                          log_base, gr_e, p_e)
 
     
     ##combine gene model from splicegrahm or splicegralp to plot

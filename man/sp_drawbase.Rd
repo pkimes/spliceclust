@@ -4,7 +4,7 @@
 \alias{sp_drawbase}
 \title{construct base ggplot2 object for splicegrahm plot}
 \usage{
-sp_drawbase(sp_df, highlight, genomic, log_base, bin, gr_e, p_e)
+sp_drawbase(sp_df, highlight, genomic, log_base, gr_e, p_e)
 }
 \arguments{
 \item{sp_df}{data.frame output from \code{sp_create}}
@@ -14,8 +14,6 @@ sp_drawbase(sp_df, highlight, genomic, log_base, bin, gr_e, p_e)
 \item{genomic}{see \code{splicepcp} documentation}
 
 \item{log_base}{see \code{splicepcp} documentation}
-
-\item{bin}{see \code{splicepcp} documentation}
 
 \item{gr_e}{\code{GenomicRanges} for exons}
 
