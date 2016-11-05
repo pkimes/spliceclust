@@ -67,7 +67,7 @@
 #' @author Patrick Kimes
 concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
     
-    gr_e <- exons(obj)
+    gr_e <- eRanges(obj)
     strand(gr_e) <- "*"
     cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
     
@@ -340,7 +340,7 @@ find_annotations <- function(obj, txlist, txdb, orgdb, eps) {
         ##take tx_match and compare if lies outside
         if (!is.null(eps)) {
             tx_ranges <- unlist(range(tx_match))
-            obj_range <- range(exons(obj))
+            obj_range <- range(eRanges(obj))
             tx_match <- tx_match[start(tx_ranges) > start(obj_range) - eps &
                                      end(tx_ranges) < end(obj_range) + eps]
         }

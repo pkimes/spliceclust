@@ -1,9 +1,9 @@
 
 .show.concomp <- function(object) {
     cat("\n concomp object summary: \n")
-    cat(paste0("    n sampl: ", ncol(exonValues(object)), "\n"))
-    cat(paste0("    p exons: ", length(exons(object)), "\n"))
-    cat(paste0("    p juncs: ", length(juncs(object)), "\n"))
+    cat(paste0("    n sampl: ", ncol(eCoverage(object)), "\n"))
+    cat(paste0("    p exons: ", length(eRanges(object)), "\n"))
+    cat(paste0("    p juncs: ", length(jRanges(object)), "\n"))
 }
 
 

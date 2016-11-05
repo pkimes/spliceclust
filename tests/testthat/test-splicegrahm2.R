@@ -54,14 +54,14 @@ simple_df3 <- data.frame(chr=ichr, seqlengths=iseqlengths,
 simple_cc3 <- concomp(simple_df3)
 
 ## fix corresponding reference genomes
-seqinfo(exons(simple_cc1)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc1))]
-seqinfo(juncs(simple_cc1)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc1))]
+seqinfo(eRanges(simple_cc1)) <- seqinfo(exbytx)[seqlevels(eRanges(simple_cc1))]
+seqinfo(jRanges(simple_cc1)) <- seqinfo(exbytx)[seqlevels(jRanges(simple_cc1))]
 
-seqinfo(exons(simple_cc2)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc2))]
-seqinfo(juncs(simple_cc2)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc2))]
+seqinfo(eRanges(simple_cc2)) <- seqinfo(exbytx)[seqlevels(eRanges(simple_cc2))]
+seqinfo(jRanges(simple_cc2)) <- seqinfo(exbytx)[seqlevels(jRanges(simple_cc2))]
 
-seqinfo(exons(simple_cc3)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc3))]
-seqinfo(juncs(simple_cc3)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc3))]
+seqinfo(eRanges(simple_cc3)) <- seqinfo(exbytx)[seqlevels(eRanges(simple_cc3))]
+seqinfo(jRanges(simple_cc3)) <- seqinfo(exbytx)[seqlevels(jRanges(simple_cc3))]
 
 
 ## ##############################################################################

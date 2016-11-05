@@ -37,10 +37,10 @@ NULL
     mcols(gr_j) <- NULL
     
     new("concomp",
-        exons = gr_e,
-        juncs = gr_j,
-        exonValues = as.matrix(vals_e),
-        juncValues = as.matrix(vals_j))
+        eRanges = gr_e,
+        jRanges = gr_j,
+        eCoverage = as.matrix(vals_e),
+        jCoverage = as.matrix(vals_j))
 }
 
 
@@ -73,10 +73,10 @@ NULL
     }
         
     new("concomp",
-        exons = gr_e,
-        juncs = gr_j,
-        exonValues = vals_e,
-        juncValues = vals_j)
+        eRanges = gr_e,
+        jRanges = gr_j,
+        eCoverage = vals_e,
+        jCoverage = vals_j)
 }
 
 

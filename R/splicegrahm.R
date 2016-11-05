@@ -70,17 +70,17 @@ NULL
                                  use_blk = FALSE, eps = 1e4, txlist = NULL,
                                  txdb = NULL, orgdb = NULL, title="", ...) {
 
-    ##exonValues and juncValues must be specified
-    if (is.null(exonValues(obj)) || is.null(juncValues(obj)))
-        stop(paste0("exonValues and juncValues cannot be NULL for splicegrahm, \n",
+    ## eCoverage and jCoverage must be specified
+    if (is.null(eCoverage(obj)) || is.null(jCoverage(obj)))
+        stop(paste0("eCoverage and jCoverage cannot be NULL for splicegrahm, \n",
                     "consider using splicegralp instead."))
 
     
     ##unpack concomp
-    gr_e <- exons(obj)
-    gr_j <- juncs(obj)
-    vals_e <- exonValues(obj)
-    vals_j <- juncValues(obj)
+    gr_e <- eRanges(obj)
+    gr_j <- jRanges(obj)
+    vals_e <- eCoverage(obj)
+    vals_j <- jCoverage(obj)
     
     ##dataset dimension
     n <- ncol(vals_e)

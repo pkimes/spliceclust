@@ -3,31 +3,30 @@
 \docType{class}
 \name{concomp-class}
 \alias{concomp-class}
-\alias{exonValues,concomp-method}
-\alias{exonValues<-,concomp-method}
-\alias{exons,concomp-method}
-\alias{exons<-,concomp-method}
-\alias{juncValues,concomp-method}
-\alias{juncValues<-,concomp-method}
-\alias{juncs,concomp-method}
-\alias{juncs<-,concomp-method}
+\alias{eCoverage,concomp-method}
+\alias{eCoverage<-,concomp-method}
+\alias{eRanges,concomp-method}
+\alias{eRanges<-,concomp-method}
+\alias{jCoverage,concomp-method}
+\alias{jRanges,concomp-method}
+\alias{jRanges<-,concomp-method}
 \title{connected component object}
 \usage{
-\S4method{exons}{concomp}(obj)
+\S4method{eRanges}{concomp}(obj)
 
-\S4method{juncs}{concomp}(obj)
+\S4method{jRanges}{concomp}(obj)
 
-\S4method{exonValues}{concomp}(obj)
+\S4method{eCoverage}{concomp}(obj)
 
-\S4method{juncValues}{concomp}(obj)
+\S4method{jCoverage}{concomp}(obj)
 
-\S4method{exons}{concomp}(obj) <- value
+\S4method{eRanges}{concomp}(obj) <- value
 
-\S4method{juncs}{concomp}(obj) <- value
+\S4method{jRanges}{concomp}(obj) <- value
 
-\S4method{exonValues}{concomp}(obj) <- value
+\S4method{eCoverage}{concomp}(obj) <- value
 
-\S4method{juncValues}{concomp}(obj) <- value
+\S4method{jRanges}{concomp}(obj) <- value
 }
 \arguments{
 \item{obj}{a \code{concomp} object}
@@ -39,39 +38,39 @@ S4 class encapsulating exon and junction
 information for single connected component
 }
 \details{
-The columns of \code{exonValues} and \code{juncValues} correspond
+The columns of \code{eCoverage} and \code{jCoverage} correspond
 to individual samples or experiments, and should be of equal length.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{exons}: get \code{exons} slot
+\item \code{eRanges}: get \code{eRanges} slot
 
-\item \code{juncs}: get \code{juncs} slot
+\item \code{jRanges}: get \code{jRanges} slot
 
-\item \code{exonValues}: get \code{exonValues} slot
+\item \code{eCoverage}: get \code{eCoverage} slot
 
-\item \code{juncValues}: get \code{juncValues} slot
+\item \code{jCoverage}: get \code{jCoverage} slot
 
-\item \code{exons<-}: set \code{exons} slot
+\item \code{eRanges<-}: set \code{eRanges} slot
 
-\item \code{juncs<-}: set \code{juncs} slot
+\item \code{jRanges<-}: set \code{jRanges} slot
 
-\item \code{exonValues<-}: set \code{exonValues} slot
+\item \code{eCoverage<-}: set \code{eCoverage} slot
 
-\item \code{juncValues<-}: set \code{juncValues} slot
+\item \code{jRanges<-}: set \code{jRanges} slot
 }}
 \section{Slots}{
 
 \describe{
-\item{\code{exons}}{a \code{GRanges} object containing the exonic information}
+\item{\code{eRanges}}{a \code{GRanges} object containing the exonic information}
 
-\item{\code{juncs}}{a \code{GRanges} object containing the junction information}
+\item{\code{jRanges}}{a \code{GRanges} object containing the junction information}
 
-\item{\code{exonValues}}{a matrix of exon coverage values, e.g. RPKM, with
+\item{\code{eCoverage}}{a matrix of exon coverage values, e.g. RPKM, with
 number of rows equal to the length of \code{exons}, or \code{NULL}
 if not available}
 
-\item{\code{juncValues}}{a matrix of junction coverage values, e.g. number of
+\item{\code{jCoverage}}{a matrix of junction coverage values, e.g. number of
 spanning reads, with number of rows equal to the length of
 \code{juncs}, or \code{NULL} if not available}
 }}

@@ -42,8 +42,8 @@ simple_df <- data.frame(chr=ichr, seqlengths=iseqlengths,
 simple_cc <- concomp(simple_df)
 
 ## fix corresponding reference genomes
-seqinfo(exons(simple_cc)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc))]
-seqinfo(juncs(simple_cc)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc))]
+seqinfo(eRanges(simple_cc)) <- seqinfo(exbytx)[seqlevels(eRanges(simple_cc))]
+seqinfo(jRanges(simple_cc)) <- seqinfo(exbytx)[seqlevels(jRanges(simple_cc))]
 
 
 ## ##############################################################################
@@ -70,7 +70,7 @@ test_that("splicepcp default call works", {
     expect_equal(sum(layers_p1 == "GeomSegment"), 1)
 
     ## check that gene model includes one GeomPaths is drawn per junction
-    expect_equal(sum(layers_p2 == "GeomPath"), length(juncs(simple_cc)))
+    expect_equal(sum(layers_p2 == "GeomPath"), length(jRanges(simple_cc)))
 
     ## check that gene model includes two GeomRects for exons and outlines
     expect_equal(sum(layers_p2 == "GeomRect"), 2)
