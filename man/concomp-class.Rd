@@ -8,6 +8,7 @@
 \alias{eRanges,concomp-method}
 \alias{eRanges<-,concomp-method}
 \alias{jCoverage,concomp-method}
+\alias{jCoverage<-,concomp-method}
 \alias{jRanges,concomp-method}
 \alias{jRanges<-,concomp-method}
 \title{connected component object}
@@ -26,7 +27,7 @@
 
 \S4method{eCoverage}{concomp}(obj) <- value
 
-\S4method{jRanges}{concomp}(obj) <- value
+\S4method{jCoverage}{concomp}(obj) <- value
 }
 \arguments{
 \item{obj}{a \code{concomp} object}
@@ -57,7 +58,7 @@ to individual samples or experiments, and should be of equal length.
 
 \item \code{eCoverage<-}: set \code{eCoverage} slot
 
-\item \code{jRanges<-}: set \code{jRanges} slot
+\item \code{jCoverage<-}: set \code{jCoverage} slot
 }}
 \section{Slots}{
 
