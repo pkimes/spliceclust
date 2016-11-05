@@ -46,7 +46,7 @@ NULL
 
     ##unpack concomp
     gr_e <- eRanges(obj)
-    gr_j <- eRanges(obj)
+    gr_j <- jRanges(obj)
 
     
     ##dataset dimension
