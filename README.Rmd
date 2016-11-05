@@ -229,27 +229,6 @@ setting `mirror=FALSE`.
 splicegrahm2(klk12_cc, klk12_hnsc_cc, genomic=FALSE, mirror=FALSE)
 ```
 
-This plotting scheme may be useful for comparing two subpopulations from a single dataset.
-Suppose we perform clustering on the LUSC dataset using the `cluster` function implemented
-in the `spliceclust` package. Note that the two clusters differ in their usage of the
-central exon, with a clear difference in expression and splicing at this exon.
-
-```{r, fig.width=12, fig.height=6}
-lbls <- cluster(klk12_cc)
-
-##create connected component with just cluster 2 samples
-klk12_cc2 <- klk12_cc
-exonValues(klk12_cc2) <- exonValues(klk12_cc)[, lbls$junc_labs == 2]
-juncValues(klk12_cc2) <- juncValues(klk12_cc)[, lbls$junc_labs == 2]
-
-##create connected component with just cluster 3 samples
-klk12_cc3 <- klk12_cc
-exonValues(klk12_cc3) <- exonValues(klk12_cc)[, lbls$junc_labs == 3]
-juncValues(klk12_cc3) <- juncValues(klk12_cc)[, lbls$junc_labs == 3]
-
-splicegrahm2(klk12_cc2, klk12_cc3, genomic=FALSE, sort_idx1=6, sort_idx2=6)
-```
-
 While not modified above, the option ``same_scale`` can be used to specify whether
 the two plots should be drawn using the same or separate scale along the y-axis.
 This can be helpful when the two populations are of substantially different sizes.

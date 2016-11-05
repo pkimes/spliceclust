@@ -143,10 +143,6 @@ transcript ID in `txdb` against gene symbols (e.g. in `org.Hs.eg.db`).
     splicegrahm(klk12_cc, genomic = TRUE, j_incl = TRUE, txlist = exbytx,
                 txdb = txdb, orgdb = org.Hs.eg.db)
 
-    ## 'select()' returned 1:1 mapping between keys and columns
-
-    ## 'select()' returned many:1 mapping between keys and columns
-
 ![](README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
 The `splicegrahm` function can now also plot gene models in non-genomic
@@ -159,27 +155,15 @@ within 1000bp of the connected component are included.
     splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
                 txdb = txdb, orgdb = org.Hs.eg.db, eps = NULL)
 
-    ## 'select()' returned 1:1 mapping between keys and columns
-
-    ## 'select()' returned many:1 mapping between keys and columns
-
 ![](README_files/figure-markdown_strict/unnamed-chunk-11-1.png)
 
     splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
                 txdb = txdb, orgdb = org.Hs.eg.db, eps = 1)
 
-    ## 'select()' returned 1:1 mapping between keys and columns
-
-    ## 'select()' returned many:1 mapping between keys and columns
-
 ![](README_files/figure-markdown_strict/unnamed-chunk-12-1.png)
 
     splicegrahm(klk12_cc, genomic = FALSE, j_incl = TRUE, txlist = exbytx,
                 txdb = txdb, orgdb = org.Hs.eg.db, eps = 1000)
-
-    ## 'select()' returned 1:1 mapping between keys and columns
-
-    ## 'select()' returned many:1 mapping between keys and columns
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-13-1.png)
 
@@ -245,10 +229,6 @@ function.
 
     splicepcp(klk12_cc, genomic = TRUE, txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
 
-    ## 'select()' returned 1:1 mapping between keys and columns
-
-    ## 'select()' returned many:1 mapping between keys and columns
-
 ![](README_files/figure-markdown_strict/unnamed-chunk-17-1.png)
 
 The plot includes 3 tracks: 1. log-expression values for each exon or
@@ -280,10 +260,6 @@ for easy comparison to the two `splicegrahm`s.
     splicegrahm2(klk12_cc, klk12_hnsc_cc, genomic=FALSE,
                  txlist = exbytx, txdb = txdb, orgdb = org.Hs.eg.db)
 
-    ## 'select()' returned 1:1 mapping between keys and columns
-
-    ## 'select()' returned many:1 mapping between keys and columns
-
 ![](README_files/figure-markdown_strict/unnamed-chunk-20-1.png)
 
 Alternatively, the bottom plot can be drawn with the same orientation as
@@ -292,28 +268,6 @@ the top plot by setting `mirror=FALSE`.
     splicegrahm2(klk12_cc, klk12_hnsc_cc, genomic=FALSE, mirror=FALSE)
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-21-1.png)
-
-This plotting scheme may be useful for comparing two subpopulations from
-a single dataset. Suppose we perform clustering on the LUSC dataset
-using the `cluster` function implemented in the `spliceclust` package.
-Note that the two clusters differ in their usage of the central exon,
-with a clear difference in expression and splicing at this exon.
-
-    lbls <- cluster(klk12_cc)
-
-    ##create connected component with just cluster 2 samples
-    klk12_cc2 <- klk12_cc
-    exonValues(klk12_cc2) <- exonValues(klk12_cc)[, lbls$junc_labs == 2]
-    juncValues(klk12_cc2) <- juncValues(klk12_cc)[, lbls$junc_labs == 2]
-
-    ##create connected component with just cluster 3 samples
-    klk12_cc3 <- klk12_cc
-    exonValues(klk12_cc3) <- exonValues(klk12_cc)[, lbls$junc_labs == 3]
-    juncValues(klk12_cc3) <- juncValues(klk12_cc)[, lbls$junc_labs == 3]
-
-    splicegrahm2(klk12_cc2, klk12_cc3, genomic=FALSE, sort_idx1=6, sort_idx2=6)
-
-![](README_files/figure-markdown_strict/unnamed-chunk-22-1.png)
 
 While not modified above, the option `same_scale` can be used to specify
 whether the two plots should be drawn using the same or separate scale
@@ -337,58 +291,60 @@ substantially different sizes.
     ## [8] methods   base     
     ## 
     ## other attached packages:
-    ##  [1] spliceclust_0.1.3                      
+    ##  [1] spliceclust_1.1.6                      
     ##  [2] org.Hs.eg.db_3.3.0                     
     ##  [3] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
     ##  [4] BSgenome_1.40.1                        
-    ##  [5] rtracklayer_1.32.1                     
+    ##  [5] rtracklayer_1.32.2                     
     ##  [6] Biostrings_2.40.2                      
-    ##  [7] XVector_0.12.0                         
+    ##  [7] XVector_0.12.1                         
     ##  [8] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
-    ##  [9] GenomicFeatures_1.24.3                 
-    ## [10] AnnotationDbi_1.34.3                   
+    ##  [9] GenomicFeatures_1.24.5                 
+    ## [10] AnnotationDbi_1.36.0                   
     ## [11] Biobase_2.32.0                         
-    ## [12] GenomicRanges_1.24.2                   
-    ## [13] GenomeInfoDb_1.8.1                     
+    ## [12] GenomicRanges_1.24.3                   
+    ## [13] GenomeInfoDb_1.8.7                     
     ## [14] IRanges_2.6.1                          
-    ## [15] S4Vectors_0.10.1                       
+    ## [15] S4Vectors_0.10.3                       
     ## [16] BiocGenerics_0.18.0                    
+    ## [17] rmarkdown_1.1                          
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] httr_1.2.0                    AnnotationHub_2.4.2          
-    ##  [3] splines_3.3.1                 Formula_1.2-1                
-    ##  [5] shiny_0.13.2                  interactiveDisplayBase_1.10.3
-    ##  [7] latticeExtra_0.6-28           RBGL_1.48.1                  
-    ##  [9] Rsamtools_1.24.0              RSQLite_1.0.0                
-    ## [11] lattice_0.20-33               biovizBase_1.20.0            
-    ## [13] chron_2.3-47                  digest_0.6.9                 
-    ## [15] RColorBrewer_1.1-2            colorspace_1.2-6             
-    ## [17] ggbio_1.20.2                  htmltools_0.3.5              
-    ## [19] httpuv_1.3.3                  Matrix_1.2-6                 
-    ## [21] plyr_1.8.4                    OrganismDbi_1.14.1           
-    ## [23] XML_3.98-1.4                  devtools_1.12.0              
-    ## [25] biomaRt_2.28.0                zlibbioc_1.18.0              
-    ## [27] xtable_1.8-2                  scales_0.4.0                 
-    ## [29] BiocParallel_1.6.2            ggplot2_2.1.0                
-    ## [31] withr_1.0.2                   SummarizedExperiment_1.2.3   
-    ## [33] nnet_7.3-12                   crayon_1.3.2                 
-    ## [35] survival_2.39-5               magrittr_1.5                 
-    ## [37] mime_0.4                      memoise_1.0.0                
-    ## [39] evaluate_0.9                  GGally_1.2.0                 
-    ## [41] foreign_0.8-66                graph_1.50.0                 
-    ## [43] BiocInstaller_1.22.3          tools_3.3.1                  
-    ## [45] data.table_1.9.6              formatR_1.4                  
-    ## [47] stringr_1.0.0                 munsell_0.4.3                
-    ## [49] cluster_2.0.4                 ensembldb_1.4.7              
-    ## [51] compiler_3.3.1                grid_3.3.1                   
-    ## [53] RCurl_1.95-4.8                dichromat_2.0-0              
-    ## [55] VariantAnnotation_1.18.1      labeling_0.3                 
-    ## [57] bitops_1.0-6                  rmarkdown_0.9.6              
-    ## [59] testthat_1.0.2                gtable_0.2.0                 
-    ## [61] DBI_0.4-1                     reshape_0.8.5                
-    ## [63] roxygen2_5.0.1                reshape2_1.4.1               
-    ## [65] R6_2.1.2                      GenomicAlignments_1.8.3      
-    ## [67] gridExtra_2.2.1               knitr_1.13                   
-    ## [69] Hmisc_3.17-4                  stringi_1.1.1                
-    ## [71] Rcpp_0.12.5                   rpart_4.1-10                 
-    ## [73] acepack_1.3-3.3
+    ##  [1] httr_1.2.1                    AnnotationHub_2.4.2          
+    ##  [3] splines_3.3.1                 assertthat_0.1               
+    ##  [5] Formula_1.2-1                 shiny_0.14.2                 
+    ##  [7] interactiveDisplayBase_1.10.3 latticeExtra_0.6-28          
+    ##  [9] RBGL_1.48.1                   Rsamtools_1.24.0             
+    ## [11] RSQLite_1.0.0                 lattice_0.20-34              
+    ## [13] biovizBase_1.20.0             chron_2.3-47                 
+    ## [15] digest_0.6.10                 RColorBrewer_1.1-2           
+    ## [17] colorspace_1.2-7              ggbio_1.20.2                 
+    ## [19] htmltools_0.3.5               httpuv_1.3.3                 
+    ## [21] Matrix_1.2-7.1                plyr_1.8.4                   
+    ## [23] OrganismDbi_1.14.1            XML_3.98-1.4                 
+    ## [25] devtools_1.12.0               biomaRt_2.28.0               
+    ## [27] zlibbioc_1.18.0               xtable_1.8-2                 
+    ## [29] scales_0.4.0                  BiocParallel_1.6.6           
+    ## [31] tibble_1.2                    htmlTable_1.7                
+    ## [33] ggplot2_2.1.0                 withr_1.0.2                  
+    ## [35] SummarizedExperiment_1.2.3    nnet_7.3-12                  
+    ## [37] crayon_1.3.2                  survival_2.40-1              
+    ## [39] magrittr_1.5                  mime_0.5                     
+    ## [41] evaluate_0.10                 memoise_1.0.0                
+    ## [43] GGally_1.2.0                  foreign_0.8-67               
+    ## [45] graph_1.50.0                  BiocInstaller_1.24.0         
+    ## [47] tools_3.3.1                   data.table_1.9.6             
+    ## [49] formatR_1.4                   stringr_1.1.0                
+    ## [51] munsell_0.4.3                 cluster_2.0.5                
+    ## [53] ensembldb_1.4.7               compiler_3.3.1               
+    ## [55] grid_3.3.1                    RCurl_1.95-4.8               
+    ## [57] dichromat_2.0-0               VariantAnnotation_1.18.7     
+    ## [59] labeling_0.3                  bitops_1.0-6                 
+    ## [61] testthat_1.0.2                gtable_0.2.0                 
+    ## [63] DBI_0.5-1                     reshape_0.8.6                
+    ## [65] roxygen2_5.0.1                reshape2_1.4.2               
+    ## [67] R6_2.2.0                      GenomicAlignments_1.8.4      
+    ## [69] gridExtra_2.2.1               knitr_1.14                   
+    ## [71] Hmisc_4.0-0                   stringi_1.1.2                
+    ## [73] Rcpp_0.12.7                   rpart_4.1-10                 
+    ## [75] acepack_1.4.1

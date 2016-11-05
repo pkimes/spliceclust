@@ -42,8 +42,8 @@ simple_df <- data.frame(chr=ichr, seqlengths=iseqlengths,
 simple_cc <- concomp(simple_df)
 
 ## fix corresponding reference genomes
-seqinfo(exons(simple_cc)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc))]
-seqinfo(juncs(simple_cc)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc))]
+seqinfo(eRanges(simple_cc)) <- seqinfo(exbytx)[seqlevels(eRanges(simple_cc))]
+seqinfo(jRanges(simple_cc)) <- seqinfo(exbytx)[seqlevels(jRanges(simple_cc))]
 
 
 ## ##############################################################################
@@ -69,7 +69,7 @@ test_that("splicepca default call works", {
 
     ## check that one GeomPaths per junction, per PC (3 by default)
     expect_equal(sum(layers_base == "GeomPath"),
-                 npc * length(juncs(simple_cc)))
+                 npc * length(jRanges(simple_cc)))
     
     ## check that 2 GeomRects drawn: 1 for exons, 1 for panels
     expect_equal(sum(layers_base == "GeomRect"), 2)
@@ -78,7 +78,7 @@ test_that("splicepca default call works", {
     epanels <- bld$data[[1]]$PANEL
     expect_is(epanels, "factor")
     expect_equal(levels(epanels), as.character(1:npc))
-    expect_true(all(table(epanels) == nrow(exons(simple_cc))))
+    expect_true(all(table(epanels) == nrow(eRanges(simple_cc))))
 
     ## check that text labels are included as single geom, 1 text per panel
     lyr_text <- which(layers_base == "GeomText")
@@ -135,8 +135,8 @@ test_that("splicepca PCA decomposition can be modified with npc, pc_sep, ej_w pa
 
     ## check that npc parameter adjusts number of panels shown
     ## check that one GeomPaths per junction, per PC
-    expect_equal(sum(layers_npc2 == "GeomPath"), 2 * length(juncs(simple_cc)))
-    expect_equal(sum(layers_npc6 == "GeomPath"), 6 * length(juncs(simple_cc)))
+    expect_equal(sum(layers_npc2 == "GeomPath"), 2 * length(jRanges(simple_cc)))
+    expect_equal(sum(layers_npc6 == "GeomPath"), 6 * length(jRanges(simple_cc)))
     ## check that exons GeomRect draws exons in npc panel
     expect_equal(levels(bld_npc2$data[[1]]$PANEL), as.character(1:2))
     expect_equal(levels(bld_npc6$data[[1]]$PANEL), as.character(1:6))
@@ -371,8 +371,8 @@ test_that("splicepca accepts plot parameter to determine whether to just return 
     expect_is(plt_vals$pca_j, "prcomp")
 
     ## check that PCA decompositions are different for exons, juncs (no accidental copying)
-    expect_true(all(dim(plt_vals$pca_e$x) == c(20, length(exons(simple_cc)))))
-    expect_true(all(dim(plt_vals$pca_j$x) == c(20, length(juncs(simple_cc)))))
+    expect_true(all(dim(plt_vals$pca_e$x) == c(20, length(eRanges(simple_cc)))))
+    expect_true(all(dim(plt_vals$pca_j$x) == c(20, length(jRanges(simple_cc)))))
     expect_true(any(plt_vals$pca_e$x != plt_vals$pca_j$x))
 })
 

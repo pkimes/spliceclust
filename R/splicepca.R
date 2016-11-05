@@ -65,8 +65,8 @@ NULL
 
     
     ##unpack concomp
-    vals_e <- exonValues(obj)
-    vals_j <- juncValues(obj)
+    vals_e <- eCoverage(obj)
+    vals_j <- jCoverage(obj)
     
     ##dataset dimension
     p_e <- nrow(vals_e)
@@ -245,7 +245,7 @@ NULL
             
             ## add % var expl to each panel, determine where to add text
             xtxt <- 0
-            if (flip_neg && all(strand(exons(obj)) == "-")) {
+            if (flip_neg && all(strand(eRanges(obj)) == "-")) {
                 xtxt <- max(pl@plot[[1]]$data$xmax)
             } else if (genomic) {
                 xtxt <- min(pl@plot[[1]]$data$xmin)
@@ -267,7 +267,7 @@ NULL
         } else {
             ## add % var expl to each panel, determine where to add text
             xtxt <- 0
-            if (flip_neg && all(strand(exons(obj)) == "-")) {
+            if (flip_neg && all(strand(eRanges(obj)) == "-")) {
                 xtxt <- max(pl$data$xmax)
             } else if (genomic) {
                 xtxt <- min(pl$data$xmin)

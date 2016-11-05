@@ -43,8 +43,8 @@ simple_df <- data.frame(chr=ichr, seqlengths=iseqlengths,
 simple_cc <- concomp(simple_df)
 
 ## fix corresponding reference genomes
-seqinfo(exons(simple_cc)) <- seqinfo(exbytx)[seqlevels(exons(simple_cc))]
-seqinfo(juncs(simple_cc)) <- seqinfo(exbytx)[seqlevels(juncs(simple_cc))]
+seqinfo(eRanges(simple_cc)) <- seqinfo(exbytx)[seqlevels(eRanges(simple_cc))]
+seqinfo(jRanges(simple_cc)) <- seqinfo(exbytx)[seqlevels(jRanges(simple_cc))]
 
 
 ## ##############################################################################
@@ -66,7 +66,7 @@ test_that("splicegrahm default call works", {
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
 
     ## check one GeomPaths per junction
-    expect_equal(sum(layers_base == "GeomPath"), length(juncs(simple_cc)))
+    expect_equal(sum(layers_base == "GeomPath"), length(jRanges(simple_cc)))
     
     ## check GeomRects for exon heatmap, exon outlines
     expect_equal(sum(layers_base == "GeomRect"), 2)
@@ -85,7 +85,7 @@ test_that("splicegrahm accepts j_incl to include junction coverage plots", {
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
 
     ## check one GeomPaths per junction
-    expect_equal(sum(layers_base == "GeomPath"), length(juncs(simple_cc)))
+    expect_equal(sum(layers_base == "GeomPath"), length(jRanges(simple_cc)))
     
     ## check GeomRects for exon/junc heatmap, exon outlines, junc outlines
     expect_equal(sum(layers_base == "GeomRect"), 3)
@@ -97,15 +97,15 @@ test_that("splicegrahm accepts j_incl to include junction coverage plots", {
     gp_idx <- which(layers_base == "GeomPath")
     gp_starts <- (-1) * sapply(gp_idx, function(idx) max(bld$data[[idx]]$x))
     gp_ends <- (-1) * sapply(gp_idx, function(idx) min(bld$data[[idx]]$x))
-    expect_equal(start(juncs(simple_cc)), gp_starts)
-    expect_equal(end(juncs(simple_cc)), gp_ends)
+    expect_equal(start(jRanges(simple_cc)), gp_starts)
+    expect_equal(end(jRanges(simple_cc)), gp_ends)
 
     ## check number of rects matchs #exons, #junctions, #heatmap boxes
     gr_idx <- which(layers_base == "GeomRect")
     gr_rows <- sort(sapply(gr_idx, function(idx) nrow(bld$data[[idx]])))
-    expect_equal(gr_rows, sort(c(length(exons(simple_cc)), length(juncs(simple_cc)),
-                                 prod(dim(exonValues(simple_cc))) +
-                                     prod(dim(juncValues(simple_cc))))))
+    expect_equal(gr_rows, sort(c(length(eRanges(simple_cc)), length(jRanges(simple_cc)),
+                                 prod(dim(eCoverage(simple_cc))) +
+                                     prod(dim(jCoverage(simple_cc))))))
 
     ## check heatmap boxes placed in correct positions
     exon_frame_color <- "#3C3C3C"
@@ -113,8 +113,8 @@ test_that("splicegrahm accepts j_incl to include junction coverage plots", {
     gr_dat <- gr_dat[gr_dat$colour == exon_frame_color, ]
     gr_starts <- (-1) * gr_dat$xmin
     gr_ends <- (-1) * gr_dat$xmax
-    expect_equal(start(exons(simple_cc)), gr_starts)
-    expect_equal(end(exons(simple_cc)), gr_ends)
+    expect_equal(start(eRanges(simple_cc)), gr_starts)
+    expect_equal(end(eRanges(simple_cc)), gr_ends)
 
     ## add tests for junction boxes?
     ## add tests for heatmap placement?
@@ -287,13 +287,13 @@ test_that("splicegrahm accepts genomic, ex_use input to adjust x-axis scaling", 
 test_that("splicegrahm accepts flip_neg to adjust whether stranded-ness matters", {
     ## datasets with sequence on '+' or '*' strands
     pos_strand_cc <- simple_cc
-    strand(exons(pos_strand_cc)) <- '+'
-    strand(juncs(pos_strand_cc)) <- '+'
+    strand(eRanges(pos_strand_cc)) <- '+'
+    strand(jRanges(pos_strand_cc)) <- '+'
 
     ## dataset with sequences on '*' strand
     unk_strand_cc <- simple_cc
-    strand(exons(unk_strand_cc)) <- '*'
-    strand(juncs(unk_strand_cc)) <- '*'
+    strand(eRanges(unk_strand_cc)) <- '*'
+    strand(jRanges(unk_strand_cc)) <- '*'
 
     ## simple_cc uses negative strand annotations
     neg_strand_cc <- simple_cc

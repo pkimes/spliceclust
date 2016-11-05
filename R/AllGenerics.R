@@ -87,41 +87,41 @@ setGeneric("splicepcp",
 ## ###################################################################
 ## getter methods
 
-#' exons
-#' return \code{exons} slot
+#' eRanges
+#' return \code{eRanges} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{exons}
+#' @param obj object with slot \code{eRanges}
 #' @keywords internal
-#' @rdname exons
-setGeneric("exons", function(obj) standardGeneric("exons"))
+#' @rdname eRanges
+setGeneric("eRanges", function(obj) standardGeneric("eRanges"))
 
-#' juncs
-#' return \code{juncs} slot
+#' jRanges
+#' return \code{jRanges} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{juncs}
+#' @param obj object with slot \code{jRanges}
 #' @keywords internal
-#' @rdname juncs
-setGeneric("juncs", function(obj) standardGeneric("juncs"))
+#' @rdname jRanges
+setGeneric("jRanges", function(obj) standardGeneric("jRanges"))
 
-#' exonValues
-#' return \code{exonValues} slot
+#' eCoverage
+#' return \code{eCoverage} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{exonValues}
+#' @param obj object with slot \code{eCoverage}
 #' @keywords internal
-#' @rdname exonValues
-setGeneric("exonValues", function(obj) standardGeneric("exonValues"))
+#' @rdname eCoverage
+setGeneric("eCoverage", function(obj) standardGeneric("eCoverage"))
 
-#' juncValues
-#' return \code{juncValues} slot
+#' jCoverage
+#' return \code{jCoverage} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{juncValues}
+#' @param obj object with slot \code{jCoverage}
 #' @keywords internal
-#' @rdname juncValues
-setGeneric("juncValues", function(obj) standardGeneric("juncValues"))
+#' @rdname jCoverage
+setGeneric("jCoverage", function(obj) standardGeneric("jCoverage"))
 
 
 
@@ -129,38 +129,38 @@ setGeneric("juncValues", function(obj) standardGeneric("juncValues"))
 ## ###################################################################
 ## setter methods
 
-#' exons replace
-#' replace \code{exons} slot
+#' eRanges replace
+#' replace \code{eRanges} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{exons}
+#' @param obj object with slot \code{eRanges}
 #' @keywords internal
-#' @rdname exons-replace
-setGeneric("exons<-", function(obj, ..., value) standardGeneric("exons<-"))
+#' @rdname eRanges-replace
+setGeneric("eRanges<-", function(obj, ..., value) standardGeneric("eRanges<-"))
 
-#' juncs replace
-#' replace \code{juncs} slot
+#' jRanges replace
+#' replace \code{jRanges} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{juncs}
+#' @param obj object with slot \code{jRanges}
 #' @keywords internal
-#' @rdname juncs-replace
-setGeneric("juncs<-", function(obj, ..., value) standardGeneric("juncs<-"))
+#' @rdname jRanges-replace
+setGeneric("jRanges<-", function(obj, ..., value) standardGeneric("jRanges<-"))
 
-#' exonValues replace
-#' replace \code{exonValues} slot
+#' eCoverage replace
+#' replace \code{eCoverage} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{exonValues}
+#' @param obj object with slot \code{eCoverage}
 #' @keywords internal
-#' @rdname exonValues-replace
-setGeneric("exonValues<-", function(obj, ..., value) standardGeneric("exonValues<-"))
+#' @rdname eCoverage-replace
+setGeneric("eCoverage<-", function(obj, ..., value) standardGeneric("eCoverage<-"))
 
-#' juncValues replace
-#' replace \code{juncValues} slot
+#' jCoverage replace
+#' replace \code{jCoverage} slot
 #' @export
 #' @docType methods
-#' @param obj object with slot \code{juncValues}
+#' @param obj object with slot \code{jCoverage}
 #' @keywords internal
-#' @rdname juncValues-replace
-setGeneric("juncValues<-", function(obj, ..., value) standardGeneric("juncValues<-"))
+#' @rdname jCoverage-replace
+setGeneric("jCoverage<-", function(obj, ..., value) standardGeneric("jCoverage<-"))

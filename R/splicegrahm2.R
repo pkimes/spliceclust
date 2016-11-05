@@ -79,10 +79,10 @@ NULL
                                   txlist = NULL, txdb = NULL, orgdb = NULL, title="",
                                   mirror = TRUE, same_scale = TRUE, ...) {
 
-    ##exonValues and juncValues must be specified
-    if (is.null(exonValues(obj1)) || is.null(juncValues(obj1)) ||
-        is.null(exonValues(obj2)) || is.null(juncValues(obj2)))
-        stop(paste0("exonValues and juncValues cannot be NULL for splicegrahm2, \n",
+    ## eCoverage and jCoverage must be specified
+    if (is.null(eCoverage(obj1)) || is.null(jCoverage(obj1)) ||
+        is.null(eCoverage(obj2)) || is.null(jCoverage(obj2)))
+        stop(paste0("eCoverage and jCoverage cannot be NULL for splicegrahm2, \n",
                     "consider using splicegralp instead."))
 
 
@@ -91,20 +91,20 @@ NULL
     ## ########################################
 
     ##unpack and compute dimensions for concomp 1
-    gr_e1 <- exons(obj1)
-    gr_j1 <- juncs(obj1)
-    vals_e1 <- exonValues(obj1)
-    vals_j1 <- juncValues(obj1)
+    gr_e1 <- eRanges(obj1)
+    gr_j1 <- jRanges(obj1)
+    vals_e1 <- eCoverage(obj1)
+    vals_j1 <- jCoverage(obj1)
     n1 <- ncol(vals_e1)
     p_e1 <- nrow(vals_e1)
     p_j1 <- nrow(vals_j1)
     
 
     ##unpack and compute dimensions for concomp 2
-    gr_e2 <- exons(obj2)
-    gr_j2 <- juncs(obj2)
-    vals_e2 <- exonValues(obj2)
-    vals_j2 <- juncValues(obj2)
+    gr_e2 <- eRanges(obj2)
+    gr_j2 <- jRanges(obj2)
+    vals_e2 <- eCoverage(obj2)
+    vals_j2 <- jCoverage(obj2)
     n2 <- ncol(vals_e2)
     p_e2 <- nrow(vals_e2)
     p_j2 <- nrow(vals_j2)
@@ -113,8 +113,8 @@ NULL
     n_max <- max(n1, n2)
     
     ##create single concomp with both ranges
-    gr_e <- c(exons(obj1), exons(obj2))
-    gr_j <- c(juncs(obj1), juncs(obj2))
+    gr_e <- c(eRanges(obj1), eRanges(obj2))
+    gr_j <- c(jRanges(obj1), jRanges(obj2))
     strand(gr_e) <- "*"
     strand(gr_j) <- "*"
     obj <- concomp(GRangesList("e"=gr_e, "j"=gr_j))
@@ -138,11 +138,11 @@ NULL
                     theme_bw()
         }
     } else {
-        adj_out <- adj_ranges(gr_e1, gr_j1, tx_plot, ex_use, exons(obj))
+        adj_out <- adj_ranges(gr_e1, gr_j1, tx_plot, ex_use, eRanges(obj))
         gr_e1 <- adj_out$gr_e
         gr_j1 <- adj_out$gr_j
 
-        adj_out <- adj_ranges(gr_e2, gr_j2, tx_plot, ex_use, exons(obj))
+        adj_out <- adj_ranges(gr_e2, gr_j2, tx_plot, ex_use, eRanges(obj))
         gr_e2 <- adj_out$gr_e
         gr_j2 <- adj_out$gr_j
         annot_track <- adj_out$annot_track

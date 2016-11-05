@@ -1,5 +1,5 @@
 
-## construct union class to allow for empty exonValues juncValues slots
+## construct union class to allow for empty eCoverage jCoverage slots
 setOldClass("matrix")
 setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
 
@@ -9,12 +9,12 @@ setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
 #' S4 class encapsulating exon and junction
 #' information for single connected component
 #'
-#' @slot exons a \code{GRanges} object containing the exonic information
-#' @slot juncs a \code{GRanges} object containing the junction information
-#' @slot exonValues a matrix of exon coverage values, e.g. RPKM, with
+#' @slot eRanges a \code{GRanges} object containing the exonic information
+#' @slot jRanges a \code{GRanges} object containing the junction information
+#' @slot eCoverage a matrix of exon coverage values, e.g. RPKM, with
 #'       number of rows equal to the length of \code{exons}, or \code{NULL}
 #'       if not available
-#' @slot juncValues a matrix of junction coverage values, e.g. number of
+#' @slot jCoverage a matrix of junction coverage values, e.g. number of
 #'       spanning reads, with number of rows equal to the length of
 #'       \code{juncs}, or \code{NULL} if not available
 #'
@@ -22,7 +22,7 @@ setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
 #' @param value new value for \code{concomp} slot
 #' 
 #' @details
-#' The columns of \code{exonValues} and \code{juncValues} correspond
+#' The columns of \code{eCoverage} and \code{jCoverage} correspond
 #' to individual samples or experiments, and should be of equal length.
 #'
 #' @exportClass concomp
@@ -33,8 +33,8 @@ setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
 
 setClass("concomp",
          slots=list(
-             exons = "GRanges",
-             juncs = "GRanges",
-             exonValues = "MatrixOrNULL",
-             juncValues = "MatrixOrNULL"))
+             eRanges = "GRanges",
+             jRanges = "GRanges",
+             eCoverage = "MatrixOrNULL",
+             jCoverage = "MatrixOrNULL"))
 

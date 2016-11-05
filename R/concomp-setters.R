@@ -1,26 +1,26 @@
 
-#' @describeIn concomp set \code{exons} slot
-#' @aliases exons<-,concomp-method
-setReplaceMethod("exons", "concomp",
-                 function(obj, value) { obj@exons <- value; obj })
+#' @describeIn concomp set \code{eRanges} slot
+#' @aliases eRanges<-,concomp-method
+setReplaceMethod("eRanges", "concomp",
+                 function(obj, value) { obj@eRanges <- value; obj })
 
 
-#' @describeIn concomp set \code{juncs} slot
-#' @aliases juncs<-,concomp-method
-setReplaceMethod("juncs", "concomp",
-                 function(obj, value) { obj@juncs <- value; obj })
+#' @describeIn concomp set \code{jRanges} slot
+#' @aliases jRanges<-,concomp-method
+setReplaceMethod("jRanges", "concomp",
+                 function(obj, value) { obj@jRanges <- value; obj })
 
 
-#' @describeIn concomp set \code{exonValues} slot
-#' @aliases exonValues<-,concomp-method
-setReplaceMethod("exonValues", "concomp",
-                 function(obj, value) { obj@exonValues <- value; obj })
+#' @describeIn concomp set \code{eCoverage} slot
+#' @aliases eCoverage<-,concomp-method
+setReplaceMethod("eCoverage", "concomp",
+                 function(obj, value) { obj@eCoverage <- value; obj })
 
 
-#' @describeIn concomp set \code{juncValues} slot
-#' @aliases juncValues<-,concomp-method
-setReplaceMethod("juncValues", "concomp",
-                 function(obj, value) { obj@juncValues <- value; obj })
+#' @describeIn concomp set \code{jCoverage} slot
+#' @aliases jCoverage<-,concomp-method
+setReplaceMethod("jCoverage", "concomp",
+                 function(obj, value) { obj@jCoverage <- value; obj })
 
 
 

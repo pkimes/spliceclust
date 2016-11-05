@@ -45,8 +45,8 @@ NULL
                                  orgdb = NULL, ...) {
 
     ##unpack concomp
-    gr_e <- exons(obj)
-    gr_j <- juncs(obj)
+    gr_e <- eRanges(obj)
+    gr_j <- jRanges(obj)
 
     
     ##dataset dimension
