@@ -1,7 +1,6 @@
-.splicepcp.concomp <- function(obj, log_base = 10, log_shift = 1, genomic = TRUE,
-                               ex_use = 2/3, flip_neg = TRUE, imodel = TRUE, 
-                               highlight = NULL, eps = 1e4,
-                               txlist = NULL, txdb = NULL, orgdb = NULL, ...) {
+.splicepcp.concomp <- function(obj, log_base, log_shift, genomic, ex_use,
+                               flip_neg, imodel, highlight, eps,
+                               txlist, txdb, orgdb, ...) {
     
     ## eCoverage and jCoverage must be specified
     if (is.null(eCoverage(obj)) || is.null(jCoverage(obj)))
@@ -111,4 +110,4 @@
 #' @rdname splicepcp
 setMethod("splicepcp",
           signature(obj = "concomp"),
-          function(obj, ...) .splicepcp.concomp(obj, ...))
+          .splicepcp.concomp)

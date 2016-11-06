@@ -1,10 +1,7 @@
-.splicegrahm2.concomp.concomp <- function(obj1, obj2, sort_sep = FALSE,
-                                          sort_idx1 = 1, sort_idx2 = 1,
-                                          log_base = 10, log_shift = 1, bin = TRUE,
-                                          genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
-                                          j_incl = FALSE, use_blk = FALSE, eps = 1e4,
-                                          txlist = NULL, txdb = NULL, orgdb = NULL, title="",
-                                          mirror = TRUE, same_scale = TRUE, ...) {
+.splicegrahm2.concomp.concomp <- function(obj1, obj2, sort_sep, sort_idx1, sort_idx2,
+                                          log_base, log_shift, bin, genomic, ex_use,
+                                          flip_neg, j_incl, use_blk, eps, txlist, txdb,
+                                          orgdb, title, mirror, same_scale, ...) {
 
     ## eCoverage and jCoverage must be specified
     if (is.null(eCoverage(obj1)) || is.null(jCoverage(obj1)) ||
@@ -159,4 +156,4 @@
 #' @rdname splicegrahm2
 setMethod("splicegrahm2",
           signature(obj1 = "concomp", obj2 = "concomp"),
-          function(obj1, obj2, ... ) .splicegrahm2.concomp.concomp(obj1, obj2, ...))
+          .splicegrahm2.concomp.concomp)

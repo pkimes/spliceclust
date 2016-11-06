@@ -6,14 +6,18 @@
 \alias{splicepca,concomp-method}
 \title{SplicePCA: splicing graph PCA plot}
 \usage{
-splicepca(obj, ...)
+splicepca(obj, npc = 3, pc_sep = TRUE, ej_w = c(1, 1), log_base = 10,
+  log_shift = 1, genomic = TRUE, ex_use = 2/3, flip_neg = TRUE,
+  use_blk = FALSE, txlist = NULL, txdb = NULL, orgdb = NULL,
+  scores = FALSE, plot = TRUE, ...)
 
-\S4method{splicepca}{concomp}(obj, ...)
+\S4method{splicepca}{concomp}(obj, npc = 3, pc_sep = TRUE, ej_w = c(1, 1),
+  log_base = 10, log_shift = 1, genomic = TRUE, ex_use = 2/3,
+  flip_neg = TRUE, use_blk = FALSE, txlist = NULL, txdb = NULL,
+  orgdb = NULL, scores = FALSE, plot = TRUE, ...)
 }
 \arguments{
 \item{obj}{a \code{concomp} object with exon and junction information}
-
-\item{...}{other parameters to be passed}
 
 \item{npc}{a numeric value specifying number of PCs to plot (default = 3)}
 
@@ -55,6 +59,8 @@ to determine corresponding gene symbols (default = NULL)}
 
 \item{plot}{a logical whether to output a plot or the actually PCA analyses
 performed by \code{prcomp} (default = TRUE)}
+
+\item{...}{other parameters to be passed}
 }
 \value{
 a ggplot2 plot showing the specified number of loadings

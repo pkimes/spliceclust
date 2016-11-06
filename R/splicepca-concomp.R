@@ -1,10 +1,6 @@
-.splicepca.concomp <- function(obj, npc = 3, pc_sep = TRUE, ej_w = c(1, 1),
-                               log_base = 10, log_shift = 1,
-                               genomic = TRUE, ex_use = 2/3,
-                               flip_neg = TRUE, use_blk = FALSE,
-                               txlist = NULL, txdb = NULL,
-                               orgdb = NULL, scores = FALSE,
-                               plot = TRUE, ...) {
+.splicepca.concomp <- function(obj, npc, pc_sep, ej_w, log_base, log_shift,
+                               genomic, ex_use, flip_neg, use_blk,
+                               txlist, txdb, orgdb, scores, plot, ...) {
     
     ##currently can't include gene models if not plotting on genomic scale
     if (!is.null(txlist) && !genomic)
@@ -239,5 +235,5 @@
 #' @rdname splicepca
 setMethod("splicepca",
           signature(obj = "concomp"),
-          function(obj, ...) .splicepca.concomp(obj, ...))
+          .splicepca.concomp)
 

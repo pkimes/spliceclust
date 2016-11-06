@@ -23,47 +23,51 @@ concomp(obj, ...)
 
 \S4method{concomp}{data.frame}(obj)
 
-\S4method{eRanges}{concomp}(obj)
+\S4method{eRanges}{concomp}(object)
 
-\S4method{jRanges}{concomp}(obj)
+\S4method{jRanges}{concomp}(object)
 
-\S4method{eCoverage}{concomp}(obj)
+\S4method{eCoverage}{concomp}(object)
 
-\S4method{jCoverage}{concomp}(obj)
+\S4method{jCoverage}{concomp}(object)
 
-\S4method{eRanges}{concomp}(obj) <- value
+\S4method{eRanges}{concomp}(object) <- value
 
-\S4method{jRanges}{concomp}(obj) <- value
+\S4method{jRanges}{concomp}(object) <- value
 
-\S4method{eCoverage}{concomp}(obj) <- value
+\S4method{eCoverage}{concomp}(object) <- value
 
-\S4method{jCoverage}{concomp}(obj) <- value
+\S4method{jCoverage}{concomp}(object) <- value
 
 \S4method{show}{concomp}(object)
 }
 \arguments{
-\item{obj}{a \code{GRangesList} with two \code{GRanges} named "e" and "j"
-corresponding to exon and junction ranges and coverage for a
-collection of samples to be used to construct a \code{concomp} object.
-Alternative, can be a \code{data.frame} with gene model columns:
-'chr', 'seqlengths', 'gStart', 'gStop', and 'kind' (e.g. 'e' or 'j'), 
-as well as per-sample coverage columns: 's1', 's2', etc.}
+\item{obj}{primary input to \code{concomp} constructor (see Details for
+more information on supported signatures)}
 
 \item{...}{other parameters to be passed to constructor}
 
+\item{object}{a \code{concomp} object for slot setters and getters, and show method}
+
 \item{value}{new value for \code{concomp} slot}
-
-\item{object}{a \code{concomp} object for show method}
-
-\item{obj}{a \code{concomp} object for getters and setters}
 }
 \description{
-S4 class encapsulating exon and junction information for single
-connected component
+S4 class encapsulating exon and junction information for a single
+"connected component" object.
 }
 \details{
-The columns of \code{eCoverage} and \code{jCoverage} correspond
-to individual samples or experiments, and should be of equal length.
+The constructor method \code{obj} parameter can be either:
+\itemize{
+\item a \code{GRangesList} with two \code{GRanges} named "e" and "j"
+      corresponding to exon and junction ranges and coverage for a
+      collection of samples to be used to construct a \code{concomp} object.
+      Both \code{GRanges} must have one metadata for each sample
+      (named sequentially: 's1', 's2', ...), giving the corresponding exon or
+      splice junction coverages. 
+\item a \code{data.frame} with gene model columns: 'chr', 'seqlengths',
+      'gStart', 'gStop', and 'kind' (e.g. 'e' or 'j'), 
+      as well as per-sample coverage columns: 's1', 's2', ...
+}
 }
 \section{Methods (by generic)}{
 \itemize{

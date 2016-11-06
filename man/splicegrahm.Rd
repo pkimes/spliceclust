@@ -6,14 +6,20 @@
 \alias{splicegrahm,concomp-method}
 \title{SpliceGraHM: splice graph heatmap}
 \usage{
-splicegrahm(obj, ...)
+splicegrahm(obj, sort_sep = FALSE, sort_idx = 1, log_base = 10,
+  log_shift = 1, bin = TRUE, genomic = TRUE, ex_use = 2/3,
+  flip_neg = TRUE, j_incl = FALSE, highlight = NULL, use_blk = FALSE,
+  eps = 10000, txlist = NULL, txdb = NULL, orgdb = NULL, title = "",
+  ...)
 
-\S4method{splicegrahm}{concomp}(obj, ...)
+\S4method{splicegrahm}{concomp}(obj, sort_sep = FALSE, sort_idx = 1,
+  log_base = 10, log_shift = 1, bin = TRUE, genomic = TRUE,
+  ex_use = 2/3, flip_neg = TRUE, j_incl = FALSE, highlight = NULL,
+  use_blk = FALSE, eps = 10000, txlist = NULL, txdb = NULL,
+  orgdb = NULL, title = "", ...)
 }
 \arguments{
 \item{obj}{a \code{concomp} object}
-
-\item{...}{other parameters to be passed}
 
 \item{sort_sep}{a logical whether to sort each exon, junction separately
 (default = FALSE)}
@@ -63,6 +69,8 @@ identified from txlist (default = NULL)}
 to determine corresponding gene symbols (default = NULL)}
 
 \item{title}{a character string title printed at the top of plot (default = "")}
+
+\item{...}{other parameters to be passed}
 }
 \value{
 a ggplot2 plot showing the splice graph with heatmaps shown at each node

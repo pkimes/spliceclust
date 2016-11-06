@@ -3,7 +3,7 @@
 #' Getters can be used to access slot values, and setters can be used
 #' for specifying new slot values.
 #'
-#' @param obj object with corresponding slot
+#' @param object object with corresponding slot
 #' @param value new value for lsot
 #' @param ... other parameters
 #'

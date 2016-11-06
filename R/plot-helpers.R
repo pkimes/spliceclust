@@ -49,12 +49,12 @@
 
 #' match concomp with gene or transcript name
 #' 
-#' Function matches \code{\link[=concomp-constructor]{concomp}} to nearest
+#' Function matches \code{\link[=concomp-class]{concomp}} to nearest
 #' transcript using \code{txdb} and \code{txlist}. This is further mapepd to
 #' gene names if \code{orgdb} is specified. If \code{orgdb} is not provided,
 #' transcript IDs are returned instead of gene symbols.
 #'
-#' @param obj a \code{\link[=concomp-constructor]{concomp}} object
+#' @param obj a \code{\link[=concomp-class]{concomp}} object
 #' @param txlist a list of transcripts, e.g. \code{exonsBy(txdb)}
 #' @param txdb a transcript database, e.g. \code{TxDb.Hsapiens.UCSC.hg19.knownGene}
 #'        (default = NULL)

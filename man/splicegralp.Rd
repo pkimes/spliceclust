@@ -6,14 +6,16 @@
 \alias{splicegralp,concomp-method}
 \title{SpliceGraLP: splice graph loadings plot}
 \usage{
-splicegralp(obj, ...)
+splicegralp(obj, e_loads, j_loads = NULL, load_lims = NULL,
+  genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, use_blk = FALSE,
+  txlist = NULL, txdb = NULL, orgdb = NULL, ...)
 
-\S4method{splicegralp}{concomp}(obj, ...)
+\S4method{splicegralp}{concomp}(obj, e_loads, j_loads = NULL,
+  load_lims = NULL, genomic = TRUE, ex_use = 2/3, flip_neg = TRUE,
+  use_blk = FALSE, txlist = NULL, txdb = NULL, orgdb = NULL, ...)
 }
 \arguments{
 \item{obj}{a \code{concomp} object with exon and junction information}
-
-\item{...}{other parameters to be passed}
 
 \item{e_loads}{a matrix of exon loadings in columns}
 
@@ -42,6 +44,8 @@ identified from txlist (default = NULL)}
 
 \item{orgdb}{a database that can be queried using keys obtained from \code{txdb}
 to determine corresponding gene symbols (default = NULL)}
+
+\item{...}{other parameters to be passed}
 }
 \value{
 a ggplot2 plot showing the specified number of loadings

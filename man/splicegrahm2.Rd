@@ -6,16 +6,23 @@
 \alias{splicegrahm2,concomp,concomp-method}
 \title{SpliceGraHM2: two-class splice graph heatmap}
 \usage{
-splicegrahm2(obj1, obj2, ...)
+splicegrahm2(obj1, obj2, sort_sep = FALSE, sort_idx1 = 1, sort_idx2 = 1,
+  log_base = 10, log_shift = 1, bin = TRUE, genomic = TRUE,
+  ex_use = 2/3, flip_neg = TRUE, j_incl = FALSE, use_blk = FALSE,
+  eps = 10000, txlist = NULL, txdb = NULL, orgdb = NULL, title = "",
+  mirror = TRUE, same_scale = TRUE, ...)
 
-\S4method{splicegrahm2}{concomp,concomp}(obj1, obj2, ...)
+\S4method{splicegrahm2}{concomp,concomp}(obj1, obj2, sort_sep = FALSE,
+  sort_idx1 = 1, sort_idx2 = 1, log_base = 10, log_shift = 1,
+  bin = TRUE, genomic = TRUE, ex_use = 2/3, flip_neg = TRUE,
+  j_incl = FALSE, use_blk = FALSE, eps = 10000, txlist = NULL,
+  txdb = NULL, orgdb = NULL, title = "", mirror = TRUE,
+  same_scale = TRUE, ...)
 }
 \arguments{
 \item{obj1}{a \code{concomp} object}
 
 \item{obj2}{a \code{concomp} object}
-
-\item{...}{other parameters to be passed}
 
 \item{sort_sep}{a logical whether to sort each exon, junction separately
 (default = FALSE)}
@@ -72,6 +79,8 @@ axis for 'mirrored' effect (default = TRUE)}
 
 \item{same_scale}{a logical whether top and bottom plots should be shown on same
 vertical scaling, i.e. to highlight group size differences (default = TRUE)}
+
+\item{...}{other parameters to be passed}
 }
 \value{
 a ggplot2 plot showing the splice graph with heatmaps shown at each node

@@ -1,9 +1,6 @@
-.splicegrahm.concomp <- function(obj, sort_sep = FALSE, sort_idx = 1,
-                                 log_base = 10, log_shift = 1, bin = TRUE,
-                                 genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
-                                 j_incl = FALSE, highlight = NULL,
-                                 use_blk = FALSE, eps = 1e4, txlist = NULL,
-                                 txdb = NULL, orgdb = NULL, title="", ...) {
+.splicegrahm.concomp <- function(obj, sort_sep, sort_idx, log_base, log_shift, bin,
+                                 genomic, ex_use, flip_neg, j_incl, highlight,
+                                 use_blk, eps, txlist, txdb, orgdb, title, ...) {
 
     ## eCoverage and jCoverage must be specified
     if (is.null(eCoverage(obj)) || is.null(jCoverage(obj)))
@@ -116,7 +113,7 @@
 #' @rdname splicegrahm
 setMethod("splicegrahm",
           signature(obj = "concomp"),
-          function(obj, ... ) .splicegrahm.concomp(obj, ...))
+          .splicegrahm.concomp)
 
 
 

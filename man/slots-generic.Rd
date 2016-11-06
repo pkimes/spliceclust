@@ -12,24 +12,24 @@
 \alias{slots-generic}
 \title{Generic Methods for S4 Class Slots in spliceclust}
 \usage{
-eRanges(obj)
+eRanges(object)
 
-jRanges(obj)
+jRanges(object)
 
-eCoverage(obj)
+eCoverage(object)
 
-jCoverage(obj)
+jCoverage(object)
 
-eRanges(obj, ...) <- value
+eRanges(object, ...) <- value
 
-jRanges(obj, ...) <- value
+jRanges(object, ...) <- value
 
-eCoverage(obj, ...) <- value
+eCoverage(object, ...) <- value
 
-jCoverage(obj, ...) <- value
+jCoverage(object, ...) <- value
 }
 \arguments{
-\item{obj}{object with corresponding slot}
+\item{object}{object with corresponding slot}
 
 \item{...}{other parameters}
 

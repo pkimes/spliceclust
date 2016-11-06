@@ -6,14 +6,17 @@
 \alias{splicepcp,concomp-method}
 \title{SplicePCP: splice graph parallel coordinates plot}
 \usage{
-splicepcp(obj, ...)
+splicepcp(obj, log_base = 10, log_shift = 1, genomic = TRUE,
+  ex_use = 2/3, flip_neg = TRUE, imodel = TRUE, highlight = NULL,
+  eps = 10000, txlist = NULL, txdb = NULL, orgdb = NULL, ...)
 
-\S4method{splicepcp}{concomp}(obj, ...)
+\S4method{splicepcp}{concomp}(obj, log_base = 10, log_shift = 1,
+  genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, imodel = TRUE,
+  highlight = NULL, eps = 10000, txlist = NULL, txdb = NULL,
+  orgdb = NULL, ...)
 }
 \arguments{
 \item{obj}{a \code{concomp} object}
-
-\item{...}{other parameters to be passed}
 
 \item{log_base}{a numeric specifying the scaling of expression values at each exon,
 which 0 resulting in no long scaling being applied (default = 10)}
@@ -30,11 +33,11 @@ non-genomic coordinate plotting is desired (default = 2/3)}
 \item{flip_neg}{a logical whether to flip plotting of genes on negative strand
 to run left to right (default = TRUE)}
 
-\item{highlight}{a vector of labels to highlight samples in groups or clusters
-(default = NULL)}
-
 \item{imodel}{a logical whether to include the connected component plot generated
 by splicegralp or splicegrahm to the plot (default = TRUE)}
+
+\item{highlight}{a vector of labels to highlight samples in groups or clusters
+(default = NULL)}
 
 \item{eps}{a numeric value specifying the number of base pairs around \code{obj} to look
 for overlapping gene models, if eps = NULL, then all overlapping gene models are
@@ -49,6 +52,8 @@ identified from txlist (default = NULL)}
 
 \item{orgdb}{a database that can be queried using keys obtained from \code{txdb}
 to determine corresponding gene symbols (default = NULL)}
+
+\item{...}{other parameters to be passed}
 }
 \value{
 a ggplot2 plot showing the splice graph with heatmaps shown at each node

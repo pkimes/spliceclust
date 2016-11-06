@@ -1,8 +1,5 @@
-.splicegralp.concomp <- function(obj, e_loads, j_loads = NULL, load_lims = NULL, 
-                                 genomic = TRUE, ex_use = 2/3,
-                                 flip_neg = TRUE, use_blk = FALSE,
-                                 txlist = NULL, txdb = NULL,
-                                 orgdb = NULL, ...) {
+.splicegralp.concomp <- function(obj, e_loads, j_loads, load_lims, genomic,
+                                 ex_use, flip_neg, use_blk, txlist, txdb, orgdb, ...) {
 
     ##unpack concomp
     gr_e <- eRanges(obj)
@@ -91,4 +88,4 @@
 #' @rdname splicegralp
 setMethod("splicegralp",
           signature(obj = "concomp"),
-          function(obj, ...) .splicegralp.concomp(obj, ...))
+          .splicegralp.concomp)
