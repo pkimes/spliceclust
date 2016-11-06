@@ -307,12 +307,11 @@ substantially different sizes.
     ## [14] IRanges_2.6.1                          
     ## [15] S4Vectors_0.10.3                       
     ## [16] BiocGenerics_0.18.0                    
-    ## [17] rmarkdown_1.1                          
     ## 
     ## loaded via a namespace (and not attached):
     ##  [1] httr_1.2.1                    AnnotationHub_2.4.2          
-    ##  [3] splines_3.3.1                 assertthat_0.1               
-    ##  [5] Formula_1.2-1                 shiny_0.14.2                 
+    ##  [3] splines_3.3.1                 Formula_1.2-1                
+    ##  [5] shiny_0.14.2                  assertthat_0.1               
     ##  [7] interactiveDisplayBase_1.10.3 latticeExtra_0.6-28          
     ##  [9] RBGL_1.48.1                   Rsamtools_1.24.0             
     ## [11] RSQLite_1.0.0                 lattice_0.20-34              
@@ -325,12 +324,12 @@ substantially different sizes.
     ## [25] devtools_1.12.0               biomaRt_2.28.0               
     ## [27] zlibbioc_1.18.0               xtable_1.8-2                 
     ## [29] scales_0.4.0                  BiocParallel_1.6.6           
-    ## [31] tibble_1.2                    htmlTable_1.7                
+    ## [31] htmlTable_1.7                 tibble_1.2                   
     ## [33] ggplot2_2.1.0                 withr_1.0.2                  
     ## [35] SummarizedExperiment_1.2.3    nnet_7.3-12                  
-    ## [37] crayon_1.3.2                  survival_2.40-1              
-    ## [39] magrittr_1.5                  mime_0.5                     
-    ## [41] evaluate_0.10                 memoise_1.0.0                
+    ## [37] crayon_1.3.2                  mime_0.5                     
+    ## [39] survival_2.40-1               magrittr_1.5                 
+    ## [41] memoise_1.0.0                 evaluate_0.10                
     ## [43] GGally_1.2.0                  foreign_0.8-67               
     ## [45] graph_1.50.0                  BiocInstaller_1.24.0         
     ## [47] tools_3.3.1                   data.table_1.9.6             
@@ -340,11 +339,11 @@ substantially different sizes.
     ## [55] grid_3.3.1                    RCurl_1.95-4.8               
     ## [57] dichromat_2.0-0               VariantAnnotation_1.18.7     
     ## [59] labeling_0.3                  bitops_1.0-6                 
-    ## [61] testthat_1.0.2                gtable_0.2.0                 
-    ## [63] DBI_0.5-1                     reshape_0.8.6                
-    ## [65] roxygen2_5.0.1                reshape2_1.4.2               
-    ## [67] R6_2.2.0                      GenomicAlignments_1.8.4      
-    ## [69] gridExtra_2.2.1               knitr_1.14                   
-    ## [71] Hmisc_4.0-0                   stringi_1.1.2                
-    ## [73] Rcpp_0.12.7                   rpart_4.1-10                 
-    ## [75] acepack_1.4.1
+    ## [61] rmarkdown_1.1                 testthat_1.0.2               
+    ## [63] gtable_0.2.0                  DBI_0.5-1                    
+    ## [65] reshape_0.8.6                 roxygen2_5.0.1               
+    ## [67] reshape2_1.4.2                R6_2.2.0                     
+    ## [69] GenomicAlignments_1.8.4       gridExtra_2.2.1              
+    ## [71] knitr_1.14                    Hmisc_4.0-0                  
+    ## [73] stringi_1.1.2                 Rcpp_0.12.7                  
+    ## [75] rpart_4.1-10                  acepack_1.4.1

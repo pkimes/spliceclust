@@ -7,7 +7,7 @@
 concomp2name(obj, txlist, txdb = NULL, orgdb = NULL)
 }
 \arguments{
-\item{obj}{a \code{\link[=concomp-constructor]{concomp}} object}
+\item{obj}{a \code{\link[=concomp-class]{concomp}} object}
 
 \item{txlist}{a list of transcripts, e.g. \code{exonsBy(txdb)}}
 
@@ -20,7 +20,7 @@ concomp2name(obj, txlist, txdb = NULL, orgdb = NULL)
 a vector of transcript or gene names
 }
 \description{
-Function matches \code{\link[=concomp-constructor]{concomp}} to nearest
+Function matches \code{\link[=concomp-class]{concomp}} to nearest
 transcript using \code{txdb} and \code{txlist}. This is further mapepd to
 gene names if \code{orgdb} is specified. If \code{orgdb} is not provided,
 transcript IDs are returned instead of gene symbols.

@@ -1,22 +1,17 @@
-
 #' @describeIn concomp get \code{eRanges} slot
-#' @aliases eRanges,concomp-method
-setMethod("eRanges", "concomp", function(obj) return(obj@eRanges))
+setMethod("eRanges", "concomp", function(object) return(object@eRanges))
 
 
 #' @describeIn concomp get \code{jRanges} slot
-#' @aliases jRanges,concomp-method
-setMethod("jRanges", "concomp", function(obj) return(obj@jRanges))
+setMethod("jRanges", "concomp", function(object) return(object@jRanges))
 
 
 #' @describeIn concomp get \code{eCoverage} slot
-#' @aliases eCoverage,concomp-method
-setMethod("eCoverage", "concomp", function(obj) return(obj@eCoverage))
+setMethod("eCoverage", "concomp", function(object) return(object@eCoverage))
 
 
 #' @describeIn concomp get \code{jCoverage} slot
-#' @aliases jCoverage,concomp-method
-setMethod("jCoverage", "concomp", function(obj) return(obj@jCoverage))
+setMethod("jCoverage", "concomp", function(object) return(object@jCoverage))
 
 
 

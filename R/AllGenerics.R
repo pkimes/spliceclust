@@ -2,10 +2,8 @@
 ## ###################################################################
 ## constructor methods
 
-#' @name concomp
 #' @export
-#' @docType methods
-#' @rdname concomp-constructor
+#' @rdname concomp-class
 setGeneric("concomp",
            valueClass="concomp",
            function(obj, ...) standardGeneric("concomp"))
@@ -16,70 +14,64 @@ setGeneric("concomp",
 ## ###################################################################
 ## plot methods
 
-#' Splice Graph HeatMap (SpliceGraHM)
-#'
-#' Method for plotting both the exon and junction values of a single
-#' connected component
-#'
 #' @export
+#' @rdname splicegrahm
 #' @docType methods
-#' @name splicegrahm-generic
-#' @keywords internal
 setGeneric("splicegrahm",
-           function(obj, ...)  standardGeneric("splicegrahm"))
+           function(obj, sort_sep = FALSE, sort_idx = 1,
+                    log_base = 10, log_shift = 1, bin = TRUE,
+                    genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
+                    j_incl = FALSE, highlight = NULL,
+                    use_blk = FALSE, eps = 1e4, txlist = NULL,
+                    txdb = NULL, orgdb = NULL, title="", ...)
+               standardGeneric("splicegrahm"))
 
-
-#' Two-class Splice Graph HeatMap (SpliceGraHM2)
-#'
-#' Method for plotting both the exon and junction values of a single
-#' connected component for two separate clusters or populations
-#'
 #' @export
+#' @rdname splicegrahm2
 #' @docType methods
-#' @name splicegrahm2-generic
-#' @keywords internal
 setGeneric("splicegrahm2",
-           function(obj1, obj2, ...)  standardGeneric("splicegrahm2"))
+           function(obj1, obj2, sort_sep = FALSE,
+                    sort_idx1 = 1, sort_idx2 = 1,
+                    log_base = 10, log_shift = 1, bin = TRUE,
+                    genomic = TRUE, ex_use = 2/3, flip_neg = TRUE, 
+                    j_incl = FALSE, use_blk = FALSE, eps = 1e4,
+                    txlist = NULL, txdb = NULL, orgdb = NULL, title="",
+                    mirror = TRUE, same_scale = TRUE, ...)
+               standardGeneric("splicegrahm2"))
 
-
-#' Splice Graph Loadings Plot (SpliceGraLP)
-#'
-#' Method for plotting different loading vectors for a \code{concomp}
-#' object, e.g. principal component directions
-#'
 #' @export
 #' @docType methods
-#' @name splicegralp-generic
-#' @keywords internal
+#' @rdname splicegralp
 setGeneric("splicegralp",
-           function(obj, ...) standardGeneric("splicegralp"))
+           function(obj, e_loads, j_loads = NULL, load_lims = NULL, 
+                    genomic = TRUE, ex_use = 2/3,
+                    flip_neg = TRUE, use_blk = FALSE,
+                    txlist = NULL, txdb = NULL,
+                    orgdb = NULL,...)
+               standardGeneric("splicegralp"))
 
-
-#' Splice Graph PCA Plot
-#'
-#' Method for plotting PCA loading vectors for a \code{concomp}
-#' object (wrapper to splicegralp)
-#'
 #' @export
 #' @docType methods
-#' @name splicepca-generic
-#' @keywords internal
+#' @rdname splicepca
 setGeneric("splicepca",
-           function(obj, ...) standardGeneric("splicepca"))
+           function(obj, npc = 3, pc_sep = TRUE, ej_w = c(1, 1),
+                    log_base = 10, log_shift = 1,
+                    genomic = TRUE, ex_use = 2/3,
+                    flip_neg = TRUE, use_blk = FALSE,
+                    txlist = NULL, txdb = NULL,
+                    orgdb = NULL, scores = FALSE,
+                    plot = TRUE, ...)
+               standardGeneric("splicepca"))
 
-
-#' Splice Graph Parallel Coordinates Plot
-#'
-#' Method for plotting exon expression for a \code{concomp}
-#' object with each exon given equal width with heights corresponding
-#' to expression level
-#'
 #' @export
 #' @docType methods
-#' @name splicepcp-generic
-#' @keywords internal
+#' @rdname splicepcp
 setGeneric("splicepcp",
-           function(obj, ...) standardGeneric("splicepcp"))
+           function(obj, log_base = 10, log_shift = 1, genomic = TRUE,
+                    ex_use = 2/3, flip_neg = TRUE, imodel = TRUE, 
+                    highlight = NULL, eps = 1e4,
+                    txlist = NULL, txdb = NULL, orgdb = NULL, ...)
+               standardGeneric("splicepcp"))
 
 
 
@@ -87,41 +79,21 @@ setGeneric("splicepcp",
 ## ###################################################################
 ## getter methods
 
-#' eRanges
-#' return \code{eRanges} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{eRanges}
-#' @keywords internal
-#' @rdname eRanges
-setGeneric("eRanges", function(obj) standardGeneric("eRanges"))
+#' @rdname slots-generic
+setGeneric("eRanges", function(object) standardGeneric("eRanges"))
 
-#' jRanges
-#' return \code{jRanges} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{jRanges}
-#' @keywords internal
-#' @rdname jRanges
-setGeneric("jRanges", function(obj) standardGeneric("jRanges"))
+#' @rdname slots-generic
+setGeneric("jRanges", function(object) standardGeneric("jRanges"))
 
-#' eCoverage
-#' return \code{eCoverage} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{eCoverage}
-#' @keywords internal
-#' @rdname eCoverage
-setGeneric("eCoverage", function(obj) standardGeneric("eCoverage"))
+#' @rdname slots-generic
+setGeneric("eCoverage", function(object) standardGeneric("eCoverage"))
 
-#' jCoverage
-#' return \code{jCoverage} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{jCoverage}
-#' @keywords internal
-#' @rdname jCoverage
-setGeneric("jCoverage", function(obj) standardGeneric("jCoverage"))
+#' @rdname slots-generic
+setGeneric("jCoverage", function(object) standardGeneric("jCoverage"))
 
 
 
@@ -129,38 +101,18 @@ setGeneric("jCoverage", function(obj) standardGeneric("jCoverage"))
 ## ###################################################################
 ## setter methods
 
-#' eRanges replace
-#' replace \code{eRanges} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{eRanges}
-#' @keywords internal
-#' @rdname eRanges-replace
-setGeneric("eRanges<-", function(obj, ..., value) standardGeneric("eRanges<-"))
+#' @rdname slots-generic
+setGeneric("eRanges<-", function(object, ..., value) standardGeneric("eRanges<-"))
 
-#' jRanges replace
-#' replace \code{jRanges} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{jRanges}
-#' @keywords internal
-#' @rdname jRanges-replace
-setGeneric("jRanges<-", function(obj, ..., value) standardGeneric("jRanges<-"))
+#' @rdname slots-generic
+setGeneric("jRanges<-", function(object, ..., value) standardGeneric("jRanges<-"))
 
-#' eCoverage replace
-#' replace \code{eCoverage} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{eCoverage}
-#' @keywords internal
-#' @rdname eCoverage-replace
-setGeneric("eCoverage<-", function(obj, ..., value) standardGeneric("eCoverage<-"))
+#' @rdname slots-generic
+setGeneric("eCoverage<-", function(object, ..., value) standardGeneric("eCoverage<-"))
 
-#' jCoverage replace
-#' replace \code{jCoverage} slot
 #' @export
-#' @docType methods
-#' @param obj object with slot \code{jCoverage}
-#' @keywords internal
-#' @rdname jCoverage-replace
-setGeneric("jCoverage<-", function(obj, ..., value) standardGeneric("jCoverage<-"))
+#' @rdname slots-generic
+setGeneric("jCoverage<-", function(object, ..., value) standardGeneric("jCoverage<-"))
