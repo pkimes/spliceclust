@@ -2,7 +2,7 @@
 
 language: r
 
-r: bioc-release
+r: bioc-devel
 
 r_packages:
   - covr
