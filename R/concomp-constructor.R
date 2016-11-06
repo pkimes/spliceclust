@@ -64,13 +64,13 @@
 }
 
 
-#' @rdname concomp-constructor
+#' @rdname concomp-class
 setMethod("concomp",
           signature(obj = "GRangesList"),
           .concomp.GRangesList)
 
 
-#' @rdname concomp-constructor
+#' @rdname concomp-class
 setMethod("concomp",
           signature(obj = "data.frame"),
           .concomp.data.frame)
