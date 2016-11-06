@@ -1,19 +1,3 @@
-#' Connected Component (concomp) object
-#'
-#' construct a connected component object from various input objects
-#' 
-#' @param obj a \code{GRangesList} with two elements named "e" and "j" or
-#'        a \code{data.frame} containing all of the information
-#' @param ... other parameters to be passed
-#' 
-#' @return \code{concomp} object
-#'
-#' @import GenomicRanges IRanges
-#' @name concomp-constructor
-#' @author Patrick Kimes
-NULL
-
-
 .concomp.GRangesList <- function(obj) {  
     if (!setequal(names(obj), c("e", "j")))
         stop("GRangesList must only contain two objects: 'e' and 'j'")
@@ -37,10 +21,10 @@ NULL
     mcols(gr_j) <- NULL
     
     new("concomp",
-        exons = gr_e,
-        juncs = gr_j,
-        exonValues = as.matrix(vals_e),
-        juncValues = as.matrix(vals_j))
+        eRanges = gr_e,
+        jRanges = gr_j,
+        eCoverage = as.matrix(vals_e),
+        jCoverage = as.matrix(vals_j))
 }
 
 
@@ -73,20 +57,20 @@ NULL
     }
         
     new("concomp",
-        exons = gr_e,
-        juncs = gr_j,
-        exonValues = vals_e,
-        juncValues = vals_j)
+        eRanges = gr_e,
+        jRanges = gr_j,
+        eCoverage = vals_e,
+        jCoverage = vals_j)
 }
 
 
-#' @rdname concomp-constructor
+#' @rdname concomp-class
 setMethod("concomp",
           signature(obj = "GRangesList"),
           .concomp.GRangesList)
 
 
-#' @rdname concomp-constructor
+#' @rdname concomp-class
 setMethod("concomp",
           signature(obj = "data.frame"),
           .concomp.data.frame)

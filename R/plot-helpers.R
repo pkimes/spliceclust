@@ -49,12 +49,12 @@
 
 #' match concomp with gene or transcript name
 #' 
-#' Function matches \code{\link[=concomp-constructor]{concomp}} to nearest
+#' Function matches \code{\link[=concomp-class]{concomp}} to nearest
 #' transcript using \code{txdb} and \code{txlist}. This is further mapepd to
 #' gene names if \code{orgdb} is specified. If \code{orgdb} is not provided,
 #' transcript IDs are returned instead of gene symbols.
 #'
-#' @param obj a \code{\link[=concomp-constructor]{concomp}} object
+#' @param obj a \code{\link[=concomp-class]{concomp}} object
 #' @param txlist a list of transcripts, e.g. \code{exonsBy(txdb)}
 #' @param txdb a transcript database, e.g. \code{TxDb.Hsapiens.UCSC.hg19.knownGene}
 #'        (default = NULL)
@@ -67,7 +67,7 @@
 #' @author Patrick Kimes
 concomp2name <- function(obj, txlist, txdb = NULL, orgdb = NULL) {
     
-    gr_e <- exons(obj)
+    gr_e <- eRanges(obj)
     strand(gr_e) <- "*"
     cand_idx <- unique(queryHits(findOverlaps(txlist, gr_e)))
     
@@ -340,7 +340,7 @@ find_annotations <- function(obj, txlist, txdb, orgdb, eps) {
         ##take tx_match and compare if lies outside
         if (!is.null(eps)) {
             tx_ranges <- unlist(range(tx_match))
-            obj_range <- range(exons(obj))
+            obj_range <- range(eRanges(obj))
             tx_match <- tx_match[start(tx_ranges) > start(obj_range) - eps &
                                      end(tx_ranges) < end(obj_range) + eps]
         }

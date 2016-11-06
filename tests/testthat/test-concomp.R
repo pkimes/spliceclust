@@ -20,14 +20,14 @@ test_that("concomp constructor accepts included GRanges data object", {
     expect_output(show(klk12_cc), "p juncs: 12")
 
     ## check that concomp setters/getters work
-    expect_silent(exons(klk12_cc) <- exons(klk12_cc)[1:5])
-    expect_silent(juncs(klk12_cc) <- juncs(klk12_cc)[1:5])
-    expect_silent(exonValues(klk12_cc) <- exonValues(klk12_cc)[1:5, ])
-    expect_silent(juncValues(klk12_cc) <- juncValues(klk12_cc)[1:5, ])
-    expect_true(length(exons(klk12_cc)) == 5)
-    expect_true(length(juncs(klk12_cc)) == 5)
-    expect_true(all(dim(exonValues(klk12_cc)) == c(5, 177)))
-    expect_true(all(dim(juncValues(klk12_cc)) == c(5, 177)))
+    expect_silent(eRanges(klk12_cc) <- eRanges(klk12_cc)[1:5])
+    expect_silent(jRanges(klk12_cc) <- jRanges(klk12_cc)[1:5])
+    expect_silent(eCoverage(klk12_cc) <- eCoverage(klk12_cc)[1:5, ])
+    expect_silent(jCoverage(klk12_cc) <- jCoverage(klk12_cc)[1:5, ])
+    expect_true(length(eRanges(klk12_cc)) == 5)
+    expect_true(length(jRanges(klk12_cc)) == 5)
+    expect_true(all(dim(eCoverage(klk12_cc)) == c(5, 177)))
+    expect_true(all(dim(jCoverage(klk12_cc)) == c(5, 177)))
 })
 
 
@@ -79,22 +79,22 @@ test_that("concomp constructor accepts data.frame", {
     expect_is(simple_cc, "concomp")
 
     ## check that concomp slots match input values
-    expect_is(exons(simple_cc), "GRanges")
-    expect_equal(ranges(exons(simple_cc)),
+    expect_is(eRanges(simple_cc), "GRanges")
+    expect_equal(ranges(eRanges(simple_cc)),
                  IRanges(start=c(100, 300),
                          end=c(199, 399)))
 
-    expect_is(juncs(simple_cc), "GRanges")
-    expect_equal(ranges(juncs(simple_cc)),
+    expect_is(jRanges(simple_cc), "GRanges")
+    expect_equal(ranges(jRanges(simple_cc)),
                  IRanges(start=200, end=299))
 
-    expect_is(exonValues(simple_cc), "matrix")
-    expect_equal(exonValues(simple_cc),
+    expect_is(eCoverage(simple_cc), "matrix")
+    expect_equal(eCoverage(simple_cc),
                  as.matrix(data.frame(s1=c(20, 20),
                                       s2=c(100, 30))))
     
-    expect_is(juncValues(simple_cc), "matrix")
-    expect_equal(juncValues(simple_cc),
+    expect_is(jCoverage(simple_cc), "matrix")
+    expect_equal(jCoverage(simple_cc),
                  as.matrix(data.frame(s1=30,
                                       s2=120)))
 })
