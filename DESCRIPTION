@@ -8,7 +8,7 @@ Maintainer: <patrick.kimes@gmail.com>
 Description: Visualization tools for coverage/expression along genomic
     connected components (objects comprised of exons and splice junctions)
     across large cohorts of samples.
-License: GPL (>= 2)
+License: MIT + file LICENSE
 Depends:
     R (>= 3.3.1)
 Imports:
