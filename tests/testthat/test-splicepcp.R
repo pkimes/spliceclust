@@ -63,8 +63,8 @@ test_that("splicepcp default call works", {
     bld_p2 <- ggplot_build(plt@plot[[2]])
 
     ## determine layer geoms
-    layers_p1 <- sapply(bld_p1$plot$layer, function(x) class(x$geom)[1])
-    layers_p2 <- sapply(bld_p2$plot$layer, function(x) class(x$geom)[1])
+    layers_p1 <- sapply(bld_p1$plot$layers, function(x) class(x$geom)[1])
+    layers_p2 <- sapply(bld_p2$plot$layers, function(x) class(x$geom)[1])
 
     ## check that parallel coord plot includes segments for coverage
     expect_equal(sum(layers_p1 == "GeomSegment"), 1)
@@ -150,9 +150,9 @@ test_that("splicepcp accepts genomic, ex_use input to adjust x-axis scaling", {
     bld_non_01_p2 <- ggplot_build(plt_non_01@plot[[2]])
 
     ## check that coordinate range shrinks in expected proportions
-    width_gen_p1 <- diff(bld_gen_p1$panel$ranges[[1]]$x.range)
-    width_non_p1 <- diff(bld_non_p1$panel$ranges[[1]]$x.range)
-    width_non_10_p1 <- diff(bld_non_10_p1$panel$ranges[[1]]$x.range)
+    width_gen_p1 <- diff(bld_gen_p1$layout$panel_ranges[[1]]$x.range)
+    width_non_p1 <- diff(bld_non_p1$layout$panel_ranges[[1]]$x.range)
+    width_non_10_p1 <- diff(bld_non_10_p1$layout$panel_ranges[[1]]$x.range)
     expect_lt(width_non_p1, width_gen_p1)
     expect_lt(width_non_10_p1, width_gen_p1)
     expect_equal(width_non_10_p1 / width_non_p1, 2/3, tolerance=0.001)
@@ -164,8 +164,8 @@ test_that("splicepcp accepts genomic, ex_use input to adjust x-axis scaling", {
                  bld_non_01_p1$plot[names(bld_non_01_p1$plot) != "plot_env"])
 
     ## check that coordinates are same for both tracks
-    width_gen_p2 <- diff(bld_gen_p2$panel$ranges[[1]]$x.range)
-    width_non_p2 <- diff(bld_non_p2$panel$ranges[[1]]$x.range)
+    width_gen_p2 <- diff(bld_gen_p2$layout$panel_ranges[[1]]$x.range)
+    width_non_p2 <- diff(bld_non_p2$layout$panel_ranges[[1]]$x.range)
     expect_equal(width_gen_p1, width_gen_p2)
     expect_equal(width_non_p1, width_non_p2)
     
@@ -187,12 +187,12 @@ test_that("splicepcp accepts flip_neg to adjust whether stranded-ness matters", 
     bld_neg_annot <- ggplot_build(plt_neg_annot@plot[[1]])
 
     ## check that coord flipped w/ neg strand
-    expect_equal(bld_neg_noflip$panel$ranges[[1]]$x.range,
-                 (-1) * rev(bld_neg_flip$panel$ranges[[1]]$x.range))
+    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
+                 (-1) * rev(bld_neg_flip$layout$panel_ranges[[1]]$x.range))
     
     ## check that coord not flipped w/ neg strand and neg annot if FALSE
-    expect_equal(bld_neg_noflip$panel$ranges[[1]]$x.range,
-                 bld_neg_annot$panel$ranges[[1]]$x.range)
+    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
+                 bld_neg_annot$layout$panel_ranges[[1]]$x.range)
 })
 
 
@@ -295,5 +295,5 @@ test_that("splicepcp accepts txlist, txdb, orgdb input to add gene annotations",
     bld_tx_e0_p3 <- ggplot_build(plt_tx_e0@plot[[3]]) 
 
     ## check that eps=0 only keeps fully contained transcript models (just one here)
-    expect_equal(bld_tx_e0_p3$panel$ranges[[1]]$y.labels, "70043")
+    expect_equal(bld_tx_e0_p3$layout$panel_ranges[[1]]$y.labels, "70043")
 })
