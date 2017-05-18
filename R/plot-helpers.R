@@ -261,9 +261,12 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
     ##don't squish exons if not needed (should make shrink = 0)
     if (rna_len/dna_len >= ex_use) {
         if(!is.null(tx_plot)) {
-            annot_track <- ggplot() +
-                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
-                    theme_bw()
+            ## prevent warnings from ggbio::geom_alignment including un-used 'y' aes 
+            suppressWarnings(
+                annot_track <- ggplot() +
+                    geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                        theme_bw()
+                )
         }
         return(list(gr_e = gr_e, gr_j = gr_j,
                     annot_track = annot_track,
@@ -300,9 +303,12 @@ adj_ranges <- function(gr_e, gr_j, tx_plot, ex_use, gr_base = NULL) {
             end(tx_plot) <- end(tx_plot) - m_shifts2
             tx_plot <- shift(tx_plot, -base_shift+1)
             
-            annot_track <- ggplot() +
-                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
-                    theme_bw()
+            ## prevent warnings from ggbio::geom_alignment including un-used 'y' aes 
+            suppressWarnings(
+                annot_track <- ggplot() +
+                    geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                        theme_bw()
+                )
         }
     }
     

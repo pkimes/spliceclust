@@ -43,9 +43,12 @@
         if (is.null(tx_plot)) {
             annot_track <- NULL
         } else { 
-            annot_track <- ggplot() +
-                geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
-                    theme_bw()
+            ## prevent warnings from ggbio::geom_alignment including un-used 'y' aes 
+            suppressWarnings(
+                annot_track <- ggplot() +
+                    geom_alignment(tx_plot, gap.geom="arrow", aes(group=tx)) +
+                        theme_bw()
+                )
         }
     } else {
         adj_out <- adj_ranges(gr_e, gr_j, tx_plot, ex_use)

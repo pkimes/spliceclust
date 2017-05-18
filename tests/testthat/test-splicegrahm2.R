@@ -79,9 +79,9 @@ test_that("splicegrahm2 default call works", {
     bld_p2 <- ggplot_build(plt@plot[[2]])
     bld_1 <- ggplot_build(plt_1)
 
-    layers_p1 <- sapply(bld_p1$plot$layer, function(x) class(x$geom)[1])
-    layers_p2 <- sapply(bld_p2$plot$layer, function(x) class(x$geom)[1])
-    layers_1 <- sapply(bld_1$plot$layer, function(x) class(x$geom)[1])
+    layers_p1 <- sapply(bld_p1$plot$layers, function(x) class(x$geom)[1])
+    layers_p2 <- sapply(bld_p2$plot$layers, function(x) class(x$geom)[1])
+    layers_1 <- sapply(bld_1$plot$layers, function(x) class(x$geom)[1])
     
     ## check that top panel is standard splicegrahm
     expect_equal(bld_p1$data, bld_1$data)
@@ -115,10 +115,10 @@ test_that("splicegrahm2 accepts j_incl parameter", {
     bld_1 <- ggplot_build(plt_1)
     bld_2 <- ggplot_build(plt_2)
 
-    layers_p1 <- sapply(bld_p1$plot$layer, function(x) class(x$geom)[1])
-    layers_p2 <- sapply(bld_p2$plot$layer, function(x) class(x$geom)[1])
-    layers_1 <- sapply(bld_1$plot$layer, function(x) class(x$geom)[1])
-    layers_2 <- sapply(bld_2$plot$layer, function(x) class(x$geom)[1])
+    layers_p1 <- sapply(bld_p1$plot$layers, function(x) class(x$geom)[1])
+    layers_p2 <- sapply(bld_p2$plot$layers, function(x) class(x$geom)[1])
+    layers_1 <- sapply(bld_1$plot$layers, function(x) class(x$geom)[1])
+    layers_2 <- sapply(bld_2$plot$layers, function(x) class(x$geom)[1])
     
     ## check that top panel is splicegrahm w/ j_incl=TRUE
     expect_equal(bld_p1$data, bld_1$data)
@@ -161,14 +161,14 @@ test_that("splicegrahm2 accepts sort_sep parameter", {
     ## bld_same_1 <- ggplot_build(plt_same_1)
     ## bld_same_2 <- ggplot_build(plt_same_2)
 
-    layers_sep_p1 <- sapply(bld_sep_p1$plot$layer, function(x) class(x$geom)[1])
-    layers_sep_p2 <- sapply(bld_sep_p2$plot$layer, function(x) class(x$geom)[1])
-    layers_sep_1 <- sapply(bld_sep_1$plot$layer, function(x) class(x$geom)[1])
-    layers_sep_2 <- sapply(bld_sep_2$plot$layer, function(x) class(x$geom)[1])
-    ## layers_same_p1 <- sapply(bld_same_p1$plot$layer, function(x) class(x$geom)[1])
-    ## layers_same_p2 <- sapply(bld_same_p2$plot$layer, function(x) class(x$geom)[1])
-    ## layers_same_1 <- sapply(bld_same_1$plot$layer, function(x) class(x$geom)[1])
-    ## layers_same_2 <- sapply(bld_same_2$plot$layer, function(x) class(x$geom)[1])
+    layers_sep_p1 <- sapply(bld_sep_p1$plot$layers, function(x) class(x$geom)[1])
+    layers_sep_p2 <- sapply(bld_sep_p2$plot$layers, function(x) class(x$geom)[1])
+    layers_sep_1 <- sapply(bld_sep_1$plot$layers, function(x) class(x$geom)[1])
+    layers_sep_2 <- sapply(bld_sep_2$plot$layers, function(x) class(x$geom)[1])
+    ## layers_same_p1 <- sapply(bld_same_p1$plot$layers, function(x) class(x$geom)[1])
+    ## layers_same_p2 <- sapply(bld_same_p2$plot$layers, function(x) class(x$geom)[1])
+    ## layers_same_1 <- sapply(bld_same_1$plot$layers, function(x) class(x$geom)[1])
+    ## layers_same_2 <- sapply(bld_same_2$plot$layers, function(x) class(x$geom)[1])
 
     ## check that top panel is splicegrahm w/ sort_sep=TRUE
     expect_equal(bld_sep_p1$data, bld_sep_1$data)
@@ -280,9 +280,9 @@ test_that("splicegrahm2 accepts genomic, ex_use input to adjust x-axis scaling",
     bld_non_10_p1 <- ggplot_build(plt_non_10@plot[[1]])
     
     ## check that coordinate range shrinks in expected proportions
-    width_gen <- diff(bld_gen_p1$panel$ranges[[1]]$x.range)
-    width_non <- diff(bld_non_p1$panel$ranges[[1]]$x.range)
-    width_non_10 <- diff(bld_non_10_p1$panel$ranges[[1]]$x.range)
+    width_gen <- diff(bld_gen_p1$layout$panel_ranges[[1]]$x.range)
+    width_non <- diff(bld_non_p1$layout$panel_ranges[[1]]$x.range)
+    width_non_10 <- diff(bld_non_10_p1$layout$panel_ranges[[1]]$x.range)
     expect_lt(width_non, width_gen)
     expect_lt(width_non_10, width_gen)
     expect_equal(width_non_10 / width_non, 2/3, tolerance=0.001)
@@ -302,12 +302,12 @@ test_that("splicegrahm2 accepts flip_neg to adjust whether stranded-ness matters
     bld_neg_annot <- ggplot_build(plt_neg_annot@plot[[1]])
 
     ## check that coord flipped w/ neg strand
-    expect_equal(bld_neg_noflip$panel$ranges[[1]]$x.range,
-                 (-1) * rev(bld_neg_flip$panel$ranges[[1]]$x.range))
+    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
+                 (-1) * rev(bld_neg_flip$layout$panel_ranges[[1]]$x.range))
     
     ## check that coord not flipped w/ neg strand and neg annot if FALSE
-    expect_equal(bld_neg_noflip$panel$ranges[[1]]$x.range,
-                 bld_neg_annot$panel$ranges[[1]]$x.range)
+    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
+                 bld_neg_annot$layout$panel_ranges[[1]]$x.range)
 })
 
 
@@ -323,8 +323,8 @@ test_that("splicegrahm2 accepts use_blk input to invert background color", {
     bld_base_p2 <- ggplot_build(plt_base@plot[[2]])
 
     ## check that heatmap frames are not drawn in darker plot (2 less 'GeomRect's)
-    layers_base_p1 <- sapply(bld_base_p1$plot$layer, function(x) class(x$geom)[1])
-    layers_blk_p1 <- sapply(bld_blk_p1$plot$layer, function(x) class(x$geom)[1])
+    layers_base_p1 <- sapply(bld_base_p1$plot$layers, function(x) class(x$geom)[1])
+    layers_blk_p1 <- sapply(bld_blk_p1$plot$layers, function(x) class(x$geom)[1])
     expect_equal(sum(layers_base_p1 == 'GeomRect') - sum(layers_blk_p1 == 'GeomRect'), 2)
     
     ## check that junction label colors have changed, everything else the same
@@ -367,7 +367,7 @@ test_that("splicegrahm2 accepts txlist, txdb, orgdb input to add gene annotation
     bld_tx_e0_p2 <- ggplot_build(plt_tx_e0@plot[[2]]) 
 
     ## check that eps=0 only keeps fully contained transcript models (just one here)
-    expect_equal(bld_tx_e0_p2$panel$ranges[[1]]$y.labels, "70043")
+    expect_equal(bld_tx_e0_p2$layout$panel_ranges[[1]]$y.labels, "70043")
 })
 
 
@@ -411,14 +411,14 @@ test_that("splicegrahm2 accepts same_scale parameter for keeping plots on same s
     bld_2 <- ggplot_build(plt_2)
 
     ## check that y ranges are same when same_scale = TRUE
-    expect_equal(bld_base_p1$panel$ranges[[1]]$y.range,
-                 bld_base_p2$panel$ranges[[1]]$y.range)
+    expect_equal(bld_base_p1$layout$panel_ranges[[1]]$y.range,
+                 bld_base_p2$layout$panel_ranges[[1]]$y.range)
 
     ## check that y ranges are same as indep splicegrahm when same_scale = FALSE
-    expect_equal(bld_dscal_p1$panel$ranges[[1]]$y.range,
-                 bld_1$panel$ranges[[1]]$y.range)
-    expect_equal(bld_dscal_p2$panel$ranges[[1]]$y.range,
-                 bld_2$panel$ranges[[1]]$y.range)
+    expect_equal(bld_dscal_p1$layout$panel_ranges[[1]]$y.range,
+                 bld_1$layout$panel_ranges[[1]]$y.range)
+    expect_equal(bld_dscal_p2$layout$panel_ranges[[1]]$y.range,
+                 bld_2$layout$panel_ranges[[1]]$y.range)
 })
 
 
