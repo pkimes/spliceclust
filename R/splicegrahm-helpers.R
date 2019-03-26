@@ -44,8 +44,8 @@ sg_create <- function(gr_e, gr_j, vals_e, vals_j, j_incl,
 
     ##include junctions if necessary
     if (j_incl && p_j > 0) {
-        junc_x <- seq(min(min(ranges(gr_e))),
-                      max(max(ranges(gr_e))),
+        junc_x <- seq(start(range(gr_e)),
+                      end(range(gr_e)),
                       length.out=p_j+2)
         junc_x <- junc_x[2:(p_j+1)]
         
@@ -129,8 +129,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
         k <- length(hl_tab) - 1
         
         wrc <- width(range(gr_e))
-        minrc <- min(c(start(gr_e), end(gr_e)))
-        maxrc <- max(c(start(gr_e), end(gr_e)))
+        minrc <- start(range(gr_e))
+        maxrc <- end(range(gr_e))
         
         for (i in 1:k) {
             sg_obj <- sg_obj +
@@ -146,8 +146,8 @@ sg_drawbase <- function(sg_df, use_blk, j_incl, genomic, gr_e,
     ##add basic plot structure
     sg_obj <- sg_obj + 
         geom_rect(size=.125 + 0.055) +
-        scale_alpha_discrete("splicing", range=0:1,
-                             labels=paste0(seq(0, 100, 20), "%"), drop=FALSE) + 
+        scale_alpha_ordinal("splicing", range=0:1,
+                            labels=paste0(seq(0, 100, 20), "%"), drop=FALSE) + 
         xlab(ifelse(genomic, paste0("Genomic Coordinates, ", seqnames(gr_e[1])),
                     "non-genomic coordinates")) +
         theme_bw()
@@ -273,8 +273,8 @@ sg_drawjuncs <- function(sg_obj, sg_df, j_incl, use_blk, iflip,
 
     ##add text labels for splicing arrows
     if (j_incl) {
-        junc_x <- seq(min(min(ranges(gr_e))),
-                      max(max(ranges(gr_e))),
+        junc_x <- seq(start(range(gr_e)),
+                      end(range(gr_e)),
                       length.out=p_j+2)
         junc_x <- junc_x[2:(p_j+1)]
         junc_y <- 2.25*same_scale_n
