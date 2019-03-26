@@ -10,7 +10,7 @@ Description: Visualization tools for coverage/expression along genomic
     across large cohorts of samples.
 License: MIT + file LICENSE
 Depends:
-    R (>= 3.5.2)
+    R (>= 3.5)
 Imports:
     GGally,
     GenomicRanges,
