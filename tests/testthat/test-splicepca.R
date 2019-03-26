@@ -61,8 +61,8 @@ test_that("splicepca default call works", {
     bld <- ggplot_build(plt)
 
     ## check ranges of plot - allow +/-1 wiggle room
-    expect_equal((-1) * bld$layout$panel_ranges[[1]]$x.range[2], 51532000 - 300, tolerance=1)
-    expect_equal((-1) * bld$layout$panel_ranges[[1]]$x.range[1], 51538000 + 300, tolerance=1)
+    expect_equal((-1) * bld$layout$panel_scales_x[[1]]$range$range[2], 51532000, tolerance=1)
+    expect_equal((-1) * bld$layout$panel_scales_x[[1]]$range$range[1], 51538000, tolerance=1)
 
     ## determine layer geoms
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
@@ -262,9 +262,9 @@ test_that("splicepca accepts genomic, ex_use input to adjust x-axis scaling", {
     bld_non_01 <- ggplot_build(plt_non_01)
 
     ## check that coordinate range shrinks in expected proportions
-    width_base <- diff(bld_base$layout$panel_ranges[[1]]$x.range)
-    width_non <- diff(bld_non$layout$panel_ranges[[1]]$x.range)
-    width_non_10 <- diff(bld_non_10$layout$panel_ranges[[1]]$x.range)
+    width_base <- diff(bld_base$layout$panel_scales_x[[1]]$range$range)
+    width_non <- diff(bld_non$layout$panel_scales_x[[1]]$range$range)
+    width_non_10 <- diff(bld_non_10$layout$panel_scales_x[[1]]$range$range)
     expect_lt(width_non, width_base)
     expect_lt(width_non_10, width_base)
     expect_equal(width_non_10 / width_non, 2/3, tolerance=0.001)
@@ -291,12 +291,12 @@ test_that("splicepca accepts flip_neg to adjust whether stranded-ness matters", 
     bld_neg_annot <- ggplot_build(plt_neg_annot@plot[[1]])
 
     ## check that coord flipped w/ neg strand
-    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
-                 (-1) * rev(bld_neg_flip$layout$panel_ranges[[1]]$x.range))
+    expect_equal(bld_neg_noflip$layout$panel_scales_x[[1]]$range$range,
+                 (-1) * rev(bld_neg_flip$layout$panel_scales_x[[1]]$range$range))
     
     ## check that coord not flipped w/ neg strand and neg annot if FALSE
-    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
-                 bld_neg_annot$layout$panel_ranges[[1]]$x.range)
+    expect_equal(bld_neg_noflip$layout$panel_scales_x[[1]]$range$range,
+                 bld_neg_annot$layout$panel_scales_x[[1]]$range$range)
 })
 
 

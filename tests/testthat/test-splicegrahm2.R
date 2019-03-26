@@ -280,9 +280,9 @@ test_that("splicegrahm2 accepts genomic, ex_use input to adjust x-axis scaling",
     bld_non_10_p1 <- ggplot_build(plt_non_10@plot[[1]])
     
     ## check that coordinate range shrinks in expected proportions
-    width_gen <- diff(bld_gen_p1$layout$panel_ranges[[1]]$x.range)
-    width_non <- diff(bld_non_p1$layout$panel_ranges[[1]]$x.range)
-    width_non_10 <- diff(bld_non_10_p1$layout$panel_ranges[[1]]$x.range)
+    width_gen <- diff(bld_gen_p1$layout$panel_scales_x[[1]]$range$range)
+    width_non <- diff(bld_non_p1$layout$panel_scales_x[[1]]$range$range)
+    width_non_10 <- diff(bld_non_10_p1$layout$panel_scales_x[[1]]$range$range)
     expect_lt(width_non, width_gen)
     expect_lt(width_non_10, width_gen)
     expect_equal(width_non_10 / width_non, 2/3, tolerance=0.001)
@@ -302,12 +302,12 @@ test_that("splicegrahm2 accepts flip_neg to adjust whether stranded-ness matters
     bld_neg_annot <- ggplot_build(plt_neg_annot@plot[[1]])
 
     ## check that coord flipped w/ neg strand
-    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
-                 (-1) * rev(bld_neg_flip$layout$panel_ranges[[1]]$x.range))
+    expect_equal(bld_neg_noflip$layout$panel_scales_x[[1]]$range$range,
+                 (-1) * rev(bld_neg_flip$layout$panel_scales_x[[1]]$range$range))
     
     ## check that coord not flipped w/ neg strand and neg annot if FALSE
-    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
-                 bld_neg_annot$layout$panel_ranges[[1]]$x.range)
+    expect_equal(bld_neg_noflip$layout$panel_scales_x[[1]]$range$range,
+                 bld_neg_annot$layout$panel_scales_x[[1]]$range$range)
 })
 
 
@@ -352,7 +352,7 @@ test_that("splicegrahm2 accepts txlist, txdb, orgdb input to add gene annotation
     expect_is(plt_tx@plot[[3]], "ggplot")
     
     bld_tx_p1 <- ggplot_build(plt_tx@plot[[1]])
-    bld_tx_p2 <- ggplot_build(plt_tx@plot[[2]])
+    bld_tx_p2 <- ggplot_build(plt_tx@plot[[2]]@ggplot)
     bld_tx_p3 <- ggplot_build(plt_tx@plot[[3]])
     
     ## check that top, bottom tracks are same as basic plot (at least data and layers)
@@ -364,10 +364,10 @@ test_that("splicegrahm2 accepts txlist, txdb, orgdb input to add gene annotation
     ## create a plot with only transcripts fully contained in concomp range (eps=0)
     expect_silent(plt_tx_e0 <- splicegrahm2(simple_cc1, simple_cc2, txlist=exbytx, eps=0))
     expect_is(plt_tx_e0, "Tracks")
-    bld_tx_e0_p2 <- ggplot_build(plt_tx_e0@plot[[2]]) 
+    bld_tx_e0_p2 <- ggplot_build(plt_tx_e0@plot[[2]]@ggplot)
 
     ## check that eps=0 only keeps fully contained transcript models (just one here)
-    expect_equal(bld_tx_e0_p2$layout$panel_ranges[[1]]$y.labels, "70043")
+    expect_equal(bld_tx_e0_p2$layout$panel_scales_y[[1]]$labels, "70043")
 })
 
 
@@ -411,14 +411,14 @@ test_that("splicegrahm2 accepts same_scale parameter for keeping plots on same s
     bld_2 <- ggplot_build(plt_2)
 
     ## check that y ranges are same when same_scale = TRUE
-    expect_equal(bld_base_p1$layout$panel_ranges[[1]]$y.range,
-                 bld_base_p2$layout$panel_ranges[[1]]$y.range)
+    expect_equal(bld_base_p1$layout$panel_scales_y[[1]]$limits,
+                 bld_base_p2$layout$panel_scales_y[[1]]$limits)
 
     ## check that y ranges are same as indep splicegrahm when same_scale = FALSE
-    expect_equal(bld_dscal_p1$layout$panel_ranges[[1]]$y.range,
-                 bld_1$layout$panel_ranges[[1]]$y.range)
-    expect_equal(bld_dscal_p2$layout$panel_ranges[[1]]$y.range,
-                 bld_2$layout$panel_ranges[[1]]$y.range)
+    expect_equal(bld_dscal_p1$layout$panel_scales_y[[1]]$limits,
+                 bld_1$layout$panel_scales_y[[1]]$limits)
+    expect_equal(bld_dscal_p2$layout$panel_scales_y[[1]]$limits,
+                 bld_2$layout$panel_scales_y[[1]]$limits)
 })
 
 

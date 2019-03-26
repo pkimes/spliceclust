@@ -59,8 +59,8 @@ test_that("splicegrahm default call works", {
     bld <- ggplot_build(plt)
 
     ## check ranges of plot 
-    expect_equal((-1) * bld$layout$panel_ranges[[1]]$x.range[2], 51532000 - 300)
-    expect_equal((-1) * bld$layout$panel_ranges[[1]]$x.range[1], 51538000 + 300)
+    expect_equal((-1) * bld$layout$panel_scales_x[[1]]$range$range[2], 51532000)
+    expect_equal((-1) * bld$layout$panel_scales_x[[1]]$range$range[1], 51538000)
 
     ## determine layer geoms
     layers_base <- sapply(plt$layer, function(x) class(x$geom)[1])
@@ -259,9 +259,9 @@ test_that("splicegrahm accepts genomic, ex_use input to adjust x-axis scaling", 
     bld_non_01 <- ggplot_build(plt_non_01)
 
     ## check that coordinate range shrinks in expected proportions
-    width_gen <- diff(bld_gen$layout$panel_ranges[[1]]$x.range)
-    width_non <- diff(bld_non$layout$panel_ranges[[1]]$x.range)
-    width_non_10 <- diff(bld_non_10$layout$panel_ranges[[1]]$x.range)
+    width_gen <- diff(bld_gen$layout$panel_scales_x[[1]]$range$range)
+    width_non <- diff(bld_non$layout$panel_scales_x[[1]]$range$range)
+    width_non_10 <- diff(bld_non_10$layout$panel_scales_x[[1]]$range$range)
     expect_lt(width_non, width_gen)
     expect_lt(width_non_10, width_gen)
     expect_equal(width_non_10 / width_non, 2/3, tolerance=0.001)
@@ -279,7 +279,7 @@ test_that("splicegrahm accepts genomic, ex_use input to adjust x-axis scaling", 
 
     ## check that plot is wider since adjustment accounts for gene models from txlist
     bld_tx_10_p1 <- ggplot_build(plt_tx_10@plot[[1]])
-    width_tx_10 <- diff(bld_tx_10_p1$layout$panel_ranges[[1]]$x.range)
+    width_tx_10 <- diff(bld_tx_10_p1$layout$panel_scales_x[[1]]$range$range)
     expect_gt(width_tx_10, width_non_10)
 })
 
@@ -321,28 +321,28 @@ test_that("splicegrahm accepts flip_neg to adjust whether stranded-ness matters"
     bld_unk_annot <- ggplot_build(plt_unk_annot@plot[[1]])
     
     ## check that coord flipped w/ neg strand
-    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
-                 (-1) * rev(bld_neg_flip$layout$panel_ranges[[1]]$x.range))
+    expect_equal(bld_neg_noflip$layout$panel_scales_x[[1]]$range$range,
+                 (-1) * rev(bld_neg_flip$layout$panel_scales_x[[1]]$range$range))
     
     ## check that coord flipped w/ unknown strand and neg annot
-    expect_equal(bld_unk_flip$layout$panel_ranges[[1]]$x.range,
-                 (-1) * rev(bld_unk_annot$layout$panel_ranges[[1]]$x.range))
+    expect_equal(bld_unk_flip$layout$panel_scales_x[[1]]$range$range,
+                 (-1) * rev(bld_unk_annot$layout$panel_scales_x[[1]]$range$range))
 
     ## check that coord not flipped w/ pos strand
-    expect_equal(bld_pos_flip$layout$panel_ranges[[1]]$x.range,
-                 bld_pos_noflip$layout$panel_ranges[[1]]$x.range)
+    expect_equal(bld_pos_flip$layout$panel_scales_x[[1]]$range$range,
+                 bld_pos_noflip$layout$panel_scales_x[[1]]$range$range)
     
     ## check that coord not flipped w/ unknown strand
-    expect_equal(bld_unk_flip$layout$panel_ranges[[1]]$x.range,
-                 bld_unk_noflip$layout$panel_ranges[[1]]$x.range)
+    expect_equal(bld_unk_flip$layout$panel_scales_x[[1]]$range$range,
+                 bld_unk_noflip$layout$panel_scales_x[[1]]$range$range)
 
     ## check that coord not flipped w/ pos strand and neg annot
-    expect_equal(bld_pos_flip$layout$panel_ranges[[1]]$x.range,
-                 bld_pos_annot$layout$panel_ranges[[1]]$x.range)
+    expect_equal(bld_pos_flip$layout$panel_scales_x[[1]]$range$range,
+                 bld_pos_annot$layout$panel_scales_x[[1]]$range$range)
 
     ## check that coord not flipped w/ neg strand and neg annot if FALSE
-    expect_equal(bld_neg_noflip$layout$panel_ranges[[1]]$x.range,
-                 bld_neg_annot$layout$panel_ranges[[1]]$x.range)
+    expect_equal(bld_neg_noflip$layout$panel_scales_x[[1]]$range$range,
+                 bld_neg_annot$layout$panel_scales_x[[1]]$range$range)
 })
 
 
@@ -461,14 +461,14 @@ test_that("splicegrahm accepts eps, txlist, txdb, orgdb input to add gene annota
     expect_is(plt_tx@plot[[1]], "ggplot")
     expect_is(plt_tx@plot[[2]], "GGbio")
     bld_tx_p1 <- ggplot_build(plt_tx@plot[[1]])
-    bld_tx_p2 <- ggplot_build(plt_tx@plot[[2]])
+    bld_tx_p2 <- ggplot_build(plt_tx@plot[[2]]@ggplot)
     
     ## check that top track is same as basic plot
     expect_equivalent(bld_tx_p1$data, bld_base$data)
     expect_equivalent(bld_tx_p1$plot$layers, plt_base$layers)
 
     ## check that gene models are included by checking y labels
-    expect_equal(bld_tx_p2$layout$panel_ranges[[1]]$y.labels,
+    expect_equal(bld_tx_p2$layout$panel_scales_y[[1]]$labels,
                  c("70043", "70044", "70045", "70046",
                    "70047", "70048", "70049", "70050"))
 
@@ -476,24 +476,24 @@ test_that("splicegrahm accepts eps, txlist, txdb, orgdb input to add gene annota
     ## create a plot with only transcripts fully contained in concomp range (eps=0)
     expect_silent(plt_tx_e0 <- splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx, eps=0))
     expect_is(plt_tx_e0, "Tracks")
-    bld_tx_e0_p2 <- ggplot_build(plt_tx_e0@plot[[2]]) 
+    bld_tx_e0_p2 <- ggplot_build(plt_tx_e0@plot[[2]]@ggplot) 
 
     ## check that eps=0 only keeps fully contained transcript models
-    expect_equal(bld_tx_e0_p2$layout$panel_ranges[[1]]$y.labels, "70043")
+    expect_equal(bld_tx_e0_p2$layout$panel_scales_y[[1]]$labels, "70043")
 
     
     ## create a plot with named transcript track (w/ txdb)
     expect_silent(plt_txdb <- splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx, txdb=txdb))
     expect_is(plt_txdb, "Tracks")
     bld_txdb_p1 <- ggplot_build(plt_txdb@plot[[1]])
-    bld_txdb_p2 <- ggplot_build(plt_txdb@plot[[2]])
+    bld_txdb_p2 <- ggplot_build(plt_txdb@plot[[2]]@ggplot)
 
     ## check that top track is same as basic plot
     expect_equivalent(bld_txdb_p1$data, bld_base$data)
     expect_equivalent(bld_txdb_p1$plot$layers, plt_base$layers)
 
     ## check that txdb gives transcript IDs as y-axis labels
-    expect_equal(bld_txdb_p2$layout$panel_ranges[[1]]$y.labels,
+    expect_equal(bld_txdb_p2$layout$panel_scales_y[[1]]$labels,
                  c("uc002pvg.1", "uc010ycp.1", "uc010ycq.1",
                    "uc010ycr.1", "uc010ycs.1", "uc002pvh.1",
                    "uc002pvi.1", "uc002pvj.1"))
@@ -504,14 +504,14 @@ test_that("splicegrahm accepts eps, txlist, txdb, orgdb input to add gene annota
         splicegrahm(simple_cc, j_incl=TRUE, txlist=exbytx, txdb=txdb, orgdb=org.Hs.eg.db))
     expect_is(plt_orgdb, "Tracks")
     bld_orgdb_p1 <- ggplot_build(plt_orgdb@plot[[1]])
-    bld_orgdb_p2 <- ggplot_build(plt_orgdb@plot[[2]])
+    bld_orgdb_p2 <- ggplot_build(plt_orgdb@plot[[2]]@ggplot)
 
     ## check that top track is same as basic plot
     expect_equivalent(bld_orgdb_p1$data, bld_base$data)
     expect_equivalent(bld_orgdb_p1$plot$layers, plt_base$layers)
 
     ## check that orgdb gives gene symbols as y-axis labels
-    expect_equal(bld_orgdb_p2$layout$panel_ranges[[1]]$y.labels,
+    expect_equal(bld_orgdb_p2$layout$panel_scales_y[[1]]$labels,
                  c("KLK12", paste0("KLK12_", 1:7)))    
 })
 
