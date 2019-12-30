@@ -411,10 +411,10 @@ test_that("splicegrahm accepts highlight input to add group annotations", {
                  2 * length(unique(hl_reord)))
 
     ## check that plots are same using character, factor, integer vector
-    expect_equal(plt_s2[names(plt_s2) != "plot_env"],
-                 plt_f2[names(plt_f2) != "plot_env"])
-    expect_equal(plt_s2[names(plt_s2) != "plot_env"],
-                 plt_i2[names(plt_i2) != "plot_env"])
+    expect_equivalent(plt_s2[names(plt_s2) != "plot_env"],
+                      plt_f2[names(plt_f2) != "plot_env"])
+    expect_equivalent(plt_s2[names(plt_s2) != "plot_env"],
+                      plt_i2[names(plt_i2) != "plot_env"])
 
     ## check that heatmap is reordered to group by highlight parameter
     dat_e <- unique(plt_reord$data[plt_reord$data$kind == "e", c("variable", "ymin")])
