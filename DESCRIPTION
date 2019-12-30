@@ -1,8 +1,8 @@
 Package: spliceclust
 Type: Package
 Title: Visualization and Clustering of Spliced Components
-Version: 2.1.1
-Date: 2019-03-25
+Version: 2.1.2
+Date: 2019-12-30
 Author: Patrick Kimes
 Maintainer: <patrick.kimes@gmail.com>
 Description: Visualization tools for coverage/expression along genomic
